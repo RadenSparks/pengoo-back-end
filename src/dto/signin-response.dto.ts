@@ -1,4 +1,4 @@
-export class LoginResponseDto {
+export class SignInResponseDto {
     access_token: string;
     username: string;
     role: string;

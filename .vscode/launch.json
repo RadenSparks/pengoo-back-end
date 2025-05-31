@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug Nest Framework",
+        "program": "${workspaceFolder}/src/main.ts",
+        "args": [],
+        "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+        "sourceMaps": true,
+        "cwd": "${workspaceFolder}",
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen"
+      }
+    ]
+  }

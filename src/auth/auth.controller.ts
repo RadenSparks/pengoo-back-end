@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginRequestDto } from 'src/dto/login-request.dto';
+import { SignInRequestDto } from 'src/dto/signin-request.dto';
 import { VerifyRequestDto } from 'src/dto/verify-request.dto';
 
 @Controller('api/auth')
@@ -9,7 +9,7 @@ export class AuthController {
     constructor(private readonly authService: AuthService) { }
 
     @Post('signin')
-    async signin(@Body() body: LoginRequestDto) {
+    async signin(@Body() body: SignInRequestDto) {
         return this.authService.signin(body.username, body.password);
     }
 
