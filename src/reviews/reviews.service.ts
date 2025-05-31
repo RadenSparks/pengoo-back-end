@@ -17,12 +17,12 @@ export class ReviewsService {
   ) {}
 
   async addReview(userId: number, productId: number, createReviewDto: CreateReviewDto): Promise<Review> {
-    const user = await this.usersService.findOneById(userId);
+    const user = await this.usersService.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const product = await this.productsService.findProductById(productId);
+    const product = await this.productsService.findById(productId);
     if (!product) {
       throw new NotFoundException('Product not found');
     }

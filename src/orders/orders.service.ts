@@ -18,10 +18,10 @@ export class OrdersService {
     private productsService: ProductsService,
   ) {}
 
-  async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const { userId, items } = createOrderDto;
 
-    const user = await this.usersService.findOneById(userId);
+    const user = await this.usersService.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -30,7 +30,7 @@ export class OrdersService {
     let total = 0;
 
     for (const item of items) {
-      const product = await this.productsService.findProductById(item.productId);
+      const product = await this.productsService.findById(item.productId);
       if (!product) {
         throw new NotFoundException(`Product with ID ${item.productId} not found`);
       }
@@ -53,20 +53,20 @@ export class OrdersService {
     return this.ordersRepository.save(order);
   }
 
-  async findAllOrders(): Promise<Order[]> {
+  async findAll(): Promise<Order[]> {
     return this.ordersRepository.find({ relations: ['user', 'items', 'items.product'] });
   }
 
-  async findOrderById(id: number): Promise<Order> {
-    const order = await this.ordersRepository.findOne(id, { relations: ['user', 'items', 'items.product'] });
+  async findById(orderId: number): Promise<Order> {
+    const order = await this.ordersRepository.findOne({where : {id : orderId}, relations: ['user', 'items', 'items.product'] });
     if (!order) {
       throw new NotFoundException('Order not found');
     }
     return order;
   }
 
-  async updateOrderStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order> {
-    const order = await this.findOrderById(id);
+  async updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order> {
+    const order = await this.findById(id);
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -74,8 +74,8 @@ export class OrdersService {
     return this.ordersRepository.save(order);
   }
 
-  async removeOrder(id: number): Promise<void> {
-    const order = await this.findOrderById(id);
+  async remove(id: number): Promise<void> {
+    const order = await this.findById(id);
     if (!order) {
       throw new NotFoundException('Order not found');
     }

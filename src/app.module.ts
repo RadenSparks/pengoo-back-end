@@ -12,14 +12,25 @@ import { CartModule } from './cart/cart.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/review.entity';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CategoriesService } from './categories/categories.service';
+import { CategoriesController } from './categories/categories.controller';
+import { CategoriesModule } from './categories/categories.module';
+import dataSourceOptions from './db/data-source';
+import { Cart } from './cart/cart.entity';
+import { Wishlist } from './wishlist/wishlist.entity';
+
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'data.db',
-      entities: [User, Product, Category, Order, OrderItem, Review],
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => (dataSourceOptions),
+    }),
+    TypeOrmModule.forFeature([User, Product, Category, Order, OrderItem, Review, Cart, Wishlist]),
     UsersModule,
     AuthModule,
     ProductsModule,
@@ -27,6 +38,9 @@ import { WishlistModule } from './wishlist/wishlist.module';
     CartModule,
     ReviewsModule,
     WishlistModule,
+    CategoriesModule
   ],
+  providers: [CategoriesService],
+  controllers: [CategoriesController],
 })
 export class AppModule {}

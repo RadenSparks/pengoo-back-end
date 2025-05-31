@@ -15,12 +15,12 @@ export class WishlistService {
   ) {}
 
   async addToWishlist(userId: number, productId: number): Promise<Wishlist> {
-    const user = await this.usersService.findOne({ where: { id: userId } });
+    const user = await this.usersService.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const product = await this.productsService.findProductById(productId);
+    const product = await this.productsService.findById(productId);
     if (!product) {
       throw new NotFoundException('Product not found');
     }

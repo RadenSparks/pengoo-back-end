@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto, UpdateOrderStatusDto } from './dto';
+import { UpdateOrderStatusDto } from './update-orders-status.dto';
+import { CreateOrderDto } from './create-orders.dto';
+
 
 @Controller('orders')
 export class OrdersController {
@@ -8,26 +10,26 @@ export class OrdersController {
 
   @Post()
   createOrder(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.createOrder(createOrderDto);
+    return this.ordersService.create(createOrderDto);
   }
 
   @Get()
   findAllOrders() {
-    return this.ordersService.findAllOrders();
+    return this.ordersService.findAll();
   }
 
   @Get(':id')
   findOrderById(@Param('id') id: number) {
-    return this.ordersService.findOrderById(id);
+    return this.ordersService.findById(id);
   }
 
   @Patch(':id/status')
   updateOrderStatus(@Param('id') id: number, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
-    return this.ordersService.updateOrderStatus(id, updateOrderStatusDto);
+    return this.ordersService.updateStatus(id, updateOrderStatusDto);
   }
 
   @Delete(':id')
   removeOrder(@Param('id') id: number) {
-    return this.ordersService.removeOrder(id);
+    return this.ordersService.remove(id);
   }
 }

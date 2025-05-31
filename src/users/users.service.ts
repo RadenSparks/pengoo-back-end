@@ -17,15 +17,15 @@ export class UsersService {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
       const newUser = new User();
 
-        newUser.username = createUserDto.username;
-        newUser.full_name = createUserDto.full_name;
-        newUser.password = hashedPassword;
-        newUser.email = createUserDto.email;
-        newUser.phone_number = createUserDto.phone_number;
-        newUser.avatar_url = createUserDto.avatar_url;
-        newUser.address = createUserDto.address;
-        newUser.role = createUserDto.role || 'USER';
-        newUser.status = true;
+      newUser.username = createUserDto.username;
+      newUser.full_name = createUserDto.full_name;
+      newUser.password = hashedPassword;
+      newUser.email = createUserDto.email;
+      newUser.phone_number = createUserDto.phone_number;
+      newUser.avatar_url = createUserDto.avatar_url;
+      newUser.address = createUserDto.address;
+      newUser.role = createUserDto.role || 'USER';
+      newUser.status = true;
       return this.usersRepository.save(newUser);
     } catch (error) {
       throw new InternalServerErrorException('User registration failed');
@@ -34,6 +34,10 @@ export class UsersService {
 
   async findByUsername(accountUsername: string): Promise<User | null> {
     return await this.usersRepository.findOne({ where: { username: accountUsername } });
+  }
+
+  async findById(userId: number): Promise<User | null> {
+    return await this.usersRepository.findOne({ where: { id: userId } });
   }
 
   // async update(id: number, updateUserDto: UpdateUserDto): Promise<void> {

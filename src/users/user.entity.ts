@@ -1,4 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Cart } from 'src/cart/cart.entity';
+import { Review } from 'src/reviews/review.entity';
+import { Wishlist } from 'src/wishlist/wishlist.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity('user')
 export class User {
@@ -32,16 +35,12 @@ export class User {
   @Column({ type: 'text', nullable: true })
   address: string;
 
- 
+  @OneToMany(() => Review, review => review.user)
+  reviews: Review[];
 
-  // constructor(userData: Partial<User>) {
-  //   this.username = userData.username || '';
-  //   this.full_name = userData.full_name || '';
-  //   this.password = userData.password || '';
-  //   this.phone_number = userData.phone_number || '';
-  //   this.avatar_url = userData.avatar_url || '';
-  //   this.status = userData.status !== undefined ? userData.status : true;
-  //   this.address = userData.address || '';
-  //   this.role = userData.role || 'USER';
-  // }
+  @OneToMany(() => Wishlist, wishlist => wishlist.user)
+  wishlists: Wishlist[];
+
+  @OneToMany(() => Cart, cart => cart.user)
+  carts: Cart[];
 }

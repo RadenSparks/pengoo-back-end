@@ -27,7 +27,7 @@ export class CartService {
       relations: ['items', 'items.product'],
     });
     if (!cart) {
-      const user = await this.usersService.findOne(userId);
+      const user = await this.usersService.findById(userId);
       if (!user) {
         throw new NotFoundException('User not found');
       }
@@ -43,7 +43,7 @@ export class CartService {
   ): Promise<Cart> {
     const cart = await this.findOrCreateCart(userId);
     const { productId, quantity } = createCartItemDto;
-    const product = await this.productsService.findProductById(productId);
+    const product = await this.productsService.findById(productId);
     if (!product) {
       throw new NotFoundException('Product not found');
     }

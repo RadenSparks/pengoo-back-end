@@ -7,96 +7,60 @@ import { CreateProductDto } from './create-product.dto';
 import { UpdateProductDto } from '../products/update-product.dto';
 import { CreateCategoryDto } from '../categories/create-category.dto';
 import { UpdateCategoryDto } from '../categories/update-category.dto';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
-    @InjectRepository(Category)
-    private categoriesRepository: Repository<Category>,
-  ) {}
+    private readonly categoriesService: CategoriesService,
+  ) { }
 
-  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
-    const { categoryId, ...rest } = createProductDto;
-    const category = await this.categoriesRepository.findOne(categoryId);
-    if (!category) {
-      throw new NotFoundException('Category not found');
-    }
-    const product = this.productsRepository.create({ ...rest, category });
-    return this.productsRepository.save(product);
+  async create(createProductDto: CreateProductDto): Promise<Product> {
+    const category = await this.categoriesService.findById(createProductDto.categoryId);
+    const newProduct = new Product();
+    newProduct.name = createProductDto.name;
+    newProduct.description = createProductDto.description;
+    newProduct.price = createProductDto.price;
+    newProduct.sku = createProductDto.sku;
+    newProduct.quantity = createProductDto.quantity;
+    newProduct.category = category;
+    return this.productsRepository.save(newProduct);
   }
 
-  async findAllProducts(): Promise<Product[]> {
+  async findAll(): Promise<Product[]> {
     return this.productsRepository.find({ relations: ['category'] });
   }
 
-  async findProductById(id: number): Promise<Product> {
-    const product = await this.productsRepository.findOne({
-      where: { id },
-      relations: ['category'],
-    });
+  async findById(id: number): Promise<Product> {
+    const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category'] });
     if (!product) {
       throw new NotFoundException('Product not found');
     }
     return product;
   }
 
-  async updateProduct(
-    id: number,
-    updateProductDto: UpdateProductDto,
-  ): Promise<Product> {
-    const product = await this.findProductById(id);
+  async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
+    let product = await this.findById(id);
     const { categoryId, ...rest } = updateProductDto;
-    if (categoryId) {
-      const category = await this.categoriesRepository.findOne(categoryId);
-      if (!category) {
-        throw new NotFoundException('Category not found');
-      }
+    const category = categoryId ? await this.categoriesService.findById(categoryId) : null;
+    if (category) {
       product.category = category;
     }
-    Object.assign(product, rest);
+    //Option 1
+    // Object.assign(product, rest);
+    //Option 2
+    product.name = updateProductDto.name;
+    product.description = updateProductDto.description;
+    product.price = updateProductDto.price;
+    product.sku = updateProductDto.sku;
+    product.quantity = updateProductDto.quantity;
     return this.productsRepository.save(product);
   }
 
-  async removeProduct(id: number): Promise<void> {
-    const product = await this.findProductById(id);
+  async remove(id: number): Promise<void> {
+    const product = await this.findById(id);
     await this.productsRepository.remove(product);
-  }
-
-  async createCategory(
-    createCategoryDto: CreateCategoryDto,
-  ): Promise<Category> {
-    const category = this.categoriesRepository.create(createCategoryDto);
-    return this.categoriesRepository.save(category);
-  }
-
-  async findAllCategories(): Promise<Category[]> {
-    return this.categoriesRepository.find({ relations: ['products'] });
-  }
-
-  async findCategoryById(id: number): Promise<Category> {
-    const category = await this.categoriesRepository.findOne({
-      where: { id },
-      relations: ['products'],
-    });
-    if (!category) {
-      throw new NotFoundException('Category not found');
-    }
-    return category;
-  }
-
-  async updateCategory(
-    id: number,
-    updateCategoryDto: UpdateCategoryDto,
-  ): Promise<Category> {
-    const category = await this.findCategoryById(id);
-    Object.assign(category, updateCategoryDto);
-    return this.categoriesRepository.save(category);
-  }
-
-  async removeCategory(id: number): Promise<void> {
-    const category = await this.findCategoryById(id);
-    await this.categoriesRepository.remove(category);
   }
 }
