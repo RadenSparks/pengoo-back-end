@@ -20,7 +20,7 @@ export class AuthService {
     }
   }
 
-  async login(username: string, password: string) : Promise<LoginResponseDto> {
+  async signin(username: string, password: string) : Promise<LoginResponseDto> {
     try{
       const user = await this.usersService.findByUsername(username);
       if(!user){
