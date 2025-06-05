@@ -1,9 +1,10 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { UpdateDateColumn } from 'typeorm';
 
 export class UpdateProductDto {
   @IsNotEmpty()
-  @IsString()  
-  name: string;
+  @IsString()
+  product_name: string;
 
   @IsNotEmpty()
   @IsString()
@@ -11,17 +12,44 @@ export class UpdateProductDto {
 
   @IsNotEmpty()
   @IsNumber()
-  price: number;
+  product_price: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  discount: number;
 
   @IsNotEmpty()
   @IsString()
-  sku: string;
+  slug: string;
+
+  @IsNotEmpty()
+  @IsString()
+  meta_title: string;
+
+  @IsNotEmpty()
+  @IsString()
+  meta_description: string;
+
+  @IsNotEmpty()
+  @IsString()
+  image_url: string;
 
   @IsNotEmpty()
   @IsNumber()
-  quantity: number;
+  quantity_sold: number;
 
   @IsNotEmpty()
   @IsNumber()
-  categoryId: number;
+  category_ID: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  publisher_ID: number;
+
+  @IsNotEmpty()
+  @IsString()
+  status: string;
+
+  @IsString()
+  tags: string[];
 }

@@ -16,7 +16,7 @@ export class OrdersService {
     private orderItemsRepository: Repository<OrderItem>,
     private usersService: UsersService,
     private productsService: ProductsService,
-  ) {}
+  ) { }
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const { userId, items } = createOrderDto;
@@ -37,7 +37,7 @@ export class OrdersService {
       const orderItem = this.orderItemsRepository.create({
         product,
         quantity: item.quantity,
-        price: product.price * item.quantity,
+        price: product.product_price * item.quantity,
       });
       orderItems.push(orderItem);
       total += orderItem.price;
@@ -58,7 +58,7 @@ export class OrdersService {
   }
 
   async findById(orderId: number): Promise<Order> {
-    const order = await this.ordersRepository.findOne({where : {id : orderId}, relations: ['user', 'items', 'items.product'] });
+    const order = await this.ordersRepository.findOne({ where: { id: orderId }, relations: ['user', 'items', 'items.product'] });
     if (!order) {
       throw new NotFoundException('Order not found');
     }

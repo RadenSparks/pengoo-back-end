@@ -9,11 +9,13 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { User } from 'src/users/user.entity';
 import { Product } from 'src/products/product.entity';
 import { Category } from 'src/categories/category.entity';
+import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
+import { CloudinaryModule } from 'src/services/cloudinary/cloudinary.module';
 
 @Module({
   providers: [WishlistService, UsersService, ProductsService, CategoriesService],
   controllers: [WishlistController],
-    imports: [TypeOrmModule.forFeature([Wishlist, User, Product, Category])],
-    exports: [WishlistService]
+  imports: [TypeOrmModule.forFeature([Wishlist, User, Product, Category])],
+  exports: [WishlistService]
 })
-export class WishlistModule {}
+export class WishlistModule { }
