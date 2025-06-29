@@ -5,6 +5,7 @@ import { Coupon, CouponStatus } from './coupon.entity';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UserCoupon } from './user-coupon.entity';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class CouponsService {
@@ -114,4 +115,41 @@ export class CouponsService {
 
     return this.couponsRepository.remove(coupon);
   }
+  async checkVoucherByUserPoint(user: User, voucherCode: string) {
+    const point = user.points
+    const isActive = await this.couponsRepository.createQueryBuilder("coupon")
+      .where("coupon.milestonePoints <= :point", { point })
+      .andWhere("coupon.status = :status", { status: CouponStatus.Active })
+      .andWhere("coupon.code = :voucherCode", { voucherCode })
+      .getOne();
+    if (!isActive) throw new NotFoundException('Coupon not found');
+    await this.handleSaveCouponForUser(user.id, isActive.id)
+    return await this.getVoucherByUserId(user.id);
+
+  }
+  async handleSaveCouponForUser(userId, voucherId) {
+    const existing = await this.userCouponRepo.createQueryBuilder("user_coupon")
+      .where("user_coupon.userId = :userId", { userId })
+      .andWhere("user_coupon.redeemed = :redeemed", { redeemed: true })
+      .andWhere("user_coupon.couponId = :voucherId", { voucherId })
+      .getOne();
+    if (existing) throw new BadRequestException("User has redeem a voucher");
+    const userCoupon = this.userCouponRepo.create({
+      user: { id: userId },
+      coupon: { id: voucherId },
+      redeemed: true,
+      redeemToken: null,
+    });
+
+    return await this.userCouponRepo.save(userCoupon);
+  }
+  async getVoucherByUserId(id: number) {
+    return this.userCouponRepo.find({
+      where: {
+        user: { id },
+      },
+      relations: ['coupon'],
+    });
+  }
+
 }

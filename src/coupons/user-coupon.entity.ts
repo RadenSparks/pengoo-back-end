@@ -17,7 +17,7 @@ export class UserCoupon {
   @Column({ default: false })
   redeemed: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
   redeemedAt: Date | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })

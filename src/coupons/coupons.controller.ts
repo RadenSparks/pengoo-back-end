@@ -157,4 +157,16 @@ export class CouponsController {
     });
     return { vouchers };
   }
+  @UseGuards(JwtAuthGuard)
+  @Post('verify-voucher')
+  @ApiOperation({ summary: 'Get all vouchers owned by the current user' })
+  async checkVoucherByUserPoint(@Req() req, @Body() data: { voucherCode: string }) {
+    return this.couponsService.checkVoucherByUserPoint(req.user, data.voucherCode)
+  }
+  @UseGuards(JwtAuthGuard)
+  @Post('get-voucher-by-userId')
+  @ApiOperation({ summary: 'Get all vouchers owned by the current user' })
+  async getVoucherByUserId(@Req() req) {
+    return this.couponsService.getVoucherByUserId(req.user.id)
+  }
 }
