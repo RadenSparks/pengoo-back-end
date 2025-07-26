@@ -60,27 +60,32 @@ async function bootstrap() {
 export default async function handler(req, res) {
   if (!cachedServer) {
     const app = await NestFactory.create(AppModule, { bodyParser: false });
-    app.enableCors({
-      origin: (origin, callback) => {
-        const allowedOrigins = [
-          'http://localhost:3000',
-          'http://localhost:3001',
-          'http://localhost:4000',
-          'https://pengoo.vercel.app',
-          'https://pengoo-admin.vercel.app',
-          'http://103.173.227.176:4000/',
-        ];
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-      credentials: true,
-    });
     await app.init();
     cachedServer = app.getHttpServer();
   }
+
+  // Enable CORS for every request
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:4000',
+    'https://pengoo.vercel.app',
+    'https://pengoo-admin.vercel.app',
+    'http://103.173.227.176:4000/',
+  ];
+  const origin = req.headers.origin;
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || '*');
+    if (req.method === 'OPTIONS') {
+      res.statusCode = 204;
+      res.end();
+      return;
+    }
+  }
+
   cachedServer.emit('request', req, res);
 }
 
