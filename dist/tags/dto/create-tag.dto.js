@@ -24,7 +24,7 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsIn)(['genre', 'players', 'duration']),
+    (0, class_validator_1.IsIn)(['genre', 'players', 'duration', 'age']),
     __metadata("design:type", String)
 ], CreateTagDto.prototype, "type", void 0);
 //# sourceMappingURL=create-tag.dto.js.map

@@ -7,6 +7,6 @@ export class CreateTagDto {
 
     @IsNotEmpty()
     @IsString()
-    @IsIn(['genre', 'players', 'duration'])
+    @IsIn(['genre', 'players', 'duration', 'age']) // <-- Add 'age'
     type: string;
 }

@@ -20,7 +20,7 @@ exports.UpdateTagDto = UpdateTagDto;
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsIn)(['genre', 'players', 'duration']),
+    (0, class_validator_1.IsIn)(['genre', 'players', 'duration', 'age']),
     __metadata("design:type", String)
 ], UpdateTagDto.prototype, "type", void 0);
 //# sourceMappingURL=update-tag.dto.js.map
