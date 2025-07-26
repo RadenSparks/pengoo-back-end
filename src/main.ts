@@ -61,14 +61,21 @@ export default async function handler(req, res) {
   if (!cachedServer) {
     const app = await NestFactory.create(AppModule, { bodyParser: false });
     app.enableCors({
-      origin: [
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:4000',
-        'https://pengoo.vercel.app',
-        'https://pengoo-admin.vercel.app',
-        'http://103.173.227.176:4000/',
-      ],
+      origin: (origin, callback) => {
+        const allowedOrigins = [
+          'http://localhost:3000',
+          'http://localhost:3001',
+          'http://localhost:4000',
+          'https://pengoo.vercel.app',
+          'https://pengoo-admin.vercel.app',
+          'http://103.173.227.176:4000/',
+        ];
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
     });
     await app.init();
