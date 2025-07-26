@@ -73,7 +73,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "updateCategory", null);
 __decorate([
-    (0, common_1.Delete)('categories/:id'),
+    (0, common_1.Delete)(':id'),
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

@@ -34,7 +34,7 @@ let CouponsService = class CouponsService {
     }
     async validateAndApply(code, orderValue, userId, productIds) {
         const coupon = await this.couponsRepository.findOne({
-            where: { code },
+            where: { code: (0, typeorm_2.ILike)(code) },
         });
         if (!coupon)
             throw new common_1.NotFoundException('Coupon not found');

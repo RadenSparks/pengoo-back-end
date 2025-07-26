@@ -35,7 +35,7 @@ export class CategoriesController {
         return this.categoriesService.update(id, updateCategoryDto);
     }
 
-    @Delete('categories/:id')
+    @Delete(':id')
     @Public()
     removeCategory(@Param('id') id: number) {
         return this.categoriesService.remove(id);

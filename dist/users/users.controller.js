@@ -51,8 +51,7 @@ let UsersController = class UsersController {
         return this.usersService.updateRole(Number(id), role);
     }
     async updatePassword(req, body) {
-        console.log(req.user.id, body.newPassword);
-        return this.usersService.updatePassword(req.user.id, body.newPassword);
+        return this.usersService.updatePassword(req.user.id, body);
     }
 };
 exports.UsersController = UsersController;
@@ -136,10 +135,11 @@ __decorate([
     (0, swagger_1.ApiBody)({
         schema: {
             example: {
-                newPassword: 'editor'
+                oldPassword: 'current_password',
+                newPassword: 'new_password'
             }
         },
-        description: 'Set the new role for the user. Example roles: admin, editor, viewer, user'
+        description: 'Update password: requires oldPassword and newPassword'
     }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),

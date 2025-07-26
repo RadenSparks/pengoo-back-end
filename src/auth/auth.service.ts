@@ -89,7 +89,7 @@ export class AuthService {
           phone_number: '',
           address: '',
           role: 'user',
-          provider: 'google', // <-- Add this line
+          provider: 'google', 
         });
       }
 
