@@ -13,14 +13,22 @@ async function bootstrap() {
   app.useGlobalGuards(new JwtAuthGuard(reflector));
 
   app.enableCors({
-    origin: [
-      'http://localhost:3000', // <-- Add this line for Swagger UI
-      'http://localhost:3001', // main site
-      'http://localhost:4000', // admin dashboard
-      'https://pengoo.vercel.app', // production site
-      'https://pengoo-admin.vercel.app', // production admin dashboard
-      'http://103.173.227.176:4000/',//main site
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:4000',
+        'https://pengoo.vercel.app',
+        'https://pengoo-admin.vercel.app',
+        'http://103.173.227.176:4000/',
+      ];
+      // Allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 
