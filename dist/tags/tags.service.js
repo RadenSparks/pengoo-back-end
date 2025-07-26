@@ -27,7 +27,7 @@ let TagsService = class TagsService {
         return await this.tagRepository.save(tag);
     }
     async findAll() {
-        return this.tagRepository.find({ relations: ['products'] });
+        return this.tagRepository.find();
     }
     async findOne(id) {
         const tag = await this.tagRepository.findOne({

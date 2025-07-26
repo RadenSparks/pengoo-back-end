@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Product } from "../../products/product.entity";
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -10,7 +11,9 @@ export class Tag {
       @Column({ default: 'defaultType' })
       type: string;
 
-      
-      @ManyToMany(() => Product, (product) => product.tags)
+      @Exclude()
+      @ManyToMany(() => Product, (product) => product.tags, {
+        eager: false,
+      })
       products: Product[];
 }

@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tag = void 0;
+const class_transformer_1 = require("class-transformer");
 const product_entity_1 = require("../../products/product.entity");
 const typeorm_1 = require("typeorm");
 let Tag = class Tag {
@@ -32,7 +33,10 @@ __decorate([
     __metadata("design:type", String)
 ], Tag.prototype, "type", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => product_entity_1.Product, (product) => product.tags),
+    (0, class_transformer_1.Exclude)(),
+    (0, typeorm_1.ManyToMany)(() => product_entity_1.Product, (product) => product.tags, {
+        eager: false,
+    }),
     __metadata("design:type", Array)
 ], Tag.prototype, "products", void 0);
 exports.Tag = Tag = __decorate([

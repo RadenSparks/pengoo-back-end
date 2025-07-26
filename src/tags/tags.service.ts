@@ -19,7 +19,7 @@ export class TagsService {
   }
 
   async findAll(): Promise<Tag[]> {
-    return this.tagRepository.find({ relations: ['products'] });
+    return this.tagRepository.find();
   }
 
   async findOne(id: number): Promise<Tag> {

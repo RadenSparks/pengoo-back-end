@@ -21,6 +21,8 @@ async function bootstrap() {
         'https://pengoo.vercel.app',
         'https://pengoo-admin.vercel.app',
         'http://103.173.227.176:4000/',
+        'http://118.68.84.29:4000/', 
+        'http://118.68.84.29:3001/',
       ];
       // Allow requests with no origin (like mobile apps, curl, etc.)
       if (!origin || allowedOrigins.includes(origin)) {
@@ -72,6 +74,8 @@ export default async function handler(req, res) {
     'https://pengoo.vercel.app',
     'https://pengoo-admin.vercel.app',
     'http://103.173.227.176:4000/',
+    'http://118.68.84.29:4000/',
+    'http://118.68.84.29:3001/',
   ];
   const origin = req.headers.origin;
   if (!origin || allowedOrigins.includes(origin)) {
