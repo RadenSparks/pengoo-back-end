@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, Not, IsNull } from 'typeorm';
+import { Repository, In, Not, IsNull, ILike } from 'typeorm';
 import { Coupon, CouponStatus } from './coupon.entity';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UserCoupon } from './user-coupon.entity';
@@ -27,7 +27,7 @@ export class CouponsService {
 
   async validateAndApply(code: string, orderValue: number, userId: number, productIds: number[]): Promise<{ coupon: Coupon, discount: number }> {
     const coupon = await this.couponsRepository.findOne({
-      where: { code },
+      where: { code: ILike(code) },
       // relations: ['products', 'users'],
     });
     if (!coupon) throw new NotFoundException('Coupon not found');
