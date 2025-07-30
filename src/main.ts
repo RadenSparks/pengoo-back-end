@@ -80,6 +80,8 @@ export default async function handler(req, res) {
   }
 
   const origin = req.headers.origin;
+  console.log('Incoming Origin:', origin); // Debug log
+
   if (!origin || allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -91,7 +93,6 @@ export default async function handler(req, res) {
       return;
     }
   } else {
-    // If not allowed, block the request
     res.statusCode = 403;
     res.end('CORS Forbidden');
     return;

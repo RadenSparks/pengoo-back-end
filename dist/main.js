@@ -51,24 +51,25 @@ async function bootstrap() {
     console.log("---| http://localhost:3000/swagger-api |---");
     console.log("-------------------------------------------");
 }
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:4000',
+    'https://pengoo.vercel.app',
+    'https://pengoo-admin.vercel.app',
+    'http://103.173.227.176:4000',
+    'http://118.68.84.29:4000',
+    'http://118.68.84.29:3001',
+    'https://pengoo.store',
+];
 async function handler(req, res) {
     if (!cachedServer) {
         const app = await core_1.NestFactory.create(app_module_1.AppModule, { bodyParser: false });
         await app.init();
         cachedServer = app.getHttpServer();
     }
-    const allowedOrigins = [
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:4000',
-        'https://pengoo.vercel.app',
-        'https://pengoo-admin.vercel.app',
-        'http://103.173.227.176:4000',
-        'http://118.68.84.29:4000',
-        'http://118.68.84.29:3001',
-        'https://pengoo.store',
-    ];
     const origin = req.headers.origin;
+    console.log('Incoming Origin:', origin);
     if (!origin || allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin || '*');
         res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -79,6 +80,11 @@ async function handler(req, res) {
             res.end();
             return;
         }
+    }
+    else {
+        res.statusCode = 403;
+        res.end('CORS Forbidden');
+        return;
     }
     cachedServer.emit('request', req, res);
 }
