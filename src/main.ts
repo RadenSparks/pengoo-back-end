@@ -78,7 +78,6 @@ export default async function handler(req, res) {
   const server = app.getHttpServer();
 
   const origin = req.headers.origin;
-  console.log('Incoming Origin:', origin);
 
   if (!origin || allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
