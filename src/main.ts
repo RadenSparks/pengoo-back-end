@@ -20,10 +20,10 @@ async function bootstrap() {
         'http://localhost:4000',
         'https://pengoo.vercel.app',
         'https://pengoo-admin.vercel.app',
-        'http://103.173.227.176:4000/',
-        'http://118.68.84.29:4000/', 
-        'http://118.68.84.29:3001/',
-        'https://pengoo.store/',
+        'http://103.173.227.176:4000',
+        'http://118.68.84.29:4000',
+        'http://118.68.84.29:3001',
+        'https://pengoo.store',
       ];
       // Allow requests with no origin (like mobile apps, curl, etc.)
       if (!origin || allowedOrigins.includes(origin)) {
@@ -60,6 +60,18 @@ async function bootstrap() {
 
 }
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:4000',
+  'https://pengoo.vercel.app',
+  'https://pengoo-admin.vercel.app',
+  'http://103.173.227.176:4000',
+  'http://118.68.84.29:4000',
+  'http://118.68.84.29:3001',
+  'https://pengoo.store',
+];
+
 export default async function handler(req, res) {
   if (!cachedServer) {
     const app = await NestFactory.create(AppModule, { bodyParser: false });
@@ -67,18 +79,6 @@ export default async function handler(req, res) {
     cachedServer = app.getHttpServer();
   }
 
-  // Enable CORS for every request
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:4000',
-    'https://pengoo.vercel.app',
-    'https://pengoo-admin.vercel.app',
-    'http://103.173.227.176:4000/',
-    'http://118.68.84.29:4000/',
-    'http://118.68.84.29:3001/',
-    'https://pengoo.store/',
-  ];
   const origin = req.headers.origin;
   if (!origin || allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
@@ -90,6 +90,11 @@ export default async function handler(req, res) {
       res.end();
       return;
     }
+  } else {
+    // If not allowed, block the request
+    res.statusCode = 403;
+    res.end('CORS Forbidden');
+    return;
   }
 
   cachedServer.emit('request', req, res);

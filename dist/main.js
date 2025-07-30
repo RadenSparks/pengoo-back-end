@@ -19,10 +19,10 @@ async function bootstrap() {
                 'http://localhost:4000',
                 'https://pengoo.vercel.app',
                 'https://pengoo-admin.vercel.app',
-                'http://103.173.227.176:4000/',
-                'http://118.68.84.29:4000/',
-                'http://118.68.84.29:3001/',
-                'https://pengoo.store/',
+                'http://103.173.227.176:4000',
+                'http://118.68.84.29:4000',
+                'http://118.68.84.29:3001',
+                'https://pengoo.store',
             ];
             if (!origin || allowedOrigins.includes(origin)) {
                 callback(null, true);
@@ -63,10 +63,10 @@ async function handler(req, res) {
         'http://localhost:4000',
         'https://pengoo.vercel.app',
         'https://pengoo-admin.vercel.app',
-        'http://103.173.227.176:4000/',
-        'http://118.68.84.29:4000/',
-        'http://118.68.84.29:3001/',
-        'https://pengoo.store/',
+        'http://103.173.227.176:4000',
+        'http://118.68.84.29:4000',
+        'http://118.68.84.29:3001',
+        'https://pengoo.store',
     ];
     const origin = req.headers.origin;
     if (!origin || allowedOrigins.includes(origin)) {
