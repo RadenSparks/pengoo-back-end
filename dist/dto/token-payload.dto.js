@@ -6,6 +6,7 @@ class TokenPayloadDto {
     email;
     role;
     username;
+    provider;
 }
 exports.TokenPayloadDto = TokenPayloadDto;
 //# sourceMappingURL=token-payload.dto.js.map

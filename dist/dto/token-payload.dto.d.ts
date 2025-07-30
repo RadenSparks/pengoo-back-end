@@ -3,4 +3,5 @@ export declare class TokenPayloadDto {
     email: string;
     role: string;
     username: string;
+    provider?: string;
 }

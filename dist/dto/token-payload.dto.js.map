@@ -1,1 +1,1 @@
-{"version":3,"file":"token-payload.dto.js","sourceRoot":"","sources":["../../src/dto/token-payload.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,eAAe;IACxB,GAAG,CAAS;IACZ,KAAK,CAAS;IACd,IAAI,CAAS;IACb,QAAQ,CAAS;CACpB;AALD,0CAKC"}
+{"version":3,"file":"token-payload.dto.js","sourceRoot":"","sources":["../../src/dto/token-payload.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,eAAe;IACxB,GAAG,CAAS;IACZ,KAAK,CAAS;IACd,IAAI,CAAS;IACb,QAAQ,CAAS;IACjB,QAAQ,CAAU;CACrB;AAND,0CAMC"}
