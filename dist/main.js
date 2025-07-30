@@ -22,6 +22,7 @@ async function bootstrap() {
                 'http://103.173.227.176:4000/',
                 'http://118.68.84.29:4000/',
                 'http://118.68.84.29:3001/',
+                'https://pengoo.store/',
             ];
             if (!origin || allowedOrigins.includes(origin)) {
                 callback(null, true);
@@ -65,6 +66,7 @@ async function handler(req, res) {
         'http://103.173.227.176:4000/',
         'http://118.68.84.29:4000/',
         'http://118.68.84.29:3001/',
+        'https://pengoo.store/',
     ];
     const origin = req.headers.origin;
     if (!origin || allowedOrigins.includes(origin)) {
