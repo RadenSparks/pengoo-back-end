@@ -73,14 +73,12 @@ const allowedOrigins = [
 ];
 
 export default async function handler(req, res) {
-  if (!cachedServer) {
-    const app = await NestFactory.create(AppModule, { bodyParser: false });
-    await app.init();
-    cachedServer = app.getHttpServer();
-  }
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  await app.init();
+  const server = app.getHttpServer();
 
   const origin = req.headers.origin;
-  console.log('Incoming Origin:', origin); // Debug log
+  console.log('Incoming Origin:', origin);
 
   if (!origin || allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
@@ -98,7 +96,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  cachedServer.emit('request', req, res);
+  server.emit('request', req, res);
 }
 
 bootstrap();

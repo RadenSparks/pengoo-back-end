@@ -63,11 +63,9 @@ const allowedOrigins = [
     'https://pengoo.store',
 ];
 async function handler(req, res) {
-    if (!cachedServer) {
-        const app = await core_1.NestFactory.create(app_module_1.AppModule, { bodyParser: false });
-        await app.init();
-        cachedServer = app.getHttpServer();
-    }
+    const app = await core_1.NestFactory.create(app_module_1.AppModule, { bodyParser: false });
+    await app.init();
+    const server = app.getHttpServer();
     const origin = req.headers.origin;
     console.log('Incoming Origin:', origin);
     if (!origin || allowedOrigins.includes(origin)) {
@@ -86,7 +84,7 @@ async function handler(req, res) {
         res.end('CORS Forbidden');
         return;
     }
-    cachedServer.emit('request', req, res);
+    server.emit('request', req, res);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
