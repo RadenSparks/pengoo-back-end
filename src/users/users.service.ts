@@ -109,7 +109,7 @@ export class UsersService {
     await this.usersRepository.delete(id);
   }
 
-  async updatePassword(userId: number, dto): Promise<string> {
+  async updatePassword(userId: number, dto) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
@@ -120,7 +120,7 @@ export class UsersService {
     user.password = hashedPassword;
     await this.usersRepository.save(user);
 
-    return 'Đổi password thành công';
+    return { status: 200, message: "Đổi password thành công" }
   }
   async setStatus(id: number, status: boolean): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });

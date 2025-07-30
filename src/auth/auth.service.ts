@@ -33,7 +33,8 @@ export class AuthService {
       email: user.email,
       sub: user.id,
       role: user.role,
-      username: user.username
+      username: user.username,
+      provider: user.provider
     };
 
     const token = this.signToken(payload);
@@ -89,7 +90,7 @@ export class AuthService {
           phone_number: '',
           address: '',
           role: 'user',
-          provider: 'google', 
+          provider: 'google',
         });
       }
 
@@ -234,8 +235,8 @@ Hotline: 0937314158
       await this.usersService.update(user.id, user);
       await this.notificationsService.sendEmail(
         user.email,
-         'Pengoo - Your Login Confirmation Code',
-      `Pengoo Login Verification
+        'Pengoo - Your Login Confirmation Code',
+        `Pengoo Login Verification
 
 Hello ${user.full_name || user.email},
 
