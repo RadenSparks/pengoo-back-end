@@ -67,7 +67,6 @@ async function handler(req, res) {
     await app.init();
     const server = app.getHttpServer();
     const origin = req.headers.origin;
-    console.log('Incoming Origin:', origin);
     if (!origin || allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin || '*');
         res.setHeader('Access-Control-Allow-Credentials', 'true');
