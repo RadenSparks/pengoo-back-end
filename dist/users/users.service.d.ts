@@ -15,7 +15,10 @@ export declare class UsersService {
     findAll(): Promise<User[]>;
     update(id: number, updateUserDto: UpdateUserDto): Promise<User>;
     remove(id: number): Promise<void>;
-    updatePassword(userId: number, dto: any): Promise<string>;
+    updatePassword(userId: number, dto: any): Promise<{
+        status: number;
+        message: string;
+    }>;
     setStatus(id: number, status: boolean): Promise<User>;
     adminResetPassword(id: number, newPassword: string): Promise<User>;
     updateRole(id: number, role: string): Promise<User>;

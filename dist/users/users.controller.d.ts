@@ -17,5 +17,8 @@ export declare class UsersController {
     updatePassword(req: any, body: {
         oldPassword: string;
         newPassword: string;
-    }): Promise<string>;
+    }): Promise<{
+        status: number;
+        message: string;
+    }>;
 }

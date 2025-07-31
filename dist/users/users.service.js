@@ -115,7 +115,7 @@ let UsersService = class UsersService {
         const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
         user.password = hashedPassword;
         await this.usersRepository.save(user);
-        return 'Đổi password thành công';
+        return { status: 200, message: "Đổi password thành công" };
     }
     async setStatus(id, status) {
         const user = await this.usersRepository.findOne({ where: { id } });

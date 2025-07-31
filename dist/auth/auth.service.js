@@ -42,7 +42,8 @@ let AuthService = class AuthService {
             email: user.email,
             sub: user.id,
             role: user.role,
-            username: user.username
+            username: user.username,
+            provider: user.provider
         };
         const token = this.signToken(payload);
         return new signin_response_dto_1.SignInResponseDto(token, user.username, user.role);
