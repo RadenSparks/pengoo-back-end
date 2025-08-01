@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Product } from '../products/product.entity';
 import {
     Entity,
@@ -31,6 +32,7 @@ export class Collection {
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Exclude()
     @OneToMany(() => Product, (product) => product.collection)
     products: Product[];
 }
