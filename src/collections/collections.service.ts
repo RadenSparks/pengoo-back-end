@@ -17,14 +17,14 @@ export class CollectionsService {
 
   findAll() {
     return this.collectionsRepo.createQueryBuilder('collection')
-      .leftJoinAndSelect('collection.products', 'product')
+      // .leftJoinAndSelect('collection.products', 'product')
       .leftJoinAndSelect('product.images', 'image') // <-- bắt buộc dùng `Select`
       .getMany();
   }
   findOne(slug: string) {
     return this.collectionsRepo.createQueryBuilder('collection')
       .where('collection.slug = :slug', { slug })
-      .leftJoinAndSelect('collection.products', 'product')
+      // .leftJoinAndSelect('collection.products', 'product')
       .leftJoinAndSelect('product.images', 'image')
       .leftJoinAndSelect('product.tags', 'tag')
       .leftJoinAndSelect('product.category_ID', 'category')
