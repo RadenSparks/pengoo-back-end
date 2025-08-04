@@ -61,6 +61,9 @@ export class Order {
   @Column({ type: 'varchar', nullable: true })
   productStatus: string; // Product availability status
 
+  @Column({ type: 'varchar', nullable: true })
+  paypal_order_id: string | null;
+
   @OneToMany(() => OrderDetail, orderDetail => orderDetail.order, { cascade: true })
   details: OrderDetail[];
 

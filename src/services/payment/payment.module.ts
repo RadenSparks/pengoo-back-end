@@ -6,10 +6,17 @@ import { Order } from '../../orders/order.entity';
 import { UsersModule } from '../../users/users.module';
 import { PaypalService } from '../paypal/paypal.service';
 import { OrdersModule } from '../../orders/orders.module';
+import { InvoicesService } from '../invoices/invoice.service';
+import { InvoicesModule } from '../invoices/invoices.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order]), UsersModule, OrdersModule],
-  providers: [PaymentsService, PaypalService],
+  imports: [
+    TypeOrmModule.forFeature([Order]),
+    UsersModule,
+    OrdersModule,
+    InvoicesModule, // Add this
+  ],
+  providers: [PaymentsService, PaypalService, InvoicesService], // Add InvoicesService
   controllers: [PaymentsController],
   exports: [PaymentsService, PaypalService],
 })

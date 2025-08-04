@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import * as path from 'path';
 
 @Injectable()
 export class NotificationsService {
@@ -22,13 +23,24 @@ export class NotificationsService {
     });
   }
 
-  async sendEmail(to: string, subject: string, message: string) {
-    const mailOptions = {
+  async sendEmail(to: string, subject: string, message: string, attachmentPath?: string) {
+    const mailOptions: any = {
       from: this.from,
       to,
       subject,
       text: message,
     };
+
+    if (attachmentPath) {
+      mailOptions.attachments = [
+        {
+          filename: attachmentPath.split(path.sep).pop(), // Get file name from path
+          path: attachmentPath,
+          contentType: 'application/pdf',
+        },
+      ];
+    }
+
     await this.transporter.sendMail(mailOptions);
   }
 

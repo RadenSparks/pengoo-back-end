@@ -2,6 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common';
 import axios from 'axios';
 import * as crypto from 'crypto';
 import https from 'https';
+import { InvoicesService } from '../invoices/invoice.service';
 
 @Injectable()
 export class PayosService {
@@ -9,6 +10,10 @@ export class PayosService {
     private readonly apiKey = process.env.PAYOS_API_KEY;
     private readonly clientId = process.env.PAYOS_CLIENT_ID;
     private readonly clientSecret = process.env.PAYOS_CHECKSUM_KEY || "";
+
+    constructor(
+        private invoicesService: InvoicesService, // Inject the invoice service
+    ) {}
 
     async createInvoice(data: {
         orderCode: number;
@@ -49,5 +54,15 @@ export class PayosService {
         } catch (err: any) {
             throw new HttpException(err.response?.data || 'Lỗi khi gọi PayOS', err.response?.status || 500);
         }
+    }
+
+    async handlePayosPaymentSuccess(orderId: number) {
+        // Mark order as paid (implement as needed)
+        // await this.ordersService.markAsPaid(orderId);
+
+        // Generate and send invoice
+        await this.invoicesService.generateInvoice(orderId);
+
+        return { message: 'Invoice generated and sent to user.' };
     }
 }

@@ -168,4 +168,11 @@ export class OrdersService {
   async getDelivery() {
     return this.deliveryRepository.find();
   }
+  async findByPaypalOrderId(paypalOrderId: string): Promise<Order | null> {
+    return this.ordersRepository.findOne({ where: { paypal_order_id: paypalOrderId } });
+  }
+
+  async save(order: Order): Promise<Order> {
+    return this.ordersRepository.save(order);
+  }
 }

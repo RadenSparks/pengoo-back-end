@@ -6,12 +6,14 @@ import { NotFoundException } from '@nestjs/common';
 import easyinvoice from 'easyinvoice';
 import * as fs from 'fs';
 import * as path from 'path';
+import { NotificationsService } from '../../notifications/notifications.service';
 
 @Injectable()
 export class InvoicesService {
   constructor(
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
+    private notificationsService: NotificationsService, // Inject this
   ) {}
 
   async generateInvoice(orderId: number): Promise<string> {
@@ -71,6 +73,14 @@ export class InvoicesService {
     const result = await easyinvoice.createInvoice(invoiceData);
     const invoicePath = path.join(invoicesDir, `invoice_${order.id}.pdf`);
     fs.writeFileSync(invoicePath, result.pdf, 'base64');
+
+    // Send invoice PDF to user
+    await this.notificationsService.sendEmail(
+      order.user.email,
+      'Your Invoice',
+      'Thank you for your payment. Please find your invoice attached.',
+      invoicePath // You may need to update sendEmail to handle attachments
+    );
 
     return invoicePath;
   }

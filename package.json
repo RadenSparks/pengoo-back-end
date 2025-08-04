@@ -28,7 +28,7 @@
     "@nestjs/platform-express": "^11.1.1",
     "@nestjs/swagger": "^11.2.0",
     "@nestjs/typeorm": "^11.0.0",
-    "@paypal/checkout-server-sdk": "^1.0.3",
+    "@paypal/paypal-server-sdk": "^1.1.0",
     "@supabase/supabase-js": "^2.52.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",

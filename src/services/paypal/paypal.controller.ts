@@ -6,12 +6,12 @@ export class PaypalController {
   constructor(private readonly paypalService: PaypalService) {}
 
   @Post('create-order/:orderId')
-  createPaypalOrder(@Param('orderId') orderId: number) {
+  async createPaypalOrder(@Param('orderId') orderId: number) {
     return this.paypalService.createOrder(orderId);
   }
 
-  @Post('capture-order/:orderId')
-  capturePaypalOrder(@Param('orderId') orderId: string) {
-    return this.paypalService.captureOrder(orderId);
+  @Post('capture-order/:paypalOrderId')
+  async capturePaypalOrder(@Param('paypalOrderId') paypalOrderId: string) {
+    return this.paypalService.captureOrder(paypalOrderId);
   }
 }

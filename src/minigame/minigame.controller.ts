@@ -80,13 +80,13 @@ export class MinigameController {
     return this.minigameService.claimDailyFreeTicket(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('ticket-count')
   @ApiOperation({ summary: 'Get current user minigame ticket count' })
   async getTicketCount(@Req() req) {
     const userId = req.user.id;
     const tickets = await this.minigameService.getTicketCount(userId);
     return { tickets };
-
   }
 
   @UseGuards(JwtAuthGuard)

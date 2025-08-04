@@ -63,4 +63,13 @@ export class WishlistService {
 
     return { moved: wishlistItems.length };
   }
+
+  async viewWishlistIds(userId: number): Promise<number[]> {
+    const items = await this.wishlistRepository.find({
+      where: { user: { id: userId }, movedToOrder: IsNull() },
+      relations: ['product'],
+      select: ['product'], // Only fetch product relation
+    });
+    return items.map(item => item.product.id);
+  }
 }

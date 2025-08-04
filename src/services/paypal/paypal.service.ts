@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import * as paypal from '@paypal/checkout-server-sdk';
+import * as paypal from '@paypal/paypal-server-sdk';
 import { OrdersService } from '../../orders/orders.service';
 import { ConfigService } from '@nestjs/config';
+import { InvoicesService } from '../invoices/invoice.service';
 
 @Injectable()
 export class PaypalService {
@@ -10,7 +11,8 @@ export class PaypalService {
 
   constructor(
     private ordersService: OrdersService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private invoicesService: InvoicesService,
   ) {
     this.environment = new paypal.core.SandboxEnvironment(
       this.configService.get<string>('PAYPAL_CLIENT_ID'),
@@ -33,24 +35,34 @@ export class PaypalService {
           value: order.total_price.toString(),
         },
       }],
+      application_context: {
+        return_url: `https://your-frontend-url.com/checkout/paypal-success?orderId=${orderId}`,
+        cancel_url: `https://your-frontend-url.com/checkout/paypal-cancel?orderId=${orderId}`,
+      }
     });
 
     const response = await this.client.execute(request);
-    return response.result;
+    order.paypal_order_id = response.result.id;
+    await this.ordersService.save(order);
+
+    const approvalUrl = response.result.links.find(link => link.rel === 'approve')?.href;
+    return { paypalOrderId: response.result.id, approvalUrl };
   }
 
-  async captureOrder(orderId: string) {
-    const request = new paypal.orders.OrdersCaptureRequest(orderId);
+  async captureOrder(paypalOrderId: string) {
+    const request = new paypal.orders.OrdersCaptureRequest(paypalOrderId);
     request.requestBody({});
-
     const response = await this.client.execute(request);
-    return response.result;
-  }
 
-  async refundOrder(orderId: number) {
-    // Implement PayPal refund logic here
-    // You may need to store PayPal order/capture IDs in your Order entity for this
-    // For now, just return a stub
-    return { message: `Refund for PayPal order ${orderId} is not implemented.` };
+    const order = await this.ordersService.findByPaypalOrderId(paypalOrderId);
+    if (order) {
+      order.payment_status = 'paid';
+      await this.ordersService.save(order);
+
+      // Generate and send invoice
+      await this.invoicesService.generateInvoice(order.id);
+    }
+
+    return response.result;
   }
 }
