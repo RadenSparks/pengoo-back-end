@@ -58,8 +58,8 @@ export class PaypalService {
         },
       ],
       application_context: {
-        return_url: `https://your-frontend-url.com/checkout/paypal-success?orderId=${orderId}`,
-        cancel_url: `https://your-frontend-url.com/checkout/paypal-cancel?orderId=${orderId}`,
+        return_url: `https://pengoo.store/checkout/paypal-success?orderId=${orderId}`,
+        cancel_url: `https://pengoo.store/checkout/paypal-cancel?orderId=${orderId}`,
       },
     };
 
