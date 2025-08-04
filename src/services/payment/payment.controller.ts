@@ -15,7 +15,7 @@ export class PaymentsController {
       example: {
         method: 'paypal', // or 'on_delivery'
         userId: 1,
-        userRole: 'USER'
+        userRole: 'user'
       }
     }
   })
@@ -34,7 +34,7 @@ export class PaymentsController {
     schema: {
       example: {
         userId: 1,
-        userRole: 'USER'
+        userRole: 'user'
       }
     }
   })
@@ -52,7 +52,7 @@ export class PaymentsController {
     schema: {
       example: {
         userId: 1,
-        userRole: 'USER'
+        userRole: 'user'
       }
     }
   })
@@ -70,7 +70,7 @@ export class PaymentsController {
     schema: {
       example: {
         userId: 1,
-        userRole: 'USER'
+        userRole: 'user'
       }
     }
   })

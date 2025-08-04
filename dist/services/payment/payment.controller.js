@@ -45,7 +45,7 @@ __decorate([
             example: {
                 method: 'paypal',
                 userId: 1,
-                userRole: 'USER'
+                userRole: 'user'
             }
         }
     }),
@@ -64,7 +64,7 @@ __decorate([
         schema: {
             example: {
                 userId: 1,
-                userRole: 'USER'
+                userRole: 'user'
             }
         }
     }),
@@ -82,7 +82,7 @@ __decorate([
         schema: {
             example: {
                 userId: 1,
-                userRole: 'USER'
+                userRole: 'user'
             }
         }
     }),
@@ -100,7 +100,7 @@ __decorate([
         schema: {
             example: {
                 userId: 1,
-                userRole: 'USER'
+                userRole: 'user'
             }
         }
     }),
