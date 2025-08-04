@@ -28,6 +28,7 @@ const image_entity_1 = require("../products/entities/image.entity");
 const payos_service_1 = require("../services/payos/payos.service");
 const cms_content_module_1 = require("../cms-content/cms-content.module");
 const products_module_1 = require("../products/products.module");
+const invoices_module_1 = require("../services/invoices/invoices.module");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
@@ -58,6 +59,7 @@ exports.OrdersModule = OrdersModule = __decorate([
             coupons_module_1.CouponsModule,
             cms_content_module_1.CmsContentModule,
             products_module_1.ProductsModule,
+            invoices_module_1.InvoicesModule,
         ],
         exports: [orders_service_1.OrdersService]
     })

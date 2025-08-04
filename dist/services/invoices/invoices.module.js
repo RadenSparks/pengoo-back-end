@@ -9,17 +9,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InvoicesModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const invoice_service_1 = require("./invoice.service");
-const invoice_controller_1 = require("./invoice.controller");
 const order_entity_1 = require("../../orders/order.entity");
+const invoice_service_1 = require("./invoice.service");
+const notifications_module_1 = require("../../notifications/notifications.module");
 let InvoicesModule = class InvoicesModule {
 };
 exports.InvoicesModule = InvoicesModule;
 exports.InvoicesModule = InvoicesModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([order_entity_1.Order])],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([order_entity_1.Order]),
+            notifications_module_1.NotificationsModule,
+        ],
         providers: [invoice_service_1.InvoicesService],
-        controllers: [invoice_controller_1.InvoicesController],
         exports: [invoice_service_1.InvoicesService],
     })
 ], InvoicesModule);

@@ -19,14 +19,20 @@ const typeorm_2 = require("typeorm");
 const order_entity_1 = require("../../orders/order.entity");
 const payment_types_1 = require("./payment.types");
 const paypal_service_1 = require("../paypal/paypal.service");
+const payos_service_1 = require("../payos/payos.service");
+const invoice_service_1 = require("../invoices/invoice.service");
 let PaymentsService = class PaymentsService {
     ordersRepository;
     paypalService;
     dataSource;
-    constructor(ordersRepository, paypalService, dataSource) {
+    payosService;
+    invoicesService;
+    constructor(ordersRepository, paypalService, dataSource, payosService, invoicesService) {
         this.ordersRepository = ordersRepository;
         this.paypalService = paypalService;
         this.dataSource = dataSource;
+        this.payosService = payosService;
+        this.invoicesService = invoicesService;
     }
     async assertCanAct(userId, order, userRole) {
         if (order.user.id !== userId && userRole !== 'ADMIN') {
@@ -81,6 +87,25 @@ let PaymentsService = class PaymentsService {
         await this.ordersRepository.save(order);
         return { message: 'Payment captured and order marked as paid.' };
     }
+    async handlePayosCapture(orderId, userId, userRole) {
+        const order = await this.ordersRepository.findOne({
+            where: { id: orderId },
+            relations: ['user'],
+        });
+        if (!order)
+            throw new common_1.BadRequestException('Order not found');
+        await this.assertCanAct(userId, order, userRole);
+        if (order.payment_status === order_entity_1.PaymentStatus.Paid) {
+            throw new common_1.BadRequestException('Order is already paid.');
+        }
+        if (order.productStatus === 'cancelled') {
+            throw new common_1.BadRequestException('Cannot capture payment for a cancelled order.');
+        }
+        order.payment_status = order_entity_1.PaymentStatus.Paid;
+        await this.ordersRepository.save(order);
+        await this.invoicesService.generateInvoice(orderId);
+        return { message: 'Payos payment captured and invoice sent.' };
+    }
     async refundOrder(orderId, userId, userRole) {
         const order = await this.ordersRepository.findOne({
             where: { id: orderId },
@@ -130,6 +155,8 @@ exports.PaymentsService = PaymentsService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(order_entity_1.Order)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         paypal_service_1.PaypalService,
-        typeorm_2.DataSource])
+        typeorm_2.DataSource,
+        payos_service_1.PayosService,
+        invoice_service_1.InvoicesService])
 ], PaymentsService);
 //# sourceMappingURL=payment.service.js.map

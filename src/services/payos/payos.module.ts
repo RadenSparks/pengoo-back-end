@@ -1,4 +1,10 @@
 import { Module } from '@nestjs/common';
+import { PayosService } from './payos.service';
+import { InvoicesModule } from '../invoices/invoices.module'; // <-- import this
 
-@Module({})
-export class PayosModule { }
+@Module({
+  imports: [InvoicesModule], // <-- add this
+  providers: [PayosService],
+  exports: [PayosService],
+})
+export class PayosModule {}

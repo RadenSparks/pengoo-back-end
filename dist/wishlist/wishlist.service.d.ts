@@ -15,4 +15,5 @@ export declare class WishlistService {
     moveWishlistToOrder(userId: number, orderId: number): Promise<{
         moved: number;
     }>;
+    viewWishlistIds(userId: number): Promise<number[]>;
 }

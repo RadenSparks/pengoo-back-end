@@ -154,6 +154,12 @@ let OrdersService = class OrdersService {
     async getDelivery() {
         return this.deliveryRepository.find();
     }
+    async findByPaypalOrderId(paypalOrderId) {
+        return this.ordersRepository.findOne({ where: { paypal_order_id: paypalOrderId } });
+    }
+    async save(order) {
+        return this.ordersRepository.save(order);
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([

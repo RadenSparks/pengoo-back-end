@@ -31,4 +31,6 @@ export declare class OrdersService {
     updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order>;
     remove(id: number): Promise<void>;
     getDelivery(): Promise<Delivery[]>;
+    findByPaypalOrderId(paypalOrderId: string): Promise<Order | null>;
+    save(order: Order): Promise<Order>;
 }

@@ -21,10 +21,13 @@ const common_2 = require("@nestjs/common");
 const easyinvoice_1 = require("easyinvoice");
 const fs = require("fs");
 const path = require("path");
+const notifications_service_1 = require("../../notifications/notifications.service");
 let InvoicesService = class InvoicesService {
     ordersRepository;
-    constructor(ordersRepository) {
+    notificationsService;
+    constructor(ordersRepository, notificationsService) {
         this.ordersRepository = ordersRepository;
+        this.notificationsService = notificationsService;
     }
     async generateInvoice(orderId) {
         const order = await this.ordersRepository.findOne({
@@ -79,6 +82,7 @@ let InvoicesService = class InvoicesService {
         const result = await easyinvoice_1.default.createInvoice(invoiceData);
         const invoicePath = path.join(invoicesDir, `invoice_${order.id}.pdf`);
         fs.writeFileSync(invoicePath, result.pdf, 'base64');
+        await this.notificationsService.sendEmail(order.user.email, 'Your Invoice', 'Thank you for your payment. Please find your invoice attached.', invoicePath);
         return invoicePath;
     }
 };
@@ -86,6 +90,7 @@ exports.InvoicesService = InvoicesService;
 exports.InvoicesService = InvoicesService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(order_entity_1.Order)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        notifications_service_1.NotificationsService])
 ], InvoicesService);
 //# sourceMappingURL=invoice.service.js.map

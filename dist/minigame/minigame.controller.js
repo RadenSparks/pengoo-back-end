@@ -136,6 +136,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MinigameController.prototype, "claimDailyTicket", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('ticket-count'),
     (0, swagger_1.ApiOperation)({ summary: 'Get current user minigame ticket count' }),
     __param(0, (0, common_1.Req)()),

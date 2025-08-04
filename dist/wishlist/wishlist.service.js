@@ -73,6 +73,14 @@ let WishlistService = class WishlistService {
         }
         return { moved: wishlistItems.length };
     }
+    async viewWishlistIds(userId) {
+        const items = await this.wishlistRepository.find({
+            where: { user: { id: userId }, movedToOrder: (0, typeorm_2.IsNull)() },
+            relations: ['product'],
+            select: ['product'],
+        });
+        return items.map(item => item.product.id);
+    }
 };
 exports.WishlistService = WishlistService;
 exports.WishlistService = WishlistService = __decorate([

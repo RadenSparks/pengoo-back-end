@@ -1,8 +1,11 @@
+import { InvoicesService } from '../invoices/invoice.service';
 export declare class PayosService {
+    private invoicesService;
     private readonly apiUrl;
     private readonly apiKey;
     private readonly clientId;
     private readonly clientSecret;
+    constructor(invoicesService: InvoicesService);
     createInvoice(data: {
         orderCode: number;
         amount: number;
@@ -10,4 +13,7 @@ export declare class PayosService {
         cancelUrl: string;
         description: string;
     }): Promise<any>;
+    handlePayosPaymentSuccess(orderId: number): Promise<{
+        message: string;
+    }>;
 }

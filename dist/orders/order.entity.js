@@ -45,6 +45,7 @@ let Order = class Order {
     shipping_address;
     payment_status;
     productStatus;
+    paypal_order_id;
     details;
     reviews;
     wishlistItems;
@@ -99,6 +100,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Order.prototype, "productStatus", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], Order.prototype, "paypal_order_id", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => OrderDetail, orderDetail => orderDetail.order, { cascade: true }),
     __metadata("design:type", Array)

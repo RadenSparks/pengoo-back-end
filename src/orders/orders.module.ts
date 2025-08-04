@@ -19,6 +19,7 @@ import { Image } from '../products/entities/image.entity';
 import { PayosService } from '../services/payos/payos.service';
 import { CmsContentModule } from '../cms-content/cms-content.module';
 import { ProductsModule } from '../products/products.module';
+import { InvoicesModule } from '../services/invoices/invoices.module';
 
 @Module({
   providers: [
@@ -46,6 +47,7 @@ import { ProductsModule } from '../products/products.module';
     CouponsModule,
     CmsContentModule,
     ProductsModule,
+    InvoicesModule,
   ],
   exports: [OrdersService]
 })

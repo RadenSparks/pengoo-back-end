@@ -30,6 +30,7 @@ export declare class Order {
     shipping_address: string;
     payment_status: PaymentStatus;
     productStatus: string;
+    paypal_order_id: string | null;
     details: OrderDetail[];
     reviews: Review[];
     wishlistItems: Wishlist[];

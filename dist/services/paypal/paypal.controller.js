@@ -20,11 +20,11 @@ let PaypalController = class PaypalController {
     constructor(paypalService) {
         this.paypalService = paypalService;
     }
-    createPaypalOrder(orderId) {
+    async createPaypalOrder(orderId) {
         return this.paypalService.createOrder(orderId);
     }
-    capturePaypalOrder(orderId) {
-        return this.paypalService.captureOrder(orderId);
+    async capturePaypalOrder(paypalOrderId) {
+        return this.paypalService.captureOrder(paypalOrderId);
     }
 };
 exports.PaypalController = PaypalController;
@@ -33,14 +33,14 @@ __decorate([
     __param(0, (0, common_1.Param)('orderId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], PaypalController.prototype, "createPaypalOrder", null);
 __decorate([
-    (0, common_1.Post)('capture-order/:orderId'),
-    __param(0, (0, common_1.Param)('orderId')),
+    (0, common_1.Post)('capture-order/:paypalOrderId'),
+    __param(0, (0, common_1.Param)('paypalOrderId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], PaypalController.prototype, "capturePaypalOrder", null);
 exports.PaypalController = PaypalController = __decorate([
     (0, common_1.Controller)('payments/paypal'),

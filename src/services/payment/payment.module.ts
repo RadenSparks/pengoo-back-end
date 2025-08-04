@@ -8,6 +8,8 @@ import { PaypalService } from '../paypal/paypal.service';
 import { OrdersModule } from '../../orders/orders.module';
 import { InvoicesService } from '../invoices/invoice.service';
 import { InvoicesModule } from '../invoices/invoices.module';
+import { PayosModule } from '../payos/payos.module'; // <-- import here
+import { NotificationsModule } from '../../notifications/notifications.module'; // <-- add this import
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { InvoicesModule } from '../invoices/invoices.module';
     UsersModule,
     OrdersModule,
     InvoicesModule, // Add this
+    PayosModule, // <-- add here
+    NotificationsModule, // <-- add this line
   ],
   providers: [PaymentsService, PaypalService, InvoicesService], // Add InvoicesService
   controllers: [PaymentsController],

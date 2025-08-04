@@ -1,14 +1,19 @@
 import { OrdersService } from '../../orders/orders.service';
 import { ConfigService } from '@nestjs/config';
+import { InvoicesService } from '../invoices/invoice.service';
 export declare class PaypalService {
     private ordersService;
     private configService;
-    private environment;
-    private client;
-    constructor(ordersService: OrdersService, configService: ConfigService);
-    createOrder(orderId: number): Promise<any>;
-    captureOrder(orderId: string): Promise<any>;
-    refundOrder(orderId: number): Promise<{
-        message: string;
+    private invoicesService;
+    private clientId;
+    private clientSecret;
+    private apiBase;
+    constructor(ordersService: OrdersService, configService: ConfigService, invoicesService: InvoicesService);
+    private getAccessToken;
+    createOrder(orderId: number): Promise<{
+        paypalOrderId: any;
+        approvalUrl: any;
     }>;
+    captureOrder(paypalOrderId: string): Promise<any>;
+    refundOrder(orderId: number): Promise<void>;
 }

@@ -13,6 +13,7 @@ exports.NotificationsService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const nodemailer = require("nodemailer");
+const path = require("path");
 let NotificationsService = class NotificationsService {
     configService;
     transporter;
@@ -32,13 +33,22 @@ let NotificationsService = class NotificationsService {
             },
         });
     }
-    async sendEmail(to, subject, message) {
+    async sendEmail(to, subject, message, attachmentPath) {
         const mailOptions = {
             from: this.from,
             to,
             subject,
             text: message,
         };
+        if (attachmentPath) {
+            mailOptions.attachments = [
+                {
+                    filename: attachmentPath.split(path.sep).pop(),
+                    path: attachmentPath,
+                    contentType: 'application/pdf',
+                },
+            ];
+        }
         await this.transporter.sendMail(mailOptions);
     }
     async sendOrderConfirmation(email, orderId) {
