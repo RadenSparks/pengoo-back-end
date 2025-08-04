@@ -4,8 +4,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Reflector } from '@nestjs/core';
 import { Server } from 'http';
+import { webcrypto } from 'crypto';
 
 let cachedServer: Server;
+
+if (!globalThis.crypto) {
+  // @ts-ignore
+  globalThis.crypto = webcrypto;
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
