@@ -6,7 +6,11 @@ const app_module_1 = require("./app.module");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 const core_2 = require("@nestjs/core");
+const crypto_1 = require("crypto");
 let cachedServer;
+if (!globalThis.crypto) {
+    globalThis.crypto = crypto_1.webcrypto;
+}
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const reflector = app.get(core_2.Reflector);
