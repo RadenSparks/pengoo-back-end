@@ -72,7 +72,7 @@ export class MinigameService {
       await this.userCouponRepo.save(userCoupon);
 
       // Optionally notify user
-      const redeemUrl = `https://your-frontend-domain.com/redeem-coupon?token=${redeemToken}`;
+      const redeemUrl = `https://pengoo.store/redeem-coupon?token=${redeemToken}`;
       await this.notificationsService.sendEmail(
         user.email,
         'Redeem your coupon!',

@@ -40,7 +40,7 @@ export class UsersService {
       newUser.phone_number = createUserDto.phone_number;
       newUser.avatar_url = createUserDto.avatar_url;
       newUser.address = createUserDto.address;
-      newUser.role = createUserDto.role || 'USER';
+      newUser.role = createUserDto.role || 'user';
       newUser.status = true;
       newUser.provider = createUserDto.provider || 'local'; // <-- Add this line
 
