@@ -194,6 +194,9 @@ export class MinigameService {
       }
     }
 
+    // After generating the grid in playScratch
+    console.log('Scratch grid:', grid);
+
     return {
       grid,
       winLines,
