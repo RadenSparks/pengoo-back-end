@@ -27,7 +27,7 @@ export class MinigameService {
   'ssrb.png',
   'takodachi.png',
   'bubba.png',
-  'bloob.png',
+  'bloop.png',      // <-- fix spelling to match frontend
   'greenssrb.png'
 ];
   private readonly SCRATCH_GRID_SIZE = 3;
