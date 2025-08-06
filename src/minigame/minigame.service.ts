@@ -331,4 +331,27 @@ export class MinigameService {
     }
     return winLines;
   }
+
+  async notifyCouponGranted(user: User, couponCode: string) {
+    const subject = 'Pengoo - You’ve Earned a Coupon!';
+    const redeemUrl = `https://pengoo.store/account/voucher?code=${couponCode}`;
+    const message = `
+        Hello ${user.full_name || user.email},
+
+        Congratulations! You have reached a point milestone and earned a coupon code: ${couponCode}
+
+        You can redeem your coupon by visiting the following link:
+        ${redeemUrl}
+
+        Thank you for playing and shopping with Pengoo!
+
+        Best regards,
+        Pengoo Team
+    `;
+    await this.notificationsService.sendEmail(
+        user.email,
+        subject,
+        message
+    );
+  }
 }
