@@ -89,17 +89,18 @@ export class AuthService {
           avatar_url: picture ?? '',
           phone_number: '',
           address: '',
-          role: 'user',
-          provider: 'google',
+          role: 'user', // <-- Make sure this matches your app's expected role casing
+          provider: 'google', // <-- Always set provider
         });
       }
 
       if (skipMfa) {
         const payload: TokenPayloadDto = {
           email: user.email,
-          sub: user.id,
+          sub: user.id, // <-- Ensure this is the DB id
           role: user.role,
-          username: user.username
+          username: user.username,
+          provider: user.provider,
         };
         const token = this.signToken(payload);
         return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
