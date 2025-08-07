@@ -129,7 +129,8 @@ let MinigameService = class MinigameService {
         for (let i = 0; i < this.SCRATCH_GRID_SIZE; i++) {
             grid[i] = [];
             for (let j = 0; j < this.SCRATCH_GRID_SIZE; j++) {
-                grid[i][j] = 'bloop.png';
+                const token = this.SCRATCH_SYMBOLS[Math.floor(Math.random() * this.SCRATCH_SYMBOLS.length)];
+                grid[i][j] = token;
             }
         }
         const winLines = this.getWinLines(grid);
