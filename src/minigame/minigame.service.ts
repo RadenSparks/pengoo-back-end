@@ -27,7 +27,7 @@ export class MinigameService {
   'ssrb.png',
   'takodachi.png',
   'bubba.png',
-  'bloop.png',      // <-- fix spelling to match frontend
+  'bloop.png',    // <-- fix spelling to match frontend
   'greenssrb.png'
 ];
   private readonly SCRATCH_GRID_SIZE = 3;
@@ -147,12 +147,21 @@ export class MinigameService {
     user.minigame_tickets -= 1;
 
     // Generate grid (random symbols)
+    // const grid: string[][] = [];
+    // for (let i = 0; i < this.SCRATCH_GRID_SIZE; i++) {
+    //   grid[i] = [];
+    //   for (let j = 0; j < this.SCRATCH_GRID_SIZE; j++) {
+    //     const token = this.SCRATCH_SYMBOLS[Math.floor(Math.random() * this.SCRATCH_SYMBOLS.length)];
+    //     grid[i][j] = token;
+    //   }
+    // }
+
+    // For testing only, force all tiles to bloop.png
     const grid: string[][] = [];
     for (let i = 0; i < this.SCRATCH_GRID_SIZE; i++) {
       grid[i] = [];
       for (let j = 0; j < this.SCRATCH_GRID_SIZE; j++) {
-        const token = this.SCRATCH_SYMBOLS[Math.floor(Math.random() * this.SCRATCH_SYMBOLS.length)];
-        grid[i][j] = token;
+        grid[i][j] = 'bloop.png';
       }
     }
 
@@ -196,6 +205,7 @@ export class MinigameService {
 
     // After generating the grid in playScratch
     console.log('Scratch grid:', grid);
+    console.log('Available symbols:', this.SCRATCH_SYMBOLS);
 
     return {
       grid,

@@ -90,4 +90,5 @@ export declare class MinigameService {
     getTicketCount(userId: number): Promise<number>;
     getUserPoints(userId: number): Promise<number>;
     private getWinLines;
+    notifyCouponGranted(user: User, couponCode: string): Promise<void>;
 }

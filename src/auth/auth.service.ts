@@ -215,7 +215,7 @@ Hotline: 0937314158
           avatar_url: fbData.picture?.data?.url ?? '',
           phone_number: '',
           address: '',
-          role: 'USER',
+          role: 'user',
         });
       }
 
