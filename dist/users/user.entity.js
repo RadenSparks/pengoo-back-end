@@ -61,7 +61,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 50, nullable: false, default: 'USER' }),
+    (0, typeorm_1.Column)({ length: 50, nullable: false, default: 'user' }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([

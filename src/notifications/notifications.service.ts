@@ -57,7 +57,7 @@ export class NotificationsService {
   }
 
   async sendPasswordReset(email: string, token: string) {
-    const resetUrl = `https://your-frontend-domain.com/reset-password?token=${token}`;
+    const resetUrl = `https://pengoo.store/reset-password?token=${token}`;
     const subject = 'Password Reset Request';
     const message = `You requested a password reset. Click the link to reset your password: ${resetUrl}`;
     await this.sendEmail(email, subject, message);

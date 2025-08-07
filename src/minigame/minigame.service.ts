@@ -27,7 +27,7 @@ export class MinigameService {
   'ssrb.png',
   'takodachi.png',
   'bubba.png',
-  'bloob.png',
+  'bloop.png',    // <-- fix spelling to match frontend
   'greenssrb.png'
 ];
   private readonly SCRATCH_GRID_SIZE = 3;
@@ -72,7 +72,7 @@ export class MinigameService {
       await this.userCouponRepo.save(userCoupon);
 
       // Optionally notify user
-      const redeemUrl = `https://your-frontend-domain.com/redeem-coupon?token=${redeemToken}`;
+      const redeemUrl = `https://pengoo.store/redeem-coupon?token=${redeemToken}`;
       await this.notificationsService.sendEmail(
         user.email,
         'Redeem your coupon!',
@@ -156,6 +156,15 @@ export class MinigameService {
       }
     }
 
+    // For testing only, force all tiles to bloop.png
+    // const grid: string[][] = [];
+    // for (let i = 0; i < this.SCRATCH_GRID_SIZE; i++) {
+    //   grid[i] = [];
+    //   for (let j = 0; j < this.SCRATCH_GRID_SIZE; j++) {
+    //     grid[i][j] = 'bloop.png';
+    //   }
+    // }
+
     // --- NEW: Calculate win lines and score ---
     const winLines = this.getWinLines(grid);
     const gridScore = winLines.length * 100;
@@ -193,6 +202,10 @@ export class MinigameService {
         couponCode = activeCoupon.code;
       }
     }
+
+    // After generating the grid in playScratch
+    console.log('Scratch grid:', grid);
+    console.log('Available symbols:', this.SCRATCH_SYMBOLS);
 
     return {
       grid,
@@ -330,5 +343,28 @@ export class MinigameService {
       winLines.push({ type: "diag", index: 2 });
     }
     return winLines;
+  }
+
+  async notifyCouponGranted(user: User, couponCode: string) {
+    const subject = 'Pengoo - You’ve Earned a Coupon!';
+    const redeemUrl = `https://pengoo.store/account/voucher?code=${couponCode}`;
+    const message = `
+        Hello ${user.full_name || user.email},
+
+        Congratulations! You have reached a point milestone and earned a coupon code: ${couponCode}
+
+        You can redeem your coupon by visiting the following link:
+        ${redeemUrl}
+
+        Thank you for playing and shopping with Pengoo!
+
+        Best regards,
+        Pengoo Team
+    `;
+    await this.notificationsService.sendEmail(
+        user.email,
+        subject,
+        message
+    );
   }
 }

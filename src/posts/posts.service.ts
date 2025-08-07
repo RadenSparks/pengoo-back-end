@@ -6,6 +6,13 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostCatalogue } from './post-catalogue.entity';
 
+function sanitizeCanonical(value: string): string {
+  return value
+    .replace(/\s+/g, "-")        // spaces to hyphens
+    .replace(/[^a-zA-Z0-9\-]/g, "") // remove special chars except hyphen
+    .toLowerCase();
+}
+
 @Injectable()
 export class PostsService {
   constructor(
@@ -19,6 +26,10 @@ export class PostsService {
     const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
     if (!catalogue) {
       throw new Error('Catalogue not found');
+    }
+    // Sanitize canonical before saving
+    if (dto.canonical) {
+      dto.canonical = sanitizeCanonical(dto.canonical);
     }
     const post = this.postsRepository.create({
       ...dto,
@@ -43,6 +54,10 @@ export class PostsService {
       const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
       if (!catalogue) throw new NotFoundException('Catalogue not found');
       post.catalogue = catalogue;
+    }
+    // Sanitize canonical before updating
+    if (dto.canonical) {
+      dto.canonical = sanitizeCanonical(dto.canonical);
     }
     Object.assign(post, dto);
     return this.postsRepository.save(post);

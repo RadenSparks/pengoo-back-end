@@ -35,7 +35,7 @@ let MinigameService = class MinigameService {
         'ssrb.png',
         'takodachi.png',
         'bubba.png',
-        'bloob.png',
+        'bloop.png',
         'greenssrb.png'
     ];
     SCRATCH_GRID_SIZE = 3;
@@ -70,7 +70,7 @@ let MinigameService = class MinigameService {
                 redeemToken,
             });
             await this.userCouponRepo.save(userCoupon);
-            const redeemUrl = `https://your-frontend-domain.com/redeem-coupon?token=${redeemToken}`;
+            const redeemUrl = `https://pengoo.store/redeem-coupon?token=${redeemToken}`;
             await this.notificationsService.sendEmail(user.email, 'Redeem your coupon!', `Congratulations! You earned a coupon. Click here to redeem: ${redeemUrl}`);
             return {
                 message: `Congratulations! You earned a coupon. Check your email to redeem it.`,
@@ -166,6 +166,8 @@ let MinigameService = class MinigameService {
                 couponCode = activeCoupon.code;
             }
         }
+        console.log('Scratch grid:', grid);
+        console.log('Available symbols:', this.SCRATCH_SYMBOLS);
         return {
             grid,
             winLines,
@@ -285,6 +287,24 @@ let MinigameService = class MinigameService {
             winLines.push({ type: "diag", index: 2 });
         }
         return winLines;
+    }
+    async notifyCouponGranted(user, couponCode) {
+        const subject = 'Pengoo - You’ve Earned a Coupon!';
+        const redeemUrl = `https://pengoo.store/account/voucher?code=${couponCode}`;
+        const message = `
+        Hello ${user.full_name || user.email},
+
+        Congratulations! You have reached a point milestone and earned a coupon code: ${couponCode}
+
+        You can redeem your coupon by visiting the following link:
+        ${redeemUrl}
+
+        Thank you for playing and shopping with Pengoo!
+
+        Best regards,
+        Pengoo Team
+    `;
+        await this.notificationsService.sendEmail(user.email, subject, message);
     }
 };
 exports.MinigameService = MinigameService;

@@ -18,6 +18,12 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const posts_entity_1 = require("./posts.entity");
 const post_catalogue_entity_1 = require("./post-catalogue.entity");
+function sanitizeCanonical(value) {
+    return value
+        .replace(/\s+/g, "-")
+        .replace(/[^a-zA-Z0-9\-]/g, "")
+        .toLowerCase();
+}
 let PostsService = class PostsService {
     postsRepository;
     cataloguesRepository;
@@ -29,6 +35,9 @@ let PostsService = class PostsService {
         const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
         if (!catalogue) {
             throw new Error('Catalogue not found');
+        }
+        if (dto.canonical) {
+            dto.canonical = sanitizeCanonical(dto.canonical);
         }
         const post = this.postsRepository.create({
             ...dto,
@@ -52,6 +61,9 @@ let PostsService = class PostsService {
             if (!catalogue)
                 throw new common_1.NotFoundException('Catalogue not found');
             post.catalogue = catalogue;
+        }
+        if (dto.canonical) {
+            dto.canonical = sanitizeCanonical(dto.canonical);
         }
         Object.assign(post, dto);
         return this.postsRepository.save(post);

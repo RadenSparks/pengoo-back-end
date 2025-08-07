@@ -99,7 +99,8 @@ let AuthService = class AuthService {
                     email: user.email,
                     sub: user.id,
                     role: user.role,
-                    username: user.username
+                    username: user.username,
+                    provider: user.provider,
                 };
                 const token = this.signToken(payload);
                 return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
@@ -195,7 +196,7 @@ Hotline: 0937314158
                     avatar_url: fbData.picture?.data?.url ?? '',
                     phone_number: '',
                     address: '',
-                    role: 'USER',
+                    role: 'user',
                 });
             }
             if (skipMfa) {
