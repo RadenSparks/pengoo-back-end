@@ -108,8 +108,8 @@ let OrdersService = class OrdersService {
             orderCode: +(order_code),
             amount: 2000,
             description: "Thanh toán đơn hàng",
-            cancelUrl: "http://localhost:3001/order/cancel",
-            returnUrl: "http://localhost:3001/order/success"
+            cancelUrl: "https://pengoo.store/order/cancel",
+            returnUrl: "https://pengoo.store/order/success"
         };
         const result = await this.payosService.createInvoice(checkout);
         return { checkout_url: result.data.checkoutUrl, order_code };
