@@ -6,12 +6,14 @@ import { User } from './user.entity';
 import { CreateUserDto } from './create-user.dto';
 import { UpdateUserDto } from './update-user.dto';
 import { randomBytes } from 'crypto';
+import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private cloudinaryService: CloudinaryService,
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -104,7 +106,15 @@ export class UsersService {
     Object.assign(user, updateUserDto);
     return this.usersRepository.save(user);
   }
-
+  async updateClient(id: number, updateUserDto: UpdateUserDto, file): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new Error('User not found');
+    if (file) {
+      updateUserDto.avatar_url = (await this.cloudinaryService.uploadImage(file)).secure_url;
+    }
+    Object.assign(user, updateUserDto);
+    return this.usersRepository.save(user);
+  }
   async remove(id: number): Promise<void> {
     await this.usersRepository.delete(id);
   }

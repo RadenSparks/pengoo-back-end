@@ -14,6 +14,6 @@ export declare class PaypalService {
         paypalOrderId: any;
         approvalUrl: any;
     }>;
-    captureOrder(paypalOrderId: string): Promise<unknown>;
+    captureOrder(paypalOrderId: string): Promise<any>;
     refundOrder(orderId: number): Promise<void>;
 }

@@ -6,5 +6,5 @@ export declare class PaypalController {
         paypalOrderId: any;
         approvalUrl: any;
     }>;
-    capturePaypalOrder(paypalOrderId: string): Promise<unknown>;
+    capturePaypalOrder(paypalOrderId: string): Promise<any>;
 }

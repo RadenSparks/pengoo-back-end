@@ -2,9 +2,11 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './create-user.dto';
 import { UpdateUserDto } from './update-user.dto';
+import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
 export declare class UsersService {
     private usersRepository;
-    constructor(usersRepository: Repository<User>);
+    private cloudinaryService;
+    constructor(usersRepository: Repository<User>, cloudinaryService: CloudinaryService);
     create(createUserDto: CreateUserDto): Promise<User>;
     findByUsername(accountUsername: string): Promise<User | null>;
     findByEmail(accountUsername: string): Promise<User | null>;
@@ -14,6 +16,7 @@ export declare class UsersService {
     resetPassword(token: string, newPassword: string): Promise<boolean>;
     findAll(): Promise<User[]>;
     update(id: number, updateUserDto: UpdateUserDto): Promise<User>;
+    updateClient(id: number, updateUserDto: UpdateUserDto, file: any): Promise<User>;
     remove(id: number): Promise<void>;
     updatePassword(userId: number, dto: any): Promise<{
         status: number;
