@@ -100,7 +100,7 @@ export class OrdersService {
       payment_status: payment_status as PaymentStatus,
       productStatus: productStatus as ProductStatus,
       details: orderDetails,
-      order_code
+      order_code: Math.floor(this.generateSafeOrderCode()), // always integer
     });
     let savedOrder = await this.ordersRepository.save(order);
     savedOrder.checkout_url = checkout_url ?? null

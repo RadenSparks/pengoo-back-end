@@ -91,7 +91,7 @@ let OrdersService = class OrdersService {
             payment_status: payment_status,
             productStatus: productStatus,
             details: orderDetails,
-            order_code
+            order_code: Math.floor(this.generateSafeOrderCode()),
         });
         let savedOrder = await this.ordersRepository.save(order);
         savedOrder.checkout_url = checkout_url ?? null;
