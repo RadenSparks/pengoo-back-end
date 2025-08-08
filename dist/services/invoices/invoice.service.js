@@ -14,14 +14,13 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InvoicesService = void 0;
 const common_1 = require("@nestjs/common");
+const notifications_service_1 = require("../../notifications/notifications.service");
 const order_entity_1 = require("../../orders/order.entity");
-const typeorm_1 = require("@nestjs/typeorm");
-const typeorm_2 = require("typeorm");
-const common_2 = require("@nestjs/common");
-const easyinvoice_1 = require("easyinvoice");
+const typeorm_1 = require("typeorm");
+const typeorm_2 = require("@nestjs/typeorm");
 const fs = require("fs");
 const path = require("path");
-const notifications_service_1 = require("../../notifications/notifications.service");
+const easyinvoice = require("easyinvoice");
 let InvoicesService = class InvoicesService {
     ordersRepository;
     notificationsService;
@@ -34,63 +33,77 @@ let InvoicesService = class InvoicesService {
             where: { id: orderId },
             relations: ['user', 'details', 'details.product'],
         });
-        if (!order) {
-            throw new common_2.NotFoundException('Order not found');
-        }
-        const invoiceData = {
-            documentTitle: 'Invoice',
+        if (!order)
+            throw new common_1.InternalServerErrorException('Order not found');
+        const invoicePath = await this.createInvoicePdf(order);
+        await this.notificationsService.sendEmail(order.user.email, 'Pengoo - Your Invoice', `Dear ${order.user.full_name || order.user.email},
+
+Thank you for your payment. Please find your invoice attached.
+
+Pengoo Corporation
+130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City
+Hotline: 0937314158
+`, invoicePath);
+        fs.unlink(invoicePath, () => { });
+    }
+    async createInvoicePdf(order) {
+        const data = {
+            documentTitle: 'INVOICE',
+            currency: 'VND',
+            taxNotation: 'vat',
+            marginTop: 25,
+            marginRight: 25,
+            marginLeft: 25,
+            marginBottom: 25,
+            logo: '',
             sender: {
-                company: 'Pengoo Corpporation',
-                address: '130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City',
-                zip: '700000',
+                company: 'Pengoo Corporation',
+                address: '130/9 Dien Bien Phu Street, Binh Thanh District',
+                zip: '70000',
                 city: 'Ho Chi Minh City',
                 country: 'Vietnam',
-                phone: '0937314158',
             },
             client: {
-                company: order.user.full_name,
-                address: order.user.address || '',
+                company: order.user.full_name || order.user.email,
+                address: order.shipping_address,
                 zip: '',
                 city: '',
                 country: '',
-                email: order.user.email,
             },
-            invoiceNumber: order.id.toString(),
-            invoiceDate: order.order_date.toISOString().split('T')[0],
-            products: order.details.map(detail => ({
-                quantity: detail.quantity.toString(),
-                description: detail.product.product_name,
-                price: detail.price,
+            invoiceNumber: String(order.order_code),
+            invoiceDate: new Date(order.order_date).toLocaleDateString('en-GB'),
+            products: order.details.map((detail) => ({
+                quantity: detail.quantity,
+                description: detail.product?.product_name || 'Product',
                 tax: 0,
+                price: detail.product?.product_price || 0,
             })),
-            custom: [
-                {
-                    title: "Payment Method",
-                    value: order.payment_type,
-                },
-                {
-                    title: "Payment Status",
-                    value: order.payment_status,
-                }
-            ],
             bottomNotice: 'Thank you for your purchase!',
         };
-        const invoicesDir = path.join(process.cwd(), 'invoices');
-        if (!fs.existsSync(invoicesDir)) {
-            fs.mkdirSync(invoicesDir);
+        const result = await easyinvoice.createInvoice(data);
+        const invoiceDir = path.join(process.cwd(), 'invoices');
+        if (!fs.existsSync(invoiceDir)) {
+            fs.mkdirSync(invoiceDir, { recursive: true });
         }
-        const result = await easyinvoice_1.default.createInvoice(invoiceData);
-        const invoicePath = path.join(invoicesDir, `invoice_${order.id}.pdf`);
+        const invoicePath = path.join(invoiceDir, `invoice-${order.id}.pdf`);
         fs.writeFileSync(invoicePath, result.pdf, 'base64');
-        await this.notificationsService.sendEmail(order.user.email, 'Your Invoice', 'Thank you for your payment. Please find your invoice attached.', invoicePath);
         return invoicePath;
+    }
+    async createInvoicePdfByOrderId(orderId) {
+        const order = await this.ordersRepository.findOne({
+            where: { id: orderId },
+            relations: ['user', 'details', 'details.product'],
+        });
+        if (!order)
+            throw new common_1.InternalServerErrorException('Order not found');
+        return this.createInvoicePdf(order);
     }
 };
 exports.InvoicesService = InvoicesService;
 exports.InvoicesService = InvoicesService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(order_entity_1.Order)),
-    __metadata("design:paramtypes", [typeorm_2.Repository,
+    __param(0, (0, typeorm_2.InjectRepository)(order_entity_1.Order)),
+    __metadata("design:paramtypes", [typeorm_1.Repository,
         notifications_service_1.NotificationsService])
 ], InvoicesService);
 //# sourceMappingURL=invoice.service.js.map

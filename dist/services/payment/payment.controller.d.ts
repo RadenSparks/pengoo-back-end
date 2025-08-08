@@ -18,4 +18,7 @@ export declare class PaymentsController {
     capturePaypal(orderId: number, userId: number, userRole: string): Promise<{
         message: string;
     }>;
+    markOrderAsPaid(orderId: number, userId: number, userRole: string): Promise<{
+        message: string;
+    }>;
 }

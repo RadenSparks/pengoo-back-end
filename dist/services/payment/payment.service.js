@@ -85,7 +85,8 @@ let PaymentsService = class PaymentsService {
         }
         order.payment_status = order_entity_1.PaymentStatus.Paid;
         await this.ordersRepository.save(order);
-        return { message: 'Payment captured and order marked as paid.' };
+        await this.invoicesService.generateInvoice(orderId);
+        return { message: 'Payment captured, order marked as paid, and invoice sent.' };
     }
     async handlePayosCapture(orderId, userId, userRole) {
         const order = await this.ordersRepository.findOne({
@@ -147,6 +148,22 @@ let PaymentsService = class PaymentsService {
         order.productStatus = 'cancelled';
         await this.ordersRepository.save(order);
         return { message: 'Order cancelled.' };
+    }
+    async markOrderAsPaid(orderId, userId, userRole) {
+        const order = await this.ordersRepository.findOne({
+            where: { id: orderId },
+            relations: ['user'],
+        });
+        if (!order)
+            throw new common_1.BadRequestException('Order not found');
+        await this.assertCanAct(userId, order, userRole);
+        if (order.payment_status === order_entity_1.PaymentStatus.Paid) {
+            throw new common_1.BadRequestException('Order is already paid.');
+        }
+        order.payment_status = order_entity_1.PaymentStatus.Paid;
+        await this.ordersRepository.save(order);
+        await this.invoicesService.generateInvoice(orderId);
+        return { message: 'Order marked as paid and invoice sent.' };
     }
 };
 exports.PaymentsService = PaymentsService;

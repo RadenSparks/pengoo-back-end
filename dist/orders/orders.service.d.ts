@@ -8,6 +8,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { Delivery } from '../delivery/delivery.entity';
 import { CouponsService } from '../coupons/coupons.service';
 import { PayosService } from '../services/payos/payos.service';
+import { InvoicesService } from '../services/invoices/invoice.service';
 export declare class OrdersService {
     private readonly payosService;
     private ordersRepository;
@@ -17,7 +18,8 @@ export declare class OrdersService {
     private productsService;
     private notificationsService;
     private couponsService;
-    constructor(payosService: PayosService, ordersRepository: Repository<Order>, orderDetailsRepository: Repository<OrderDetail>, deliveryRepository: Repository<Delivery>, usersService: UsersService, productsService: ProductsService, notificationsService: NotificationsService, couponsService: CouponsService);
+    private invoicesService;
+    constructor(payosService: PayosService, ordersRepository: Repository<Order>, orderDetailsRepository: Repository<OrderDetail>, deliveryRepository: Repository<Delivery>, usersService: UsersService, productsService: ProductsService, notificationsService: NotificationsService, couponsService: CouponsService, invoicesService: InvoicesService);
     create(createOrderDto: CreateOrderDto): Promise<any>;
     generateSafeOrderCode: () => number;
     createOrderPayOS(amount: number): Promise<{

@@ -81,7 +81,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Order.prototype, "order_date", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'int', nullable: false }),
+    (0, typeorm_1.Column)({ type: 'float', nullable: false }),
     __metadata("design:type", Number)
 ], Order.prototype, "total_price", void 0);
 __decorate([

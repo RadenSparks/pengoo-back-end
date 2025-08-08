@@ -5,43 +5,39 @@ import * as path from 'path';
 
 @Injectable()
 export class NotificationsService {
-  private transporter: nodemailer.Transporter;
-  private from: string;
+  constructor(private configService: ConfigService) {}
 
-  constructor(private configService: ConfigService) {
-    const emailUser = this.configService.get<string>('EMAIL_USER');
-    if (!emailUser) {
-      throw new Error('EMAIL_USER environment variable is not set');
-    }
-    this.from = emailUser;
-    this.transporter = nodemailer.createTransport({
+  async sendEmail(
+    to: string,
+    subject: string,
+    text: string,
+    attachmentPath?: string
+  ) {
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: this.from,
+        user: this.configService.get<string>('EMAIL_USER'),
         pass: this.configService.get<string>('EMAIL_PASS'),
       },
     });
-  }
 
-  async sendEmail(to: string, subject: string, message: string, attachmentPath?: string) {
     const mailOptions: any = {
-      from: this.from,
+      from: this.configService.get<string>('EMAIL_USER'),
       to,
       subject,
-      text: message,
+      text,
     };
 
     if (attachmentPath) {
       mailOptions.attachments = [
         {
-          filename: attachmentPath.split(path.sep).pop(), // Get file name from path
+          filename: attachmentPath.split('/').pop(),
           path: attachmentPath,
-          contentType: 'application/pdf',
         },
       ];
     }
 
-    await this.transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
   }
 
   async sendOrderConfirmation(email: string, orderId: number) {

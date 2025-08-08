@@ -53,32 +53,7 @@ let PayosService = class PayosService {
         }
     }
     async handlePayosPaymentSuccess(orderId) {
-        const invoicePath = await this.invoicesService.generateInvoice(orderId);
-        const order = await this.invoicesService['ordersRepository'].findOne({
-            where: { id: orderId },
-            relations: ['user', 'details', 'details.product'],
-        });
-        if (!order || !order.user)
-            throw new Error('Order or user not found');
-        const itemsInfo = order.details.map(detail => `- ${detail.product?.product_name ?? 'Unknown'} x${detail.quantity} (${detail.price} VND each)`).join('\n');
-        const subject = 'Pengoo - Your Payment Invoice';
-        const message = `
-            Hello ${order.user.full_name || order.user.email},
-
-            Thank you for your payment via PayOS. Please find your invoice attached.
-
-            Order Code: ${order.id}
-            Amount Paid: ${order.total_price} VND
-
-            Items:
-            ${itemsInfo}
-
-            If you have any questions, please contact our support team.
-
-            Best regards,
-            Pengoo Team
-        `;
-        await this.invoicesService['notificationsService'].sendEmail(order.user.email, subject, message, invoicePath);
+        await this.invoicesService.generateInvoice(orderId);
         return { message: 'Invoice generated and sent to user.' };
     }
 };

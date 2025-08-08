@@ -18,6 +18,7 @@ const swagger_1 = require("@nestjs/swagger");
 const payment_service_1 = require("./payment.service");
 const payment_types_1 = require("./payment.types");
 const public_decorator_1 = require("../../auth/public.decorator");
+const jwt_auth_guard_1 = require("../../auth/jwt-auth.guard");
 let PaymentsController = class PaymentsController {
     paymentsService;
     constructor(paymentsService) {
@@ -34,6 +35,9 @@ let PaymentsController = class PaymentsController {
     }
     async capturePaypal(orderId, userId, userRole) {
         return this.paymentsService.handlePaypalCapture(orderId, userId, userRole);
+    }
+    async markOrderAsPaid(orderId, userId, userRole) {
+        return this.paymentsService.markOrderAsPaid(orderId, userId, userRole);
     }
 };
 exports.PaymentsController = PaymentsController;
@@ -111,6 +115,24 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number, String]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "capturePaypal", null);
+__decorate([
+    (0, common_1.Post)('mark-paid/:orderId'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            example: {
+                userId: 1,
+                userRole: 'admin'
+            }
+        }
+    }),
+    __param(0, (0, common_1.Param)('orderId')),
+    __param(1, (0, common_1.Body)('userId')),
+    __param(2, (0, common_1.Body)('userRole')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String]),
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "markOrderAsPaid", null);
 exports.PaymentsController = PaymentsController = __decorate([
     (0, common_1.Controller)('payments'),
     __metadata("design:paramtypes", [payment_service_1.PaymentsService])

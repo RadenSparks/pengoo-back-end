@@ -22,9 +22,13 @@ let InvoicesController = class InvoicesController {
         this.invoicesService = invoicesService;
     }
     async getInvoice(orderId, res) {
-        const invoicePath = await this.invoicesService.generateInvoice(orderId);
+        const invoicePath = await this.invoicesService.createInvoicePdfByOrderId(orderId);
         res.setHeader('Content-Type', 'application/pdf');
         res.sendFile(path.resolve(invoicePath));
+    }
+    async resendInvoice(orderId) {
+        await this.invoicesService.generateInvoice(orderId);
+        return { message: 'Invoice re-sent to user email.' };
     }
 };
 exports.InvoicesController = InvoicesController;
@@ -36,6 +40,13 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], InvoicesController.prototype, "getInvoice", null);
+__decorate([
+    (0, common_1.Post)(':orderId/resend'),
+    __param(0, (0, common_1.Param)('orderId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], InvoicesController.prototype, "resendInvoice", null);
 exports.InvoicesController = InvoicesController = __decorate([
     (0, common_1.Controller)('invoices'),
     __metadata("design:paramtypes", [invoice_service_1.InvoicesService])
