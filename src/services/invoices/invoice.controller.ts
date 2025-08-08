@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res } from '@nestjs/common';
+import { Controller, Get, Post, Param, Res } from '@nestjs/common';
 import { InvoicesService } from './invoice.service';
 import { Response } from 'express';
 import * as path from 'path';
@@ -12,5 +12,11 @@ export class InvoicesController {
     const invoicePath: string = await this.invoicesService.createInvoicePdfByOrderId(orderId);
     res.setHeader('Content-Type', 'application/pdf');
     res.sendFile(path.resolve(invoicePath));
+  }
+
+  @Post(':orderId/resend')
+  async resendInvoice(@Param('orderId') orderId: number) {
+    await this.invoicesService.generateInvoice(orderId);
+    return { message: 'Invoice re-sent to user email.' };
   }
 }
