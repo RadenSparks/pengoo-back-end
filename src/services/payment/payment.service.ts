@@ -74,7 +74,11 @@ export class PaymentsService {
 
     order.payment_status = PaymentStatus.Paid;
     await this.ordersRepository.save(order);
-    return { message: 'Payment captured and order marked as paid.' };
+
+    // Generate and send invoice
+    await this.invoicesService.generateInvoice(orderId);
+
+    return { message: 'Payment captured, order marked as paid, and invoice sent.' };
   }
 
   async handlePayosCapture(orderId: number, userId: number, userRole: string) {
@@ -149,5 +153,26 @@ export class PaymentsService {
     order.productStatus = 'cancelled';
     await this.ordersRepository.save(order);
     return { message: 'Order cancelled.' };
+  }
+
+  async markOrderAsPaid(orderId: number, userId: number, userRole: string) {
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['user'],
+    });
+    if (!order) throw new BadRequestException('Order not found');
+    await this.assertCanAct(userId, order, userRole);
+
+    if (order.payment_status === PaymentStatus.Paid) {
+      throw new BadRequestException('Order is already paid.');
+    }
+
+    order.payment_status = PaymentStatus.Paid;
+    await this.ordersRepository.save(order);
+
+    // Generate and send invoice
+    await this.invoicesService.generateInvoice(orderId);
+
+    return { message: 'Order marked as paid and invoice sent.' };
   }
 }

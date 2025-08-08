@@ -30,4 +30,7 @@ export declare class PaymentsService {
     cancelOrder(orderId: number, userId: number, userRole: string): Promise<{
         message: string;
     }>;
+    markOrderAsPaid(orderId: number, userId: number, userRole: string): Promise<{
+        message: string;
+    }>;
 }
