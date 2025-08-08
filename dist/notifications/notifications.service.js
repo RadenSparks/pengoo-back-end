@@ -13,43 +13,34 @@ exports.NotificationsService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const nodemailer = require("nodemailer");
-const path = require("path");
 let NotificationsService = class NotificationsService {
     configService;
-    transporter;
-    from;
     constructor(configService) {
         this.configService = configService;
-        const emailUser = this.configService.get('EMAIL_USER');
-        if (!emailUser) {
-            throw new Error('EMAIL_USER environment variable is not set');
-        }
-        this.from = emailUser;
-        this.transporter = nodemailer.createTransport({
+    }
+    async sendEmail(to, subject, text, attachmentPath) {
+        const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: this.from,
+                user: this.configService.get('EMAIL_USER'),
                 pass: this.configService.get('EMAIL_PASS'),
             },
         });
-    }
-    async sendEmail(to, subject, message, attachmentPath) {
         const mailOptions = {
-            from: this.from,
+            from: this.configService.get('EMAIL_USER'),
             to,
             subject,
-            text: message,
+            text,
         };
         if (attachmentPath) {
             mailOptions.attachments = [
                 {
-                    filename: attachmentPath.split(path.sep).pop(),
+                    filename: attachmentPath.split('/').pop(),
                     path: attachmentPath,
-                    contentType: 'application/pdf',
                 },
             ];
         }
-        await this.transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
     }
     async sendOrderConfirmation(email, orderId) {
         const subject = 'Order Confirmation';

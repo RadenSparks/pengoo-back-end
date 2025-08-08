@@ -75,7 +75,7 @@ export class PaymentsService {
     order.payment_status = PaymentStatus.Paid;
     await this.ordersRepository.save(order);
 
-    // Generate and send invoice
+    // Send invoice email
     await this.invoicesService.generateInvoice(orderId);
 
     return { message: 'Payment captured, order marked as paid, and invoice sent.' };
@@ -170,7 +170,7 @@ export class PaymentsService {
     order.payment_status = PaymentStatus.Paid;
     await this.ordersRepository.save(order);
 
-    // Generate and send invoice
+    // Send invoice email
     await this.invoicesService.generateInvoice(orderId);
 
     return { message: 'Order marked as paid and invoice sent.' };

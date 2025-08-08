@@ -22,7 +22,7 @@ let InvoicesController = class InvoicesController {
         this.invoicesService = invoicesService;
     }
     async getInvoice(orderId, res) {
-        const invoicePath = await this.invoicesService.generateInvoice(orderId);
+        const invoicePath = await this.invoicesService.createInvoicePdfByOrderId(orderId);
         res.setHeader('Content-Type', 'application/pdf');
         res.sendFile(path.resolve(invoicePath));
     }

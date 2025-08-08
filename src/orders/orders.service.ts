@@ -135,12 +135,12 @@ export class OrdersService {
     return this.ordersRepository.findOne({ where: { id: orderId } });
   }
   async markOrderAsPaidByCode(orderCode: number): Promise<void> {
-    const order = await this.ordersRepository.findOne({ where: { order_code: orderCode }, relations: ['user', 'details', 'details.product'] });
+    const order = await this.ordersRepository.findOne({ where: { order_code: orderCode }, relations: ['user'] });
     if (!order) throw new Error('Order not found');
-    order.payment_status = 'paid' as PaymentStatus;
+    order.payment_status = PaymentStatus.Paid;
     await this.ordersRepository.save(order);
 
-    // Send invoice after marking as paid
+    // Send invoice email
     await this.invoicesService.generateInvoice(order.id);
   }
 

@@ -9,7 +9,7 @@ export class InvoicesController {
 
   @Get(':orderId')
   async getInvoice(@Param('orderId') orderId: number, @Res() res: Response) {
-    const invoicePath = await this.invoicesService.generateInvoice(orderId);
+    const invoicePath: string = await this.invoicesService.createInvoicePdfByOrderId(orderId);
     res.setHeader('Content-Type', 'application/pdf');
     res.sendFile(path.resolve(invoicePath));
   }
