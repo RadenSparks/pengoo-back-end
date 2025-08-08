@@ -3,7 +3,6 @@ import { ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { CreateOrderDto } from './create-orders.dto';
-import { Redirect } from '@nestjs/common';
 import { Response } from 'express';
 import { Public } from '../auth/public.decorator'; // Add this import
 @Controller('orders')
@@ -82,8 +81,8 @@ export class OrdersController {
   async handleOrderSuccess(@Query() query: any, @Res() res: Response) {
     const { orderCode } = query;
     try {
-      await this.ordersService.markOrderAsPaidByCode(+orderCode);
-      return res.redirect(`https://your-frontend-url.com/order/success?orderCode=${orderCode}`);
+      await this.ordersService.markOrderAsPaidByCode(+orderCode); // sets status to 'paid'
+      return res.redirect(`https://pengoo.store/order/success?orderCode=${orderCode}`);
     } catch (err) {
       return res.status(404).json({ message: err.message || 'Order not found' });
     }
@@ -93,7 +92,7 @@ export class OrdersController {
   async handleOrderCancel(@Query() query: any, @Res() res: Response) {
     const { orderCode } = query;
     await this.ordersService.handleOrderCancellation(+orderCode);
-    return res.redirect(`https://your-frontend-url.com/order/cancel?orderCode=${orderCode}`);
+    return res.redirect(`https://pengoo.store/order/cancel?orderCode=${orderCode}`);
   }
   @Delete(':id')
   @Public()

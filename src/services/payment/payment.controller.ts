@@ -1,12 +1,13 @@
-import { Controller, Post, Param, Body } from '@nestjs/common';
+import { Controller, Post, Param, Body, UseGuards } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { PaymentsService } from './payment.service';
 import { PaymentMethod } from './payment.types';
 import { Public } from '../../auth/public.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+  constructor(private readonly paymentsService: PaymentsService) { }
 
   @Post('pay/:orderId')
   @Public()
@@ -80,5 +81,23 @@ export class PaymentsController {
     @Body('userRole') userRole: string,
   ) {
     return this.paymentsService.handlePaypalCapture(orderId, userId, userRole);
+  }
+
+  @Post('mark-paid/:orderId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBody({
+    schema: {
+      example: {
+        userId: 1,
+        userRole: 'admin'
+      }
+    }
+  })
+  async markOrderAsPaid(
+    @Param('orderId') orderId: number,
+    @Body('userId') userId: number,
+    @Body('userRole') userRole: string,
+  ) {
+    return this.paymentsService.markOrderAsPaid(orderId, userId, userRole);
   }
 }
