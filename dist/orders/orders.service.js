@@ -23,6 +23,7 @@ const notifications_service_1 = require("../notifications/notifications.service"
 const delivery_entity_1 = require("../delivery/delivery.entity");
 const coupons_service_1 = require("../coupons/coupons.service");
 const payos_service_1 = require("../services/payos/payos.service");
+const invoice_service_1 = require("../services/invoices/invoice.service");
 let OrdersService = class OrdersService {
     payosService;
     ordersRepository;
@@ -32,7 +33,8 @@ let OrdersService = class OrdersService {
     productsService;
     notificationsService;
     couponsService;
-    constructor(payosService, ordersRepository, orderDetailsRepository, deliveryRepository, usersService, productsService, notificationsService, couponsService) {
+    invoicesService;
+    constructor(payosService, ordersRepository, orderDetailsRepository, deliveryRepository, usersService, productsService, notificationsService, couponsService, invoicesService) {
         this.payosService = payosService;
         this.ordersRepository = ordersRepository;
         this.orderDetailsRepository = orderDetailsRepository;
@@ -41,6 +43,7 @@ let OrdersService = class OrdersService {
         this.productsService = productsService;
         this.notificationsService = notificationsService;
         this.couponsService = couponsService;
+        this.invoicesService = invoicesService;
     }
     async create(createOrderDto) {
         const { userId, delivery_id, payment_type, shipping_address, payment_status, productStatus, details, couponCode, } = createOrderDto;
@@ -121,11 +124,12 @@ let OrdersService = class OrdersService {
         return this.ordersRepository.findOne({ where: { id: orderId } });
     }
     async markOrderAsPaidByCode(orderCode) {
-        const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
+        const order = await this.ordersRepository.findOne({ where: { order_code: orderCode }, relations: ['user', 'details', 'details.product'] });
         if (!order)
             throw new Error('Order not found');
         order.payment_status = 'paid';
         await this.ordersRepository.save(order);
+        await this.invoicesService.generateInvoice(order.id);
     }
     async handleOrderCancellation(orderCode) {
         const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
@@ -174,6 +178,7 @@ exports.OrdersService = OrdersService = __decorate([
         users_service_1.UsersService,
         products_service_1.ProductsService,
         notifications_service_1.NotificationsService,
-        coupons_service_1.CouponsService])
+        coupons_service_1.CouponsService,
+        invoice_service_1.InvoicesService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

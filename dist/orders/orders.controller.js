@@ -43,7 +43,7 @@ let OrdersController = class OrdersController {
         const { orderCode } = query;
         try {
             await this.ordersService.markOrderAsPaidByCode(+orderCode);
-            return res.redirect(`https://your-frontend-url.com/order/success?orderCode=${orderCode}`);
+            return res.redirect(`https://pengoo.store/order/success?orderCode=${orderCode}`);
         }
         catch (err) {
             return res.status(404).json({ message: err.message || 'Order not found' });
@@ -52,7 +52,7 @@ let OrdersController = class OrdersController {
     async handleOrderCancel(query, res) {
         const { orderCode } = query;
         await this.ordersService.handleOrderCancellation(+orderCode);
-        return res.redirect(`https://your-frontend-url.com/order/cancel?orderCode=${orderCode}`);
+        return res.redirect(`https://pengoo.store/order/cancel?orderCode=${orderCode}`);
     }
     removeOrder(id) {
         return this.ordersService.remove(id);
