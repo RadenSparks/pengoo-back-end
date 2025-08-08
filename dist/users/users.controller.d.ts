@@ -7,7 +7,7 @@ export declare class UsersController {
     register(createUserDto: CreateUserDto): Promise<import("./user.entity").User>;
     getAll(): Promise<import("./user.entity").User[]>;
     getById(id: number): Promise<import("./user.entity").User | null>;
-    update(id: number, updateUserDto: UpdateUserDto): Promise<import("./user.entity").User>;
+    update(id: number, updateUserDto: UpdateUserDto, file: Express.Multer.File): Promise<import("./user.entity").User>;
     remove(id: number): Promise<{
         message: string;
     }>;

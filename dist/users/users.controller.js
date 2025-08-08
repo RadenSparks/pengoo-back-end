@@ -20,6 +20,7 @@ const create_user_dto_1 = require("./create-user.dto");
 const update_user_dto_1 = require("./update-user.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const public_decorator_1 = require("../auth/public.decorator");
+const platform_express_1 = require("@nestjs/platform-express");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
@@ -34,8 +35,8 @@ let UsersController = class UsersController {
     async getById(id) {
         return this.usersService.findById(Number(id));
     }
-    async update(id, updateUserDto) {
-        return this.usersService.update(Number(id), updateUserDto);
+    async update(id, updateUserDto, file) {
+        return this.usersService.updateClient(Number(id), updateUserDto, file);
     }
     async remove(id) {
         await this.usersService.remove(Number(id));
@@ -80,11 +81,13 @@ __decorate([
 ], UsersController.prototype, "getById", null);
 __decorate([
     (0, common_1.Put)('update/:id'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('avatar_url')),
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, update_user_dto_1.UpdateUserDto]),
+    __metadata("design:paramtypes", [Number, update_user_dto_1.UpdateUserDto, Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "update", null);
 __decorate([

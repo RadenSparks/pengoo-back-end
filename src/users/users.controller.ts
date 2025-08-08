@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, UseGuards, Patch, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete, UseGuards, Patch, Req, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './create-user.dto';
@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 // import { Roles } from '../auth/roles.decorator';
 // import { RolesGuard } from '../auth/roles.guard';
 import { Public } from '../auth/public.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 // Temporarily remove RolesGuard for dashboard management endpoints
@@ -37,9 +38,10 @@ export class UsersController {
   }
 
   @Put('update/:id')
+  @UseInterceptors(FileInterceptor('avatar_url'))
   @Public()
-  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(Number(id), updateUserDto);
+  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto, @UploadedFile() file: Express.Multer.File) {
+    return this.usersService.updateClient(Number(id), updateUserDto, file);
   }
 
   @Delete(':id')

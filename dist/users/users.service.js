@@ -19,10 +19,13 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const crypto_1 = require("crypto");
+const cloudinary_service_1 = require("../services/cloudinary/cloudinary.service");
 let UsersService = class UsersService {
     usersRepository;
-    constructor(usersRepository) {
+    cloudinaryService;
+    constructor(usersRepository, cloudinaryService) {
         this.usersRepository = usersRepository;
+        this.cloudinaryService = cloudinaryService;
     }
     async create(createUserDto) {
         try {
@@ -102,6 +105,16 @@ let UsersService = class UsersService {
         Object.assign(user, updateUserDto);
         return this.usersRepository.save(user);
     }
+    async updateClient(id, updateUserDto, file) {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user)
+            throw new Error('User not found');
+        if (file) {
+            updateUserDto.avatar_url = (await this.cloudinaryService.uploadImage(file)).secure_url;
+        }
+        Object.assign(user, updateUserDto);
+        return this.usersRepository.save(user);
+    }
     async remove(id) {
         await this.usersRepository.delete(id);
     }
@@ -143,6 +156,7 @@ exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        cloudinary_service_1.CloudinaryService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

@@ -46,7 +46,7 @@ export class Order {
   @CreateDateColumn({ type: 'date', nullable: false })
   order_date: Date; // Order date
 
-  @Column({ type: 'float', nullable: false })
+  @Column({ type: 'int', nullable: false })
   total_price: number; // Total price
 
   @Column({ type: 'bigint', nullable: true, default: null })
