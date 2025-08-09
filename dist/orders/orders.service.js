@@ -24,6 +24,7 @@ const delivery_entity_1 = require("../delivery/delivery.entity");
 const coupons_service_1 = require("../coupons/coupons.service");
 const payos_service_1 = require("../services/payos/payos.service");
 const invoice_service_1 = require("../services/invoices/invoice.service");
+const product_entity_1 = require("../products/product.entity");
 let OrdersService = class OrdersService {
     payosService;
     ordersRepository;
@@ -34,7 +35,8 @@ let OrdersService = class OrdersService {
     notificationsService;
     couponsService;
     invoicesService;
-    constructor(payosService, ordersRepository, orderDetailsRepository, deliveryRepository, usersService, productsService, notificationsService, couponsService, invoicesService) {
+    dataSource;
+    constructor(payosService, ordersRepository, orderDetailsRepository, deliveryRepository, usersService, productsService, notificationsService, couponsService, invoicesService, dataSource) {
         this.payosService = payosService;
         this.ordersRepository = ordersRepository;
         this.orderDetailsRepository = orderDetailsRepository;
@@ -44,6 +46,7 @@ let OrdersService = class OrdersService {
         this.notificationsService = notificationsService;
         this.couponsService = couponsService;
         this.invoicesService = invoicesService;
+        this.dataSource = dataSource;
     }
     async create(createOrderDto) {
         const { userId, delivery_id, payment_type, shipping_address, payment_status, productStatus, details, couponCode, } = createOrderDto;
@@ -98,6 +101,7 @@ let OrdersService = class OrdersService {
         });
         let savedOrder = await this.ordersRepository.save(order);
         savedOrder.checkout_url = checkout_url ?? null;
+        await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
         return savedOrder;
     }
     generateSafeOrderCode = () => {
@@ -164,6 +168,30 @@ let OrdersService = class OrdersService {
     async save(order) {
         return this.ordersRepository.save(order);
     }
+    async completeOrder(orderId) {
+        await this.dataSource.transaction(async (manager) => {
+            const order = await manager.findOne(order_entity_1.Order, { where: { id: orderId }, relations: ['details', 'details.product'] });
+            if (!order)
+                throw new common_1.NotFoundException('Order not found');
+            for (const detail of order.details) {
+                const product = await manager
+                    .createQueryBuilder(product_entity_1.Product, 'product')
+                    .setLock('pessimistic_write')
+                    .where('product.id = :id', { id: detail.product.id })
+                    .getOne();
+                if (!product)
+                    throw new common_1.NotFoundException('Product not found');
+                if (product.quantity_stock < detail.quantity) {
+                    throw new common_1.BadRequestException(`Not enough stock for ${product.product_name}`);
+                }
+                product.quantity_stock -= detail.quantity;
+                product.quantity_sold += detail.quantity;
+                await manager.save(product);
+            }
+            order.payment_status = order_entity_1.PaymentStatus.Paid;
+            await manager.save(order);
+        });
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([
@@ -179,6 +207,7 @@ exports.OrdersService = OrdersService = __decorate([
         products_service_1.ProductsService,
         notifications_service_1.NotificationsService,
         coupons_service_1.CouponsService,
-        invoice_service_1.InvoicesService])
+        invoice_service_1.InvoicesService,
+        typeorm_2.DataSource])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

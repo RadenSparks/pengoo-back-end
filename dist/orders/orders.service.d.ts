@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Order, OrderDetail } from './order.entity';
 import { CreateOrderDto } from './create-orders.dto';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
@@ -19,7 +19,8 @@ export declare class OrdersService {
     private notificationsService;
     private couponsService;
     private invoicesService;
-    constructor(payosService: PayosService, ordersRepository: Repository<Order>, orderDetailsRepository: Repository<OrderDetail>, deliveryRepository: Repository<Delivery>, usersService: UsersService, productsService: ProductsService, notificationsService: NotificationsService, couponsService: CouponsService, invoicesService: InvoicesService);
+    private dataSource;
+    constructor(payosService: PayosService, ordersRepository: Repository<Order>, orderDetailsRepository: Repository<OrderDetail>, deliveryRepository: Repository<Delivery>, usersService: UsersService, productsService: ProductsService, notificationsService: NotificationsService, couponsService: CouponsService, invoicesService: InvoicesService, dataSource: DataSource);
     create(createOrderDto: CreateOrderDto): Promise<any>;
     generateSafeOrderCode: () => number;
     createOrderPayOS(amount: number): Promise<{
@@ -35,4 +36,5 @@ export declare class OrdersService {
     getDelivery(): Promise<Delivery[]>;
     findByPaypalOrderId(paypalOrderId: string): Promise<Order | null>;
     save(order: Order): Promise<Order>;
+    completeOrder(orderId: number): Promise<void>;
 }

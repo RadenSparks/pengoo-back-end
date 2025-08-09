@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Order, OrderDetail, PaymentStatus, ProductStatus } from './order.entity'; // Import PaymentStatus and ProductStatus
 import { CreateOrderDto } from './create-orders.dto';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
@@ -12,6 +12,7 @@ import { CouponsService } from '../coupons/coupons.service'; // <-- Add this imp
 import { PayosService } from '../services/payos/payos.service';
 import { CouponStatus } from 'src/coupons/coupon.entity';
 import { InvoicesService } from '../services/invoices/invoice.service'; // Add this import
+import { Product } from 'src/products/product.entity';
 
 @Injectable()
 export class OrdersService {
@@ -28,6 +29,7 @@ export class OrdersService {
     private notificationsService: NotificationsService,
     private couponsService: CouponsService,
     private invoicesService: InvoicesService, // Inject this
+    private dataSource: DataSource, // <-- Inject DataSource
   ) { }
 
   async create(createOrderDto: CreateOrderDto): Promise<any> {
@@ -106,7 +108,7 @@ export class OrdersService {
     });
     let savedOrder = await this.ordersRepository.save(order);
     savedOrder.checkout_url = checkout_url ?? null
-    // await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
+    await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
     return savedOrder;
   }
   generateSafeOrderCode = (): number => {
@@ -178,5 +180,33 @@ export class OrdersService {
 
   async save(order: Order): Promise<Order> {
     return this.ordersRepository.save(order);
+  }
+
+  async completeOrder(orderId: number) {
+    await this.dataSource.transaction(async manager => {
+      const order = await manager.findOne(Order, { where: { id: orderId }, relations: ['details', 'details.product'] });
+      if (!order) throw new NotFoundException('Order not found');
+
+      for (const detail of order.details) {
+        // Lock the product row for update
+        const product = await manager
+          .createQueryBuilder(Product, 'product')
+          .setLock('pessimistic_write')
+          .where('product.id = :id', { id: detail.product.id })
+          .getOne();
+
+        if (!product) throw new NotFoundException('Product not found');
+        if (product.quantity_stock < detail.quantity) {
+          throw new BadRequestException(`Not enough stock for ${product.product_name}`);
+        }
+        product.quantity_stock -= detail.quantity;
+        product.quantity_sold += detail.quantity;
+        await manager.save(product);
+      }
+
+      order.payment_status = PaymentStatus.Paid;
+      await manager.save(order);
+      // ...send invoice, etc...
+    });
   }
 }
