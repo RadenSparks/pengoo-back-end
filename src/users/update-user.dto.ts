@@ -1,20 +1,27 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class UpdateUserDto {
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(8)
-  password: string;
+  password?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(3)
-  full_name: string;
+  full_name?: string;
 
+  @IsOptional()
   @IsEmail()
-  @MinLength(10)
-  email: string;
+  email?: string;
 
-  phone_number: string | null | undefined;
-  avatar_url: string | null | undefined;
-  address: string | null | undefined;
-  role: string;
+  @IsOptional()
+  phone_number?: string;
+
+  @IsOptional()
+  avatar_url?: string;
+
+  @IsOptional()
+  address?: string;
+
+  @IsOptional()
+  role?: string;
 }
