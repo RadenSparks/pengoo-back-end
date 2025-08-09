@@ -45,20 +45,34 @@ let NotificationsService = class NotificationsService {
         await transporter.sendMail(mailOptions);
     }
     async sendOrderConfirmation(email, orderId) {
-        const subject = 'Order Confirmation';
-        const message = `Your order with ID ${orderId} has been confirmed.`;
-        await this.sendEmail(email, subject, message);
+        const subject = 'Xác nhận đơn hàng từ Pengoo';
+        const message = `Đơn hàng của bạn với mã số <b>${orderId}</b> đã được xác nhận. Cảm ơn bạn đã mua sắm tại Pengoo!`;
+        await this.sendEmail(email, subject, `Đơn hàng của bạn với mã số ${orderId} đã được xác nhận.`, undefined, pengooEmailTemplate({
+            title: 'Xác nhận đơn hàng',
+            message,
+            logoUrl: 'https://pengoo.store/logo.png',
+        }));
     }
     async sendShippingUpdate(email, orderId, status) {
-        const subject = 'Shipping Update';
-        const message = `Your order with ID ${orderId} is now ${status}.`;
-        await this.sendEmail(email, subject, message);
+        const subject = 'Cập nhật trạng thái vận chuyển';
+        const message = `Đơn hàng <b>${orderId}</b> của bạn hiện đang ở trạng thái: <b>${status}</b>.`;
+        await this.sendEmail(email, subject, `Đơn hàng ${orderId} hiện đang ở trạng thái: ${status}.`, undefined, pengooEmailTemplate({
+            title: 'Cập nhật vận chuyển',
+            message,
+            logoUrl: 'https://pengoo.store/logo.png',
+        }));
     }
     async sendPasswordReset(email, token) {
         const resetUrl = `https://pengoo.store/reset-password?token=${token}`;
-        const subject = 'Password Reset Request';
-        const message = `You requested a password reset. Click the link to reset your password: ${resetUrl}`;
-        await this.sendEmail(email, subject, message);
+        const subject = 'Yêu cầu đặt lại mật khẩu';
+        const message = `Bạn vừa yêu cầu đặt lại mật khẩu. Nhấn vào nút bên dưới để đặt lại mật khẩu của bạn.<br><br>
+      <a href="${resetUrl}" style="display:inline-block;background:#6341df;color:#fff;font-weight:600;text-decoration:none;padding:12px 32px;border-radius:6px;font-size:16px;margin-top:12px;">Đặt lại mật khẩu</a>
+      <br><br>Nếu bạn không yêu cầu, hãy bỏ qua email này.`;
+        await this.sendEmail(email, subject, `Bạn vừa yêu cầu đặt lại mật khẩu. Truy cập: ${resetUrl}`, undefined, pengooEmailTemplate({
+            title: 'Đặt lại mật khẩu',
+            message,
+            logoUrl: 'https://pengoo.store/logo.png',
+        }));
     }
 };
 exports.NotificationsService = NotificationsService;
