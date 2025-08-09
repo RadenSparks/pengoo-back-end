@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, ForbiddenException } from '@nestjs/common';
 import { NotificationsService, pengooEmailTemplate } from '../../notifications/notifications.service';
 import { Order } from '../../orders/order.entity';
 import { Repository } from 'typeorm';
@@ -25,7 +25,7 @@ export class InvoicesService {
     // Generate invoice PDF using easyInvoice
     const invoicePath = await this.createInvoicePdf(order);
 
-    // Send email with invoice attached
+    // Send email with invoice attached and styled HTML
     await this.notificationsService.sendEmail(
       order.user.email,
       'Pengoo - Your Invoice',
@@ -34,8 +34,9 @@ export class InvoicesService {
       pengooEmailTemplate({
         title: 'Your Invoice',
         message: `Dear ${order.user.full_name || order.user.email},<br><br>
-      Thank you for your payment. Please find your invoice attached.<br><br>
-      If you have any questions, contact us at the hotline below.`,
+          Thank you for your payment. Please find your invoice attached.<br><br>
+          If you have any questions, contact us at the hotline below.`,
+        logoUrl: 'https://pengoo.store/logo.png', // <-- Use your actual logo URL here
       }),
     );
 
@@ -52,7 +53,7 @@ export class InvoicesService {
       marginRight: 25,
       marginLeft: 25,
       marginBottom: 25,
-      logo: '',
+      logo: 'https://pengoo.store/logo.png', // <-- Use your actual logo URL here
       sender: {
         company: 'Pengoo Corporation',
         address: '130/9 Dien Bien Phu Street, Binh Thanh District',
@@ -100,5 +101,23 @@ export class InvoicesService {
     });
     if (!order) throw new InternalServerErrorException('Order not found');
     return this.createInvoicePdf(order);
+  }
+
+  async getOrderWithDetails(orderId: number): Promise<Order | null> {
+    return this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['user', 'details', 'details.product'],
+    });
+  }
+
+  canDownloadInvoice(order: Order): boolean {
+    // Only allow download if paid (for COD, must be marked as paid)
+    if (order.payment_type === 'cod' && order.payment_status !== 'paid') {
+      return false;
+    }
+    if (order.payment_status !== 'paid') {
+      return false;
+    }
+    return true;
   }
 }

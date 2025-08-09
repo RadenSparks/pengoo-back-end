@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res, NotFoundException, Post } from '@nestjs/common';
+import { Controller, Get, Param, Res, NotFoundException, Post, ForbiddenException } from '@nestjs/common';
 import { InvoicesService } from './invoice.service';
 import { Response } from 'express';
 import * as path from 'path';
@@ -10,7 +10,14 @@ export class InvoicesController {
 
   @Get(':orderId')
   async getInvoice(@Param('orderId') orderId: string, @Res() res: Response) {
-    const invoicePath = await this.invoicesService.createInvoicePdfByOrderId(Number(orderId));
+    const order = await this.invoicesService.getOrderWithDetails(Number(orderId));
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    if (!this.invoicesService.canDownloadInvoice(order)) {
+      throw new ForbiddenException('Invoice is only available after payment is confirmed.');
+    }
+    const invoicePath = await this.invoicesService.createInvoicePdf(order);
     if (!fs.existsSync(invoicePath)) {
       throw new NotFoundException('Invoice not found');
     }
