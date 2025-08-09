@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { NotificationsService } from '../../notifications/notifications.service';
+import { NotificationsService, pengooEmailTemplate } from '../../notifications/notifications.service';
 import { Order } from '../../orders/order.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -29,15 +29,14 @@ export class InvoicesService {
     await this.notificationsService.sendEmail(
       order.user.email,
       'Pengoo - Your Invoice',
-      `Dear ${order.user.full_name || order.user.email},
-
-Thank you for your payment. Please find your invoice attached.
-
-Pengoo Corporation
-130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City
-Hotline: 0937314158
-`,
-      invoicePath // Pass the file path as attachment
+      `Thank you for your payment. Please find your invoice attached.`,
+      invoicePath,
+      pengooEmailTemplate({
+        title: 'Your Invoice',
+        message: `Dear ${order.user.full_name || order.user.email},<br><br>
+      Thank you for your payment. Please find your invoice attached.<br><br>
+      If you have any questions, contact us at the hotline below.`,
+      }),
     );
 
     // Optionally, delete the PDF after sending
@@ -83,7 +82,8 @@ Hotline: 0937314158
     const result = await (easyinvoice as any).createInvoice(data);
 
     // Save PDF to disk
-    const invoiceDir = path.join(process.cwd(), 'invoices');
+    // Use /tmp/invoices for serverless compatibility
+    const invoiceDir = path.join('/tmp', 'invoices');
     if (!fs.existsSync(invoiceDir)) {
       fs.mkdirSync(invoiceDir, { recursive: true });
     }

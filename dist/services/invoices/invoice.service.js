@@ -36,14 +36,12 @@ let InvoicesService = class InvoicesService {
         if (!order)
             throw new common_1.InternalServerErrorException('Order not found');
         const invoicePath = await this.createInvoicePdf(order);
-        await this.notificationsService.sendEmail(order.user.email, 'Pengoo - Your Invoice', `Dear ${order.user.full_name || order.user.email},
-
-Thank you for your payment. Please find your invoice attached.
-
-Pengoo Corporation
-130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City
-Hotline: 0937314158
-`, invoicePath);
+        await this.notificationsService.sendEmail(order.user.email, 'Pengoo - Your Invoice', `Thank you for your payment. Please find your invoice attached.`, invoicePath, (0, notifications_service_1.pengooEmailTemplate)({
+            title: 'Your Invoice',
+            message: `Dear ${order.user.full_name || order.user.email},<br><br>
+      Thank you for your payment. Please find your invoice attached.<br><br>
+      If you have any questions, contact us at the hotline below.`,
+        }));
         fs.unlink(invoicePath, () => { });
     }
     async createInvoicePdf(order) {
@@ -81,7 +79,7 @@ Hotline: 0937314158
             bottomNotice: 'Thank you for your purchase!',
         };
         const result = await easyinvoice.createInvoice(data);
-        const invoiceDir = path.join(process.cwd(), 'invoices');
+        const invoiceDir = path.join('/tmp', 'invoices');
         if (!fs.existsSync(invoiceDir)) {
             fs.mkdirSync(invoiceDir, { recursive: true });
         }

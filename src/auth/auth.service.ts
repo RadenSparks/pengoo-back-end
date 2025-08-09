@@ -6,7 +6,7 @@ import { User } from '../users/user.entity';
 import { SignInResponseDto } from '../dto/signin-response.dto';
 import { TokenPayloadDto } from '../dto/token-payload.dto';
 import * as admin from 'firebase-admin';
-import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsService, pengooEmailTemplate } from '../notifications/notifications.service';
 import fetch from 'node-fetch'; // Add at the top if not present
 
 @Injectable()
@@ -78,9 +78,19 @@ export class AuthService {
       if (!email) {
         throw new UnauthorizedException('Google account email is missing');
       }
-      let user = await this.usersService.findByEmail(email!);
-      if (!user) {
-        // Register new user
+      let user = await this.usersService.findByEmail(email);
+
+      if (user) {
+        // If user exists and provider is 'local', log them in as local user
+        if (user.provider === 'local') {
+          // Optionally, you can send a magic link or ask for password
+          // For now, just log them in as local user
+          // (You may want to skip password check for this flow)
+          return this.loginUser(user, skipMfa);
+        }
+        // If user exists and provider is 'google', proceed as usual
+      } else {
+        // Register new user with Google provider
         user = await this.usersService.create({
           username: uid,
           password: Math.random().toString(36).slice(-8), // random password
@@ -89,8 +99,8 @@ export class AuthService {
           avatar_url: picture ?? '',
           phone_number: '',
           address: '',
-          role: 'user', // <-- Make sure this matches your app's expected role casing
-          provider: 'google', // <-- Always set provider
+          role: 'user',
+          provider: 'google',
         });
       }
 
@@ -113,20 +123,15 @@ export class AuthService {
       await this.notificationsService.sendEmail(
         user.email,
         'Pengoo - Your Login Confirmation Code',
-        `Pengoo Login Verification
-
-Hello ${user.full_name || user.email},
-
-We received a request to sign in to your Pengoo account. Please use the code below to verify your login:
-
-${code}
-
-This code will expire in 5 minutes. If you did not request this, please ignore this email.
-
-Pengoo Corporation
-130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City
-Hotline: 0937314158
-`
+        `Your code is: ${code}`,
+        undefined,
+        pengooEmailTemplate({
+          title: 'Your Login Confirmation Code',
+          message: `Hello ${user.full_name || user.email},<br><br>
+      We received a request to sign in to your Pengoo account. Please use the code below to verify your login.<br><br>
+      This code will expire in 5 minutes. If you did not request this, please ignore this email.`,
+          code,
+        })
       );
       return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
     } catch (error) {
@@ -148,20 +153,15 @@ Hotline: 0937314158
     await this.notificationsService.sendEmail(
       user.email,
       'Pengoo - Your Login Confirmation Code',
-      `Pengoo Login Verification
-
-Hello ${user.full_name || user.email},
-
-We received a request to sign in to your Pengoo account. Please use the code below to verify your login:
-
-${code}
-
-This code will expire in 5 minutes. If you did not request this, please ignore this email.
-
-Pengoo Corporation
-130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City
-Hotline: 0937314158
-`
+      `Your code is: ${code}`,
+      undefined,
+      pengooEmailTemplate({
+        title: 'Your Login Confirmation Code',
+        message: `Hello ${user.full_name || user.email},<br><br>
+      We received a request to sign in to your Pengoo account. Please use the code below to verify your login.<br><br>
+      This code will expire in 5 minutes. If you did not request this, please ignore this email.`,
+        code,
+      })
     );
     return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
   }
@@ -237,24 +237,38 @@ Hotline: 0937314158
       await this.notificationsService.sendEmail(
         user.email,
         'Pengoo - Your Login Confirmation Code',
-        `Pengoo Login Verification
-
-Hello ${user.full_name || user.email},
-
-We received a request to sign in to your Pengoo account. Please use the code below to verify your login:
-
-${code}
-
-This code will expire in 5 minutes. If you did not request this, please ignore this email.
-
-Pengoo Corporation
-130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City
-Hotline: 0937314158
-`
+        `Your code is: ${code}`,
+        undefined,
+        pengooEmailTemplate({
+          title: 'Your Login Confirmation Code',
+          message: `Hello ${user.full_name || user.email},<br><br>
+      We received a request to sign in to your Pengoo account. Please use the code below to verify your login.<br><br>
+      This code will expire in 5 minutes. If you did not request this, please ignore this email.`,
+          code,
+        })
       );
       return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
     } catch (error) {
       throw new UnauthorizedException('Invalid Facebook token');
     }
+  }
+
+  loginUser(user: User, skipMfa = false) {
+    // You may want to check MFA here if needed
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const access_token = this.jwtService.sign(payload);
+    return {
+      access_token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        full_name: user.full_name,
+        avatar_url: user.avatar_url,
+        role: user.role,
+        provider: user.provider,
+      },
+      mfaRequired: !skipMfa && !!user.mfaCode, // or your MFA logic
+    };
   }
 }

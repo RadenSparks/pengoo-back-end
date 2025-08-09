@@ -13,6 +13,18 @@ export declare class AuthService {
     signin(email: string, password: string): Promise<SignInResponseDto>;
     verify(token: string): Promise<any>;
     googleLogin(idToken: string, skipMfa?: boolean): Promise<{
+        access_token: string;
+        user: {
+            id: number;
+            username: string;
+            email: string;
+            full_name: string;
+            avatar_url: string;
+            role: string;
+            provider: string;
+        };
+        mfaRequired: boolean;
+    } | {
         token: string;
         username: string;
         role: string;
@@ -52,4 +64,17 @@ export declare class AuthService {
         role?: undefined;
         profileCompleted?: undefined;
     }>;
+    loginUser(user: User, skipMfa?: boolean): {
+        access_token: string;
+        user: {
+            id: number;
+            username: string;
+            email: string;
+            full_name: string;
+            avatar_url: string;
+            role: string;
+            provider: string;
+        };
+        mfaRequired: boolean;
+    };
 }

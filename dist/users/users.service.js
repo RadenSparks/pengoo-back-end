@@ -40,6 +40,12 @@ let UsersService = class UsersService {
                 username = `${baseUsername}${counter}`;
                 counter++;
             }
+            const existingUser = await this.usersRepository.findOne({ where: { email: createUserDto.email } });
+            if (existingUser) {
+                if (existingUser.provider === 'google' && (!createUserDto.provider || createUserDto.provider === 'local')) {
+                    throw new common_1.BadRequestException('An account with this email already exists via Google. Please log in with Google.');
+                }
+            }
             const newUser = new user_entity_1.User();
             newUser.username = username;
             newUser.full_name = createUserDto.full_name;

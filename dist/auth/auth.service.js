@@ -81,7 +81,12 @@ let AuthService = class AuthService {
                 throw new common_1.UnauthorizedException('Google account email is missing');
             }
             let user = await this.usersService.findByEmail(email);
-            if (!user) {
+            if (user) {
+                if (user.provider === 'local') {
+                    return this.loginUser(user, skipMfa);
+                }
+            }
+            else {
                 user = await this.usersService.create({
                     username: uid,
                     password: Math.random().toString(36).slice(-8),
@@ -109,20 +114,13 @@ let AuthService = class AuthService {
             user.mfaCode = code;
             user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000);
             await this.usersService.update(user.id, user);
-            await this.notificationsService.sendEmail(user.email, 'Pengoo - Your Login Confirmation Code', `Pengoo Login Verification
-
-Hello ${user.full_name || user.email},
-
-We received a request to sign in to your Pengoo account. Please use the code below to verify your login:
-
-${code}
-
-This code will expire in 5 minutes. If you did not request this, please ignore this email.
-
-Pengoo Corporation
-130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City
-Hotline: 0937314158
-`);
+            await this.notificationsService.sendEmail(user.email, 'Pengoo - Your Login Confirmation Code', `Your code is: ${code}`, undefined, (0, notifications_service_1.pengooEmailTemplate)({
+                title: 'Your Login Confirmation Code',
+                message: `Hello ${user.full_name || user.email},<br><br>
+      We received a request to sign in to your Pengoo account. Please use the code below to verify your login.<br><br>
+      This code will expire in 5 minutes. If you did not request this, please ignore this email.`,
+                code,
+            }));
             return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
         }
         catch (error) {
@@ -140,20 +138,13 @@ Hotline: 0937314158
         user.mfaCode = code;
         user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000);
         await this.usersService.update(user.id, user);
-        await this.notificationsService.sendEmail(user.email, 'Pengoo - Your Login Confirmation Code', `Pengoo Login Verification
-
-Hello ${user.full_name || user.email},
-
-We received a request to sign in to your Pengoo account. Please use the code below to verify your login:
-
-${code}
-
-This code will expire in 5 minutes. If you did not request this, please ignore this email.
-
-Pengoo Corporation
-130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City
-Hotline: 0937314158
-`);
+        await this.notificationsService.sendEmail(user.email, 'Pengoo - Your Login Confirmation Code', `Your code is: ${code}`, undefined, (0, notifications_service_1.pengooEmailTemplate)({
+            title: 'Your Login Confirmation Code',
+            message: `Hello ${user.full_name || user.email},<br><br>
+      We received a request to sign in to your Pengoo account. Please use the code below to verify your login.<br><br>
+      This code will expire in 5 minutes. If you did not request this, please ignore this email.`,
+            code,
+        }));
         return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
     }
     async verifyMfaCode(email, code) {
@@ -213,25 +204,35 @@ Hotline: 0937314158
             user.mfaCode = code;
             user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000);
             await this.usersService.update(user.id, user);
-            await this.notificationsService.sendEmail(user.email, 'Pengoo - Your Login Confirmation Code', `Pengoo Login Verification
-
-Hello ${user.full_name || user.email},
-
-We received a request to sign in to your Pengoo account. Please use the code below to verify your login:
-
-${code}
-
-This code will expire in 5 minutes. If you did not request this, please ignore this email.
-
-Pengoo Corporation
-130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City
-Hotline: 0937314158
-`);
+            await this.notificationsService.sendEmail(user.email, 'Pengoo - Your Login Confirmation Code', `Your code is: ${code}`, undefined, (0, notifications_service_1.pengooEmailTemplate)({
+                title: 'Your Login Confirmation Code',
+                message: `Hello ${user.full_name || user.email},<br><br>
+      We received a request to sign in to your Pengoo account. Please use the code below to verify your login.<br><br>
+      This code will expire in 5 minutes. If you did not request this, please ignore this email.`,
+                code,
+            }));
             return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
         }
         catch (error) {
             throw new common_1.UnauthorizedException('Invalid Facebook token');
         }
+    }
+    loginUser(user, skipMfa = false) {
+        const payload = { sub: user.id, email: user.email, role: user.role };
+        const access_token = this.jwtService.sign(payload);
+        return {
+            access_token,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                full_name: user.full_name,
+                avatar_url: user.avatar_url,
+                role: user.role,
+                provider: user.provider,
+            },
+            mfaRequired: !skipMfa && !!user.mfaCode,
+        };
     }
 };
 exports.AuthService = AuthService;

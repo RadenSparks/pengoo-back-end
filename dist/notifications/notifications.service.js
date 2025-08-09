@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationsService = void 0;
+exports.pengooEmailTemplate = pengooEmailTemplate;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const nodemailer = require("nodemailer");
@@ -18,7 +19,7 @@ let NotificationsService = class NotificationsService {
     constructor(configService) {
         this.configService = configService;
     }
-    async sendEmail(to, subject, text, attachmentPath) {
+    async sendEmail(to, subject, text, attachmentPath, html) {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -31,6 +32,7 @@ let NotificationsService = class NotificationsService {
             to,
             subject,
             text,
+            html,
         };
         if (attachmentPath) {
             mailOptions.attachments = [
@@ -64,4 +66,31 @@ exports.NotificationsService = NotificationsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [config_1.ConfigService])
 ], NotificationsService);
+function pengooEmailTemplate({ title, message, code, logoUrl = 'https://pengoo.store/logo.png', }) {
+    return `
+  <div style="font-family: Arial, sans-serif; background: #f7f7f7; padding: 40px 0;">
+    <div style="max-width: 480px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; overflow: hidden;">
+      <div style="background: #ffe066; padding: 24px 0; text-align: center;">
+        <img src="${logoUrl}" alt="Pengoo Logo" style="height: 48px; margin-bottom: 8px;" />
+        <h2 style="margin: 0; color: #222;">${title}</h2>
+      </div>
+      <div style="padding: 32px 24px 24px 24px; color: #333;">
+        <p style="font-size: 16px; margin-bottom: 24px;">${message}</p>
+        ${code
+        ? `<div style="text-align: center; margin: 32px 0;">
+                <span style="display: inline-block; background: #222; color: #ffe066; font-size: 28px; letter-spacing: 6px; padding: 12px 32px; border-radius: 6px; font-weight: bold;">
+                  ${code}
+                </span>
+              </div>`
+        : ''}
+        <p style="font-size: 13px; color: #888; margin-top: 40px;">
+          Pengoo Corporation<br/>
+          130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City<br/>
+          Hotline: 0937314158
+        </p>
+      </div>
+    </div>
+  </div>
+  `;
+}
 //# sourceMappingURL=notifications.service.js.map

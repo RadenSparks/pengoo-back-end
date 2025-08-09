@@ -34,6 +34,17 @@ export class UsersService {
         counter++;
       }
 
+      // SAFEGUARD: Prevent creating a local user if a Google user exists with the same email
+      const existingUser = await this.usersRepository.findOne({ where: { email: createUserDto.email } });
+      if (existingUser) {
+        if (existingUser.provider === 'google' && (!createUserDto.provider || createUserDto.provider === 'local')) {
+          throw new BadRequestException(
+            'An account with this email already exists via Google. Please log in with Google.'
+          );
+        }
+        // Optionally, prevent other provider overwrites as well
+      }
+
       const newUser = new User();
       newUser.username = username;
       newUser.full_name = createUserDto.full_name;
