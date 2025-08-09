@@ -16,19 +16,24 @@ exports.InvoicesController = void 0;
 const common_1 = require("@nestjs/common");
 const invoice_service_1 = require("./invoice.service");
 const path = require("path");
+const fs = require("fs");
 let InvoicesController = class InvoicesController {
     invoicesService;
     constructor(invoicesService) {
         this.invoicesService = invoicesService;
     }
     async getInvoice(orderId, res) {
-        const invoicePath = await this.invoicesService.createInvoicePdfByOrderId(orderId);
+        const invoicePath = await this.invoicesService.createInvoicePdfByOrderId(Number(orderId));
+        if (!fs.existsSync(invoicePath)) {
+            throw new common_1.NotFoundException('Invoice not found');
+        }
         res.setHeader('Content-Type', 'application/pdf');
-        res.sendFile(path.resolve(invoicePath));
+        res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
+        return res.sendFile(path.resolve(invoicePath));
     }
     async resendInvoice(orderId) {
-        await this.invoicesService.generateInvoice(orderId);
-        return { message: 'Invoice re-sent to user email.' };
+        await this.invoicesService.generateInvoice(Number(orderId));
+        return { success: true, message: 'Invoice resent successfully' };
     }
 };
 exports.InvoicesController = InvoicesController;
@@ -37,14 +42,14 @@ __decorate([
     __param(0, (0, common_1.Param)('orderId')),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], InvoicesController.prototype, "getInvoice", null);
 __decorate([
     (0, common_1.Post)(':orderId/resend'),
     __param(0, (0, common_1.Param)('orderId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], InvoicesController.prototype, "resendInvoice", null);
 exports.InvoicesController = InvoicesController = __decorate([

@@ -8,19 +8,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InvoicesModule = void 0;
 const common_1 = require("@nestjs/common");
+const invoice_controller_1 = require("./invoice.controller");
+const invoice_service_1 = require("./invoice.service");
 const typeorm_1 = require("@nestjs/typeorm");
 const order_entity_1 = require("../../orders/order.entity");
-const invoice_service_1 = require("./invoice.service");
 const notifications_module_1 = require("../../notifications/notifications.module");
 let InvoicesModule = class InvoicesModule {
 };
 exports.InvoicesModule = InvoicesModule;
 exports.InvoicesModule = InvoicesModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            typeorm_1.TypeOrmModule.forFeature([order_entity_1.Order]),
-            notifications_module_1.NotificationsModule,
-        ],
+        imports: [typeorm_1.TypeOrmModule.forFeature([order_entity_1.Order]), notifications_module_1.NotificationsModule],
+        controllers: [invoice_controller_1.InvoicesController],
         providers: [invoice_service_1.InvoicesService],
         exports: [invoice_service_1.InvoicesService],
     })
