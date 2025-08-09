@@ -8,4 +8,6 @@ export declare class InvoicesService {
     generateInvoice(orderId: number): Promise<void>;
     createInvoicePdf(order: Order): Promise<string>;
     createInvoicePdfByOrderId(orderId: number): Promise<string>;
+    getOrderWithDetails(orderId: number): Promise<Order | null>;
+    canDownloadInvoice(order: Order): boolean;
 }

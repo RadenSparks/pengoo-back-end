@@ -39,8 +39,9 @@ let InvoicesService = class InvoicesService {
         await this.notificationsService.sendEmail(order.user.email, 'Pengoo - Your Invoice', `Thank you for your payment. Please find your invoice attached.`, invoicePath, (0, notifications_service_1.pengooEmailTemplate)({
             title: 'Your Invoice',
             message: `Dear ${order.user.full_name || order.user.email},<br><br>
-      Thank you for your payment. Please find your invoice attached.<br><br>
-      If you have any questions, contact us at the hotline below.`,
+          Thank you for your payment. Please find your invoice attached.<br><br>
+          If you have any questions, contact us at the hotline below.`,
+            logoUrl: 'https://pengoo.store/logo.png',
         }));
         fs.unlink(invoicePath, () => { });
     }
@@ -53,7 +54,7 @@ let InvoicesService = class InvoicesService {
             marginRight: 25,
             marginLeft: 25,
             marginBottom: 25,
-            logo: '',
+            logo: 'https://pengoo.store/logo.png',
             sender: {
                 company: 'Pengoo Corporation',
                 address: '130/9 Dien Bien Phu Street, Binh Thanh District',
@@ -95,6 +96,21 @@ let InvoicesService = class InvoicesService {
         if (!order)
             throw new common_1.InternalServerErrorException('Order not found');
         return this.createInvoicePdf(order);
+    }
+    async getOrderWithDetails(orderId) {
+        return this.ordersRepository.findOne({
+            where: { id: orderId },
+            relations: ['user', 'details', 'details.product'],
+        });
+    }
+    canDownloadInvoice(order) {
+        if (order.payment_type === 'cod' && order.payment_status !== 'paid') {
+            return false;
+        }
+        if (order.payment_status !== 'paid') {
+            return false;
+        }
+        return true;
     }
 };
 exports.InvoicesService = InvoicesService;

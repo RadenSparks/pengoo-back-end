@@ -23,7 +23,14 @@ let InvoicesController = class InvoicesController {
         this.invoicesService = invoicesService;
     }
     async getInvoice(orderId, res) {
-        const invoicePath = await this.invoicesService.createInvoicePdfByOrderId(Number(orderId));
+        const order = await this.invoicesService.getOrderWithDetails(Number(orderId));
+        if (!order) {
+            throw new common_1.NotFoundException('Order not found');
+        }
+        if (!this.invoicesService.canDownloadInvoice(order)) {
+            throw new common_1.ForbiddenException('Invoice is only available after payment is confirmed.');
+        }
+        const invoicePath = await this.invoicesService.createInvoicePdf(order);
         if (!fs.existsSync(invoicePath)) {
             throw new common_1.NotFoundException('Invoice not found');
         }
