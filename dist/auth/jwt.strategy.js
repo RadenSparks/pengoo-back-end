@@ -29,7 +29,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
     }
     async validate(payload) {
         console.log('JWT payload:', payload);
-        const user = await this.usersService.findByUsername(payload.username);
+        const user = await this.usersService.findById(payload.sub);
         console.log('User found:', user);
         if (!user) {
             console.log('User not found!');

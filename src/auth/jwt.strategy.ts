@@ -17,7 +17,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: TokenPayloadDto) {
     console.log('JWT payload:', payload);
-    const user = await this.usersService.findByUsername(payload.username);
+    // FIX: Use findById instead of findByUsername
+    const user = await this.usersService.findById(payload.sub);
     console.log('User found:', user);
     if (!user) {
       console.log('User not found!');
