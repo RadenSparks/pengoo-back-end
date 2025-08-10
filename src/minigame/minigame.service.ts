@@ -95,31 +95,21 @@ export class MinigameService {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
-    // Prevent duplicate for the same refId/type
-    if (refId) {
-      const existing = await this.ticketEarningLogRepository.findOne({
-        where: { user: { id: userId }, type, refId },
-      });
-      if (existing) {
-        return { message: 'Already earned a ticket for this action.', tickets: user.minigame_tickets };
-      }
-    }
-
-    // Limit per day
+    // Limit: Only one ticket per type per day
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
 
-    const earnedToday = await this.ticketEarningLogRepository.count({
+    const earnedTypeToday = await this.ticketEarningLogRepository.findOne({
       where: {
         user: { id: userId },
+        type,
         createdAt: Between(today, tomorrow),
       },
     });
-
-    if (earnedToday >= this.MAX_TICKETS_PER_DAY) {
-      return { message: 'Reached ticket earning limit for today.', tickets: user.minigame_tickets };
+    if (earnedTypeToday) {
+      return { message: 'Bạn đã nhận vé này hôm nay rồi.', tickets: user.minigame_tickets };
     }
 
     // Grant ticket and log the action
