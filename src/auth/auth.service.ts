@@ -73,7 +73,8 @@ export class AuthService {
 
       // Verify token and get user info
       const decoded = await admin.auth().verifyIdToken(idToken);
-      const { email, name, picture, uid } = decoded;
+      const email = decoded.email?.toLowerCase();
+      const { name, picture, uid } = decoded;
 
       if (!email) {
         throw new UnauthorizedException('Google account email is missing');
@@ -81,22 +82,19 @@ export class AuthService {
       let user = await this.usersService.findByEmail(email);
 
       if (user) {
-        // If user exists and provider is 'local', log them in as local user
         if (user.provider === 'local') {
-          // Optionally, you can send a magic link or ask for password
-          // For now, just log them in as local user
-          // (You may want to skip password check for this flow)
+          // Always log in as the local user, never create a new one
           return this.loginUser(user, skipMfa);
         }
         // If user exists and provider is 'google', proceed as usual
       } else {
-        // Register new user with Google provider
+        // Only create a new user if no user exists with this email
         user = await this.usersService.create({
-          username: uid,
-          password: Math.random().toString(36).slice(-8), // random password
-          full_name: name ?? email ?? '',
+          username: decoded.uid,
+          password: Math.random().toString(36).slice(-8),
+          full_name: decoded.name ?? email ?? '',
           email: email,
-          avatar_url: picture ?? '',
+          avatar_url: decoded.picture ?? '',
           phone_number: '',
           address: '',
           role: 'user',

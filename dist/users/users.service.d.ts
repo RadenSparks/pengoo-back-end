@@ -9,7 +9,7 @@ export declare class UsersService {
     constructor(usersRepository: Repository<User>, cloudinaryService: CloudinaryService);
     create(createUserDto: CreateUserDto): Promise<User>;
     findByUsername(accountUsername: string): Promise<User | null>;
-    findByEmail(accountUsername: string): Promise<User | null>;
+    findByEmail(email: string): Promise<User | null>;
     findById(userId: number): Promise<User | null>;
     setResetToken(email: string): Promise<User | null>;
     findByResetToken(token: string): Promise<User | null>;

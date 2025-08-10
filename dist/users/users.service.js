@@ -67,8 +67,10 @@ let UsersService = class UsersService {
     async findByUsername(accountUsername) {
         return await this.usersRepository.findOne({ where: { username: accountUsername } });
     }
-    async findByEmail(accountUsername) {
-        return await this.usersRepository.findOne({ where: { email: accountUsername } });
+    async findByEmail(email) {
+        return await this.usersRepository.findOne({
+            where: { email: email.toLowerCase() }
+        });
     }
     async findById(userId) {
         return await this.usersRepository.findOne({ where: { id: userId } });

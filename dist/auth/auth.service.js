@@ -76,7 +76,8 @@ let AuthService = class AuthService {
                 });
             }
             const decoded = await admin.auth().verifyIdToken(idToken);
-            const { email, name, picture, uid } = decoded;
+            const email = decoded.email?.toLowerCase();
+            const { name, picture, uid } = decoded;
             if (!email) {
                 throw new common_1.UnauthorizedException('Google account email is missing');
             }
@@ -88,11 +89,11 @@ let AuthService = class AuthService {
             }
             else {
                 user = await this.usersService.create({
-                    username: uid,
+                    username: decoded.uid,
                     password: Math.random().toString(36).slice(-8),
-                    full_name: name ?? email ?? '',
+                    full_name: decoded.name ?? email ?? '',
                     email: email,
-                    avatar_url: picture ?? '',
+                    avatar_url: decoded.picture ?? '',
                     phone_number: '',
                     address: '',
                     role: 'user',
