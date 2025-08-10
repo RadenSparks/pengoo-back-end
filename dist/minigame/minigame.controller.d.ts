@@ -1,9 +1,12 @@
 import { MinigameService } from './minigame.service';
 import { SubmitScoreDto } from './dto/submit-score.dto';
 import { TicketEarningType } from './ticket-earning-log.entity';
+import { Repository } from 'typeorm';
+import { User } from '../users/user.entity';
 export declare class MinigameController {
     private readonly minigameService;
-    constructor(minigameService: MinigameService);
+    private usersRepository;
+    constructor(minigameService: MinigameService, usersRepository: Repository<User>);
     submitScore(req: any, dto: SubmitScoreDto): Promise<{
         message: string;
         tickets: number;
@@ -85,5 +88,8 @@ export declare class MinigameController {
     }>;
     getUserPoints(req: any): Promise<{
         userPoints: number;
+    }>;
+    getDailyClaimStatus(req: any): Promise<{
+        claimed: boolean | null;
     }>;
 }

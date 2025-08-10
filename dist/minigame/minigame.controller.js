@@ -18,10 +18,15 @@ const minigame_service_1 = require("./minigame.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const submit_score_dto_1 = require("./dto/submit-score.dto");
 const swagger_1 = require("@nestjs/swagger");
+const typeorm_1 = require("typeorm");
+const user_entity_1 = require("../users/user.entity");
+const typeorm_2 = require("@nestjs/typeorm");
 let MinigameController = class MinigameController {
     minigameService;
-    constructor(minigameService) {
+    usersRepository;
+    constructor(minigameService, usersRepository) {
         this.minigameService = minigameService;
+        this.usersRepository = usersRepository;
     }
     async submitScore(req, dto) {
         const userId = req.user.id;
@@ -56,6 +61,15 @@ let MinigameController = class MinigameController {
         const userId = req.user.id;
         const userPoints = await this.minigameService.getUserPoints(userId);
         return { userPoints };
+    }
+    async getDailyClaimStatus(req) {
+        const userId = req.user.id;
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        const today = new Date();
+        today.setHours(0, 0, 0);
+        const lastClaim = user?.lastFreeTicketClaim ? new Date(user.lastFreeTicketClaim) : null;
+        const claimed = lastClaim && lastClaim.getTime() >= today.getTime();
+        return { claimed };
     }
 };
 exports.MinigameController = MinigameController;
@@ -152,9 +166,19 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MinigameController.prototype, "getUserPoints", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('daily-claim-status'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MinigameController.prototype, "getDailyClaimStatus", null);
 exports.MinigameController = MinigameController = __decorate([
     (0, swagger_1.ApiTags)('Minigame'),
     (0, common_1.Controller)('minigame'),
-    __metadata("design:paramtypes", [minigame_service_1.MinigameService])
+    __param(1, (0, typeorm_2.InjectRepository)(user_entity_1.User)),
+    __metadata("design:paramtypes", [minigame_service_1.MinigameService,
+        typeorm_1.Repository])
 ], MinigameController);
 //# sourceMappingURL=minigame.controller.js.map

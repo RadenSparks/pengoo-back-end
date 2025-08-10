@@ -101,15 +101,7 @@ let AuthService = class AuthService {
                 });
             }
             if (skipMfa) {
-                const payload = {
-                    email: user.email,
-                    sub: user.id,
-                    role: user.role,
-                    username: user.username,
-                    provider: user.provider,
-                };
-                const token = this.signToken(payload);
-                return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
+                return this.loginUser(user, true);
             }
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             user.mfaCode = code;
@@ -192,14 +184,7 @@ let AuthService = class AuthService {
                 });
             }
             if (skipMfa) {
-                const payload = {
-                    email: user.email,
-                    sub: user.id,
-                    role: user.role,
-                    username: user.username
-                };
-                const token = this.signToken(payload);
-                return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
+                return this.loginUser(user, true);
             }
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             user.mfaCode = code;
@@ -231,6 +216,12 @@ let AuthService = class AuthService {
                 avatar_url: user.avatar_url,
                 role: user.role,
                 provider: user.provider,
+                phone_number: user.phone_number,
+                address: user.address,
+                points: user.points,
+                minigame_tickets: user.minigame_tickets ?? 0,
+                status: user.status,
+                lastFreeTicketClaim: user.lastFreeTicketClaim ?? null,
             },
             mfaRequired: !skipMfa && !!user.mfaCode,
         };

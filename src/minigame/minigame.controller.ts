@@ -5,13 +5,18 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SubmitScoreDto } from './dto/submit-score.dto';
 import { TicketEarningType } from './ticket-earning-log.entity';
 import { ApiBody, ApiTags, ApiOperation } from '@nestjs/swagger';
-
+import { Repository } from 'typeorm';
+import { User } from '../users/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @ApiTags('Minigame')
 @Controller('minigame')
 export class MinigameController {
-  constructor(private readonly minigameService: MinigameService) { }
-
+  constructor(
+    private readonly minigameService: MinigameService,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) { }
 
   @Post('submit-score')
   @UseGuards(JwtAuthGuard)
@@ -95,5 +100,17 @@ export class MinigameController {
     const userId = req.user.id;
     const userPoints = await this.minigameService.getUserPoints(userId);
     return { userPoints };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('daily-claim-status')
+  async getDailyClaimStatus(@Req() req) {
+    const userId = req.user.id;
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    const today = new Date();
+    today.setHours(0, 0, 0);
+    const lastClaim = user?.lastFreeTicketClaim ? new Date(user.lastFreeTicketClaim) : null;
+    const claimed = lastClaim && lastClaim.getTime() >= today.getTime();
+    return { claimed };
   }
 }

@@ -103,15 +103,8 @@ export class AuthService {
       }
 
       if (skipMfa) {
-        const payload: TokenPayloadDto = {
-          email: user.email,
-          sub: user.id, // <-- Ensure this is the DB id
-          role: user.role,
-          username: user.username,
-          provider: user.provider,
-        };
-        const token = this.signToken(payload);
-        return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
+        // Return full user object for frontend
+        return this.loginUser(user, true);
       }
       // --- MFA: Send code to email, require verification (dashboard only) ---
       const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -218,14 +211,8 @@ export class AuthService {
       }
 
       if (skipMfa) {
-        const payload: TokenPayloadDto = {
-          email: user.email,
-          sub: user.id,
-          role: user.role,
-          username: user.username
-        };
-        const token = this.signToken(payload);
-        return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
+        // Return full user object for frontend
+        return this.loginUser(user, true);
       }
       // --- MFA: Send code to email, require verification (dashboard only) ---
       const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -252,7 +239,6 @@ export class AuthService {
   }
 
   loginUser(user: User, skipMfa = false) {
-    // You may want to check MFA here if needed
     const payload = { sub: user.id, email: user.email, role: user.role };
     const access_token = this.jwtService.sign(payload);
     return {
@@ -265,8 +251,15 @@ export class AuthService {
         avatar_url: user.avatar_url,
         role: user.role,
         provider: user.provider,
+        phone_number: user.phone_number,
+        address: user.address,
+        points: user.points,
+        minigame_tickets: (user as any).minigame_tickets ?? 0,
+        status: user.status,
+        lastFreeTicketClaim: (user as any).lastFreeTicketClaim ?? null,
+        // add any other fields your frontend expects
       },
-      mfaRequired: !skipMfa && !!user.mfaCode, // or your MFA logic
+      mfaRequired: !skipMfa && !!user.mfaCode,
     };
   }
 }

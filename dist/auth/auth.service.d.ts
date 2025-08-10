@@ -22,22 +22,17 @@ export declare class AuthService {
             avatar_url: string;
             role: string;
             provider: string;
+            phone_number: string;
+            address: string;
+            points: number;
+            minigame_tickets: any;
+            status: boolean;
+            lastFreeTicketClaim: any;
         };
         mfaRequired: boolean;
     } | {
-        token: string;
-        username: string;
-        role: string;
-        profileCompleted: boolean;
-        mfaRequired?: undefined;
-        message?: undefined;
-    } | {
         mfaRequired: boolean;
         message: string;
-        token?: undefined;
-        username?: undefined;
-        role?: undefined;
-        profileCompleted?: undefined;
     }>;
     signinWithEmailMfa(email: string, password: string): Promise<{
         mfaRequired: boolean;
@@ -50,19 +45,26 @@ export declare class AuthService {
     }>;
     signToken(payload: TokenPayloadDto): string;
     facebookLogin(accessToken: string, skipMfa?: boolean): Promise<{
-        token: string;
-        username: string;
-        role: string;
-        profileCompleted: boolean;
-        mfaRequired?: undefined;
-        message?: undefined;
+        access_token: string;
+        user: {
+            id: number;
+            username: string;
+            email: string;
+            full_name: string;
+            avatar_url: string;
+            role: string;
+            provider: string;
+            phone_number: string;
+            address: string;
+            points: number;
+            minigame_tickets: any;
+            status: boolean;
+            lastFreeTicketClaim: any;
+        };
+        mfaRequired: boolean;
     } | {
         mfaRequired: boolean;
         message: string;
-        token?: undefined;
-        username?: undefined;
-        role?: undefined;
-        profileCompleted?: undefined;
     }>;
     loginUser(user: User, skipMfa?: boolean): {
         access_token: string;
@@ -74,6 +76,12 @@ export declare class AuthService {
             avatar_url: string;
             role: string;
             provider: string;
+            phone_number: string;
+            address: string;
+            points: number;
+            minigame_tickets: any;
+            status: boolean;
+            lastFreeTicketClaim: any;
         };
         mfaRequired: boolean;
     };
