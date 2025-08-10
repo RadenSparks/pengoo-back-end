@@ -28,7 +28,11 @@ let OrdersController = class OrdersController {
         return this.ordersService.create(createOrderDto);
     }
     updateOrderStatus(id, updateOrderStatusDto) {
-        return this.ordersService.updateStatus(id, updateOrderStatusDto);
+        const parsedId = parseInt(id, 10);
+        if (isNaN(parsedId)) {
+            throw new common_1.BadRequestException('Order ID must be an integer');
+        }
+        return this.ordersService.updateStatus(parsedId, updateOrderStatusDto);
     }
     findAllOrders() {
         return this.ordersService.findAll();
@@ -37,7 +41,11 @@ let OrdersController = class OrdersController {
         return this.ordersService.getDelivery();
     }
     findOrderById(id) {
-        return this.ordersService.findById(id);
+        const parsedId = parseInt(id, 10);
+        if (isNaN(parsedId)) {
+            throw new common_1.BadRequestException('Order ID must be an integer');
+        }
+        return this.ordersService.findById(parsedId);
     }
     async handleOrderSuccess(query, res) {
         const { orderCode } = query;
@@ -55,7 +63,11 @@ let OrdersController = class OrdersController {
         return res.redirect(`https://pengoo.store/order/cancel?orderCode=${orderCode}`);
     }
     removeOrder(id) {
-        return this.ordersService.remove(id);
+        const parsedId = parseInt(id, 10);
+        if (isNaN(parsedId)) {
+            throw new common_1.BadRequestException('Order ID must be an integer');
+        }
+        return this.ordersService.remove(parsedId);
     }
 };
 exports.OrdersController = OrdersController;
@@ -114,7 +126,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, update_orders_status_dto_1.UpdateOrderStatusDto]),
+    __metadata("design:paramtypes", [String, update_orders_status_dto_1.UpdateOrderStatusDto]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "updateOrderStatus", null);
 __decorate([
@@ -136,7 +148,7 @@ __decorate([
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "findOrderById", null);
 __decorate([
@@ -160,7 +172,7 @@ __decorate([
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "removeOrder", null);
 exports.OrdersController = OrdersController = __decorate([

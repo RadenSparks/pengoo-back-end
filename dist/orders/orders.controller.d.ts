@@ -6,11 +6,11 @@ export declare class OrdersController {
     private readonly ordersService;
     constructor(ordersService: OrdersService);
     createOrder(createOrderDto: CreateOrderDto): Promise<any>;
-    updateOrderStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<import("./order.entity").Order>;
+    updateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto): Promise<import("./order.entity").Order>;
     findAllOrders(): Promise<import("./order.entity").Order[]>;
     getDelivery(): Promise<import("../delivery/delivery.entity").Delivery[]>;
-    findOrderById(id: number): Promise<import("./order.entity").Order | null>;
+    findOrderById(id: string): Promise<import("./order.entity").Order | null>;
     handleOrderSuccess(query: any, res: Response): Promise<void | Response<any, Record<string, any>>>;
     handleOrderCancel(query: any, res: Response): Promise<void>;
-    removeOrder(id: number): Promise<void>;
+    removeOrder(id: string): Promise<void>;
 }

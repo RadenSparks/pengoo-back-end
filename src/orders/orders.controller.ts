@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
@@ -58,8 +58,12 @@ export class OrdersController {
       }
     }
   })
-  updateOrderStatus(@Param('id') id: number, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
-    return this.ordersService.updateStatus(id, updateOrderStatusDto);
+  updateOrderStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('Order ID must be an integer');
+    }
+    return this.ordersService.updateStatus(parsedId, updateOrderStatusDto);
   }
 
   @Get()
@@ -74,8 +78,12 @@ export class OrdersController {
   }
   @Get(':id')
   @Public()
-  findOrderById(@Param('id') id: number) {
-    return this.ordersService.findById(id);
+  findOrderById(@Param('id') id: string) {
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('Order ID must be an integer');
+    }
+    return this.ordersService.findById(parsedId);
   }
   @Post('payos/order-success')
   async handleOrderSuccess(@Query() query: any, @Res() res: Response) {
@@ -96,8 +104,12 @@ export class OrdersController {
   }
   @Delete(':id')
   @Public()
-  removeOrder(@Param('id') id: number) {
-    return this.ordersService.remove(id);
+  removeOrder(@Param('id') id: string) {
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('Order ID must be an integer');
+    }
+    return this.ordersService.remove(parsedId);
   }
 
 }
