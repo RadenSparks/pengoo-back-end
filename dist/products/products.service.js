@@ -82,19 +82,23 @@ let ProductsService = class ProductsService {
             }));
             images.push(...detailImageEntities);
         }
-        const featuredImageEntities = await Promise.all(features.map(async (f, i) => {
-            const imageFile = featureImages[i];
-            if (!imageFile?.buffer) {
-                throw new common_1.BadRequestException(`Missing feature image for feature ${i}`);
-            }
-            const uploaded = await this.cloudinaryService.uploadImage(imageFile);
-            const img = new image_entity_1.Image();
-            img.url = uploaded.secure_url;
-            img.name = 'featured';
-            img.ord = f.ord;
-            return img;
-        }));
-        images.push(...featuredImageEntities);
+        features = Array.isArray(features) ? features : [];
+        let featuredImageEntities = [];
+        if (features.length > 0) {
+            featuredImageEntities = await Promise.all(features.map(async (f, i) => {
+                const imageFile = featureImages[i];
+                if (!imageFile?.buffer) {
+                    throw new common_1.BadRequestException(`Missing feature image for feature ${i}`);
+                }
+                const uploaded = await this.cloudinaryService.uploadImage(imageFile);
+                const img = new image_entity_1.Image();
+                img.url = uploaded.secure_url;
+                img.name = 'featured';
+                img.ord = f.ord;
+                return img;
+            }));
+            images.push(...featuredImageEntities);
+        }
         let tags = [];
         if (createProductDto.tags && typeof createProductDto.tags === 'string') {
             const tag_ID = createProductDto.tags

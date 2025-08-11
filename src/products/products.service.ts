@@ -83,21 +83,30 @@ export class ProductsService {
       );
       images.push(...detailImageEntities);
     }
-    const featuredImageEntities = await Promise.all(
-      features.map(async (f, i) => {
-        const imageFile = featureImages[i];
-        if (!imageFile?.buffer) {
-          throw new BadRequestException(`Missing feature image for feature ${i}`);
-        }
-        const uploaded = await this.cloudinaryService.uploadImage(imageFile);
-        const img = new Image();
-        img.url = uploaded.secure_url;
-        img.name = 'featured';
-        img.ord = f.ord;
-        return img;
-      })
-    );
-    images.push(...featuredImageEntities);
+
+    // Ensure features is always an array
+    features = Array.isArray(features) ? features : [];
+
+    // Only map if features is not empty
+    let featuredImageEntities: Image[] = [];
+    if (features.length > 0) {
+      featuredImageEntities = await Promise.all(
+        features.map(async (f, i) => {
+          const imageFile = featureImages[i];
+          if (!imageFile?.buffer) {
+            throw new BadRequestException(`Missing feature image for feature ${i}`);
+          }
+          const uploaded = await this.cloudinaryService.uploadImage(imageFile);
+          const img = new Image();
+          img.url = uploaded.secure_url;
+          img.name = 'featured';
+          img.ord = f.ord;
+          return img;
+        })
+      );
+      images.push(...featuredImageEntities);
+    }
+
     // 3. Handle tags
     let tags: any = [];
     if (createProductDto.tags && typeof createProductDto.tags === 'string') {
