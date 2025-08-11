@@ -104,7 +104,7 @@ export class OrdersService {
       payment_status: payment_status as PaymentStatus,
       productStatus: productStatus as ProductStatus,
       details: orderDetails,
-      order_code: Math.floor(this.generateSafeOrderCode()), // always integer
+      order_code, // always integer
     });
     let savedOrder = await this.ordersRepository.save(order);
     savedOrder.checkout_url = checkout_url ?? null
@@ -117,7 +117,7 @@ export class OrdersService {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
   async createOrderPayOS(amount: number) {
-    const order_code = this.generateSafeOrderCode()
+    const order_code = Math.floor(this.generateSafeOrderCode())
     const checkout = {
       orderCode: +(order_code),
       amount: 2000,
@@ -153,6 +153,7 @@ export class OrdersService {
       return;
     }
     order.payment_status = 'canceled' as PaymentStatus;
+    order.productStatus = 'canceled' as ProductStatus;
     return await this.ordersRepository.save(order);
   }
   async updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order> {
