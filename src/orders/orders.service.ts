@@ -136,24 +136,24 @@ export class OrdersService {
   async findById(orderId: number): Promise<Order | null> {
     return this.ordersRepository.findOne({ where: { id: orderId } });
   }
-  async markOrderAsPaidByCode(orderCode: number): Promise<void> {
+  async markOrderAsPaidByCode(orderCode: number) {
     const order = await this.ordersRepository.findOne({ where: { order_code: orderCode }, relations: ['user'] });
     if (!order) throw new Error('Order not found');
     order.payment_status = PaymentStatus.Paid;
-    await this.ordersRepository.save(order);
 
     // Send invoice email
     await this.invoicesService.generateInvoice(order.id);
+    return await this.ordersRepository.save(order);
   }
 
-  async handleOrderCancellation(orderCode: number): Promise<void> {
+  async handleOrderCancellation(orderCode: number) {
     const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
     if (!order) {
       console.warn(`Order ${orderCode} not found during cancellation.`);
       return;
     }
     order.payment_status = 'canceled' as PaymentStatus;
-    await this.ordersRepository.save(order);
+    return await this.ordersRepository.save(order);
   }
   async updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order> {
     const order = await this.findById(id);
