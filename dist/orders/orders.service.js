@@ -97,7 +97,7 @@ let OrdersService = class OrdersService {
             payment_status: payment_status,
             productStatus: productStatus,
             details: orderDetails,
-            order_code: Math.floor(this.generateSafeOrderCode()),
+            order_code,
         });
         let savedOrder = await this.ordersRepository.save(order);
         savedOrder.checkout_url = checkout_url ?? null;
@@ -110,7 +110,7 @@ let OrdersService = class OrdersService {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
     async createOrderPayOS(amount) {
-        const order_code = this.generateSafeOrderCode();
+        const order_code = Math.floor(this.generateSafeOrderCode());
         const checkout = {
             orderCode: +(order_code),
             amount: 2000,
@@ -132,8 +132,8 @@ let OrdersService = class OrdersService {
         if (!order)
             throw new Error('Order not found');
         order.payment_status = order_entity_1.PaymentStatus.Paid;
-        await this.ordersRepository.save(order);
         await this.invoicesService.generateInvoice(order.id);
+        return await this.ordersRepository.save(order);
     }
     async handleOrderCancellation(orderCode) {
         const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
@@ -142,7 +142,8 @@ let OrdersService = class OrdersService {
             return;
         }
         order.payment_status = 'canceled';
-        await this.ordersRepository.save(order);
+        order.productStatus = 'canceled';
+        return await this.ordersRepository.save(order);
     }
     async updateStatus(id, updateOrderStatusDto) {
         const order = await this.findById(id);
