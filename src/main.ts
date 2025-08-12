@@ -4,26 +4,21 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Reflector } from '@nestjs/core';
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:4000',
-  'https://pengoo.vercel.app',
-  'https://pg-dashboard-chi.vercel.app',
-  'http://103.173.227.176:4000',
-  'http://118.68.84.29:4000',
-  'http://118.68.84.29:3001',
-  'https://pengoo.store',
-];
-
-export default async function handler(req, res) {
-  const app = await NestFactory.create(AppModule, { bodyParser: false });
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
 
-  // Enable CORS for all routes
   app.enableCors({
     origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:4000',
+        'https://pengoo.vercel.app',
+        'https://pg-dashboard-chi.vercel.app',
+        'https://pengoo.store',
+      ];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -35,7 +30,6 @@ export default async function handler(req, res) {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  // Swagger setup (optional for Vercel, but safe)
   const config = new DocumentBuilder()
     .setTitle('Swagger API')
     .setDescription('UI for API testing')
@@ -53,26 +47,11 @@ export default async function handler(req, res) {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger-api', app, documentFactory);
 
-  await app.init();
-  const server = app.getHttpServer();
+  await app.listen(process.env.PORT ?? 3000);
 
-  const origin = req.headers.origin;
-
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || 'Content-Type,Authorization');
-    if (req.method === 'OPTIONS') {
-      res.statusCode = 204;
-      res.end();
-      return;
-    }
-  } else {
-    res.statusCode = 403;
-    res.end('CORS Forbidden');
-    return;
-  }
-
-  server.emit('request', req, res);
+  console.log("-------------------------------------------");
+  console.log("---| http://localhost:3000/swagger-api |---")
+  console.log("-------------------------------------------");
 }
+
+bootstrap();
