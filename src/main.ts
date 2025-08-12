@@ -86,6 +86,10 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || '*');
     // Always respond to OPTIONS immediately
     if (req.method === 'OPTIONS') {
+      res.setHeader('Access-Control-Allow-Origin', origin || '*');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || '*');
       res.statusCode = 204;
       res.end();
       return;
