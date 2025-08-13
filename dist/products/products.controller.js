@@ -38,8 +38,8 @@ let ProductsController = class ProductsController {
         }
         return this.productsService.create(createProductDto, mainImage, detailImages, features, featureImages);
     }
-    findAll(name, categoryId, tags, minPrice, maxPrice, publisherId, status, sort, page, limit) {
-        return this.productsService.searchAndFilter({
+    async findAll(name, categoryId, tags, minPrice, maxPrice, publisherId, status, sort, page, limit) {
+        const filter = {
             name,
             categoryId,
             tags: tags ? tags.split(',') : undefined,
@@ -50,7 +50,8 @@ let ProductsController = class ProductsController {
             sort,
             page: page ? Number(page) : 1,
             limit: limit ? Number(limit) : 20,
-        });
+        };
+        return this.productsService.paginatedSearchAndFilter(filter);
     }
     findById(id) {
         return this.productsService.findById(id);
@@ -145,7 +146,7 @@ __decorate([
     __param(9, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Number, String, Number, Number, Number, String, String, Number, Number]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),

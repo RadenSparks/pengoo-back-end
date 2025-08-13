@@ -179,6 +179,53 @@ let ProductsService = class ProductsService {
         const products = await query.getMany();
         return products;
     }
+    async paginatedSearchAndFilter(filter) {
+        const query = this.productsRepository.createQueryBuilder('product')
+            .leftJoinAndSelect('product.category_ID', 'category')
+            .leftJoinAndSelect('product.publisher_ID', 'publisher')
+            .leftJoinAndSelect('product.tags', 'tags')
+            .leftJoinAndSelect('product.images', 'images')
+            .leftJoinAndSelect('product.collection', 'collection');
+        if (filter.name) {
+            query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
+        }
+        if (filter.categoryId) {
+            query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+        }
+        if (filter.tags && filter.tags.length > 0) {
+            query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
+        }
+        if (filter.minPrice) {
+            query.andWhere('product.product_price >= :minPrice', { minPrice: filter.minPrice });
+        }
+        if (filter.maxPrice) {
+            query.andWhere('product.product_price <= :maxPrice', { maxPrice: filter.maxPrice });
+        }
+        if (filter.publisherId) {
+            query.andWhere('publisher.id = :publisherId', { publisherId: filter.publisherId });
+        }
+        if (filter.status) {
+            query.andWhere('product.status = :status', { status: filter.status });
+        }
+        switch (filter.sort) {
+            case 'price_asc':
+                query.orderBy('product.product_price', 'ASC');
+                break;
+            case 'price_desc':
+                query.orderBy('product.product_price', 'DESC');
+                break;
+            case 'sold_desc':
+                query.orderBy('product.quantity_sold', 'DESC');
+                break;
+            default:
+                query.orderBy('product.created_at', 'DESC');
+        }
+        const page = filter.page || 1;
+        const limit = filter.limit || 20;
+        query.skip((page - 1) * limit).take(limit);
+        const [data, total] = await query.getManyAndCount();
+        return { data, total, page, limit };
+    }
     async findById(id) {
         const product = await this.productsRepository.findOne({
             where: { id: id },

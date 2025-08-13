@@ -82,7 +82,7 @@ export class ProductsController {
 
   @Get()
   @Public()
-  findAll(
+  async findAll(
     @Query('name') name?: string,
     @Query('category') categoryId?: number,
     @Query('tags') tags?: string,
@@ -94,7 +94,7 @@ export class ProductsController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.productsService.searchAndFilter({
+    const filter = {
       name,
       categoryId,
       tags: tags ? tags.split(',') : undefined,
@@ -105,7 +105,8 @@ export class ProductsController {
       sort,
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 20,
-    });
+    };
+    return this.productsService.paginatedSearchAndFilter(filter);
   }
 
   @Get(':id')

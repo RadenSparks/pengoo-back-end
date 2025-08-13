@@ -35,6 +35,12 @@ export declare class ProductsService {
     constructor(productsRepository: Repository<Product>, publishersService: PublishersService, categoriesService: CategoriesService, cloudinaryService: CloudinaryService, tagsService: TagsService, tagRepo: Repository<Tag>, imageRepository: Repository<Image>, cmsContentService: CmsContentService, cmsContentRepository: Repository<CmsContent>);
     create(createProductDto: CreateProductDto, mainImage: Express.Multer.File, detailImages: Express.Multer.File[], features: FeatureDto[], featureImages: Express.Multer.File[]): Promise<Product>;
     searchAndFilter(filter: FilterProductDto): Promise<Product[]>;
+    paginatedSearchAndFilter(filter: FilterProductDto): Promise<{
+        data: Product[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
     findById(id: number): Promise<Product>;
     findBySlug(slug: string): Promise<Product>;
     findOneWithCmsContent(id: number): Promise<Product | null>;

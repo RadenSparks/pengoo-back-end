@@ -5,7 +5,12 @@ export declare class ProductsController {
     private readonly productsService;
     constructor(productsService: ProductsService);
     create(createProductDto: CreateProductDto, files: Express.Multer.File[]): Promise<import("./product.entity").Product>;
-    findAll(name?: string, categoryId?: number, tags?: string, minPrice?: number, maxPrice?: number, publisherId?: number, status?: string, sort?: string, page?: number, limit?: number): Promise<import("./product.entity").Product[]>;
+    findAll(name?: string, categoryId?: number, tags?: string, minPrice?: number, maxPrice?: number, publisherId?: number, status?: string, sort?: string, page?: number, limit?: number): Promise<{
+        data: import("./product.entity").Product[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
     findById(id: number): Promise<import("./product.entity").Product>;
     findBySlug(slug: string): Promise<import("./product.entity").Product>;
     update(id: number, updateProductDto: UpdateProductDto, files: Express.Multer.File[]): Promise<import("./product.entity").Product>;
