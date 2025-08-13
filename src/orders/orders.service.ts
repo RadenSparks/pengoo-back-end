@@ -152,8 +152,8 @@ export class OrdersService {
       console.warn(`Order ${orderCode} not found during cancellation.`);
       return;
     }
-    order.payment_status = 'canceled' as PaymentStatus;
-    order.productStatus = 'canceled' as ProductStatus;
+    order.payment_status = PaymentStatus.Canceled;
+    order.productStatus = ProductStatus.Cancelled;
     return await this.ordersRepository.save(order);
   }
   async updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order> {
