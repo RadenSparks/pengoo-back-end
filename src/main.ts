@@ -25,9 +25,8 @@ async function bootstrap() {
         'http://118.68.84.29:3001',
         'https://pengoo.store',
       ];
-      // Allow requests with no origin (like mobile apps, curl, etc.)
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
+        callback(null, origin); // <-- always reflect the request origin
       } else {
         callback(new Error('Not allowed by CORS'));
       }
@@ -81,6 +80,7 @@ export default async function handler(req, res) {
 
   if (!origin || allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    res.setHeader('Vary', 'Origin'); // <-- add this line
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || '*');
