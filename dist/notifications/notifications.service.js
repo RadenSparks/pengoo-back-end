@@ -50,7 +50,7 @@ let NotificationsService = class NotificationsService {
         await this.sendEmail(email, subject, `Đơn hàng của bạn với mã số ${orderId} đã được xác nhận.`, undefined, pengooEmailTemplate({
             title: 'Xác nhận đơn hàng',
             message,
-            logoUrl: 'https://pengoo.store/logo.png',
+            logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png',
         }));
     }
     async sendShippingUpdate(email, orderId, status) {
@@ -59,7 +59,7 @@ let NotificationsService = class NotificationsService {
         await this.sendEmail(email, subject, `Đơn hàng ${orderId} hiện đang ở trạng thái: ${status}.`, undefined, pengooEmailTemplate({
             title: 'Cập nhật vận chuyển',
             message,
-            logoUrl: 'https://pengoo.store/logo.png',
+            logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png',
         }));
     }
     async sendPasswordReset(email, token) {
@@ -71,7 +71,7 @@ let NotificationsService = class NotificationsService {
         await this.sendEmail(email, subject, `Bạn vừa yêu cầu đặt lại mật khẩu. Truy cập: ${resetUrl}`, undefined, pengooEmailTemplate({
             title: 'Đặt lại mật khẩu',
             message,
-            logoUrl: 'https://pengoo.store/logo.png',
+            logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png',
         }));
     }
 };
@@ -80,7 +80,7 @@ exports.NotificationsService = NotificationsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [config_1.ConfigService])
 ], NotificationsService);
-function pengooEmailTemplate({ title, message, code, logoUrl = 'https://pengoo.store/logo.png', }) {
+function pengooEmailTemplate({ title, message, code, logoUrl = 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png', }) {
     return `
   <div style="font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fb; padding: 0; margin: 0;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background: #f4f6fb; padding: 0; margin: 0;">

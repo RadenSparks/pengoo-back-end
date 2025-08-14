@@ -53,7 +53,7 @@ export class NotificationsService {
       pengooEmailTemplate({
         title: 'Xác nhận đơn hàng',
         message,
-        logoUrl: 'https://pengoo.store/logo.png',
+        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png',
       })
     );
   }
@@ -69,7 +69,7 @@ export class NotificationsService {
       pengooEmailTemplate({
         title: 'Cập nhật vận chuyển',
         message,
-        logoUrl: 'https://pengoo.store/logo.png',
+        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png',
       })
     );
   }
@@ -88,7 +88,7 @@ export class NotificationsService {
       pengooEmailTemplate({
         title: 'Đặt lại mật khẩu',
         message,
-        logoUrl: 'https://pengoo.store/logo.png',
+        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png',
       })
     );
   }
@@ -98,7 +98,7 @@ export function pengooEmailTemplate({
   title,
   message,
   code,
-  logoUrl = 'https://pengoo.store/logo.png',
+  logoUrl = 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png',
 }: {
   title: string;
   message: string;

@@ -16,4 +16,5 @@ export declare class PayosService {
     handlePayosPaymentSuccess(orderId: number): Promise<{
         message: string;
     }>;
+    refundOrder(orderCode: number): Promise<any>;
 }

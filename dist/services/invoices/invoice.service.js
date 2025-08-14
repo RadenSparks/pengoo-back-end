@@ -41,7 +41,7 @@ let InvoicesService = class InvoicesService {
             message: `Dear ${order.user.full_name || order.user.email},<br><br>
           Thank you for your payment. Please find your invoice attached.<br><br>
           If you have any questions, contact us at the hotline below.`,
-            logoUrl: 'https://pengoo.store/logo.png',
+            logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png',
         }));
         fs.unlink(invoicePath, () => { });
     }
@@ -54,7 +54,7 @@ let InvoicesService = class InvoicesService {
             marginRight: 25,
             marginLeft: 25,
             marginBottom: 25,
-            logo: 'https://pengoo.store/logo.png',
+            logo: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png',
             sender: {
                 company: 'Pengoo Corporation',
                 address: '130/9 Dien Bien Phu Street, Binh Thanh District',

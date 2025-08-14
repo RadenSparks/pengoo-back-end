@@ -36,7 +36,7 @@ export class InvoicesService {
         message: `Dear ${order.user.full_name || order.user.email},<br><br>
           Thank you for your payment. Please find your invoice attached.<br><br>
           If you have any questions, contact us at the hotline below.`,
-        logoUrl: 'https://pengoo.store/logo.png', // <-- Use your actual logo URL here
+        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png', // <-- Use your actual logo URL here
       }),
     );
 
@@ -53,7 +53,7 @@ export class InvoicesService {
       marginRight: 25,
       marginLeft: 25,
       marginBottom: 25,
-      logo: 'https://pengoo.store/logo.png', // <-- Use your actual logo URL here
+      logo: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png', // <-- Use your actual logo URL here
       sender: {
         company: 'Pengoo Corporation',
         address: '130/9 Dien Bien Phu Street, Binh Thanh District',

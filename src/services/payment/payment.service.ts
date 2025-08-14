@@ -120,11 +120,14 @@ export class PaymentsService {
       throw new BadRequestException('Order is already cancelled.');
     }
 
-    // Transaction for refund and status update
     await this.dataSource.transaction(async manager => {
-      // Refund via PayPal if needed (implement in PaypalService)
+      // Refund via PayPal
       if (order.payment_type === PaymentMethod.PAYPAL) {
         await this.paypalService.refundOrder(order.id);
+      }
+      // Refund via PayOS
+      if (order.payment_type === PaymentMethod.PAYOS) {
+        await this.payosService.refundOrder(order.order_code);
       }
       order.payment_status = PaymentStatus.Refunded;
       order.productStatus = 'cancelled';
@@ -146,10 +149,12 @@ export class PaymentsService {
       throw new BadRequestException('Order is already cancelled.');
     }
     if (order.payment_status === PaymentStatus.Paid) {
-      // Optionally, auto-refund if paid
-      return this.refundOrder(orderId, userId, userRole);
+      // Refund if paid
+      await this.refundOrder(orderId, userId, userRole);
+      return { message: 'Order cancelled and refunded.' };
     }
 
+    // If not paid, just cancel
     order.productStatus = 'cancelled';
     await this.ordersRepository.save(order);
     return { message: 'Order cancelled.' };

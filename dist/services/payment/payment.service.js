@@ -125,6 +125,9 @@ let PaymentsService = class PaymentsService {
             if (order.payment_type === payment_types_1.PaymentMethod.PAYPAL) {
                 await this.paypalService.refundOrder(order.id);
             }
+            if (order.payment_type === payment_types_1.PaymentMethod.PAYOS) {
+                await this.payosService.refundOrder(order.order_code);
+            }
             order.payment_status = order_entity_1.PaymentStatus.Refunded;
             order.productStatus = 'cancelled';
             await manager.save(order);
@@ -143,7 +146,8 @@ let PaymentsService = class PaymentsService {
             throw new common_1.BadRequestException('Order is already cancelled.');
         }
         if (order.payment_status === order_entity_1.PaymentStatus.Paid) {
-            return this.refundOrder(orderId, userId, userRole);
+            await this.refundOrder(orderId, userId, userRole);
+            return { message: 'Order cancelled and refunded.' };
         }
         order.productStatus = 'cancelled';
         await this.ordersRepository.save(order);

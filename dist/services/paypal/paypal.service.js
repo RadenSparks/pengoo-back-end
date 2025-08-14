@@ -109,6 +109,34 @@ let PaypalService = class PaypalService {
         return data;
     }
     async refundOrder(orderId) {
+        const order = await this.ordersService.findById(orderId);
+        if (!order || !order.paypal_order_id) {
+            throw new common_1.NotFoundException('Order or PayPal order ID not found');
+        }
+        const accessToken = await this.getAccessToken();
+        const orderRes = await (0, node_fetch_1.default)(`${this.apiBase}/v2/checkout/orders/${order.paypal_order_id}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!orderRes.ok)
+            throw new common_1.InternalServerErrorException('Failed to fetch PayPal order details');
+        const orderData = await orderRes.json();
+        const captureId = orderData.purchase_units?.[0]?.payments?.captures?.[0]?.id;
+        if (!captureId)
+            throw new common_1.InternalServerErrorException('PayPal capture ID not found');
+        const refundRes = await (0, node_fetch_1.default)(`${this.apiBase}/v2/payments/captures/${captureId}/refund`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({}),
+        });
+        if (!refundRes.ok)
+            throw new common_1.InternalServerErrorException('Failed to refund PayPal payment');
         return;
     }
 };

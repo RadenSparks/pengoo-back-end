@@ -61,4 +61,26 @@ export class PayosService {
 
         return { message: 'Invoice generated and sent to user.' };
     }
+
+    async refundOrder(orderCode: number): Promise<any> {
+        // Implement PayOS refund API call here
+        // Example: POST to https://api-merchant.payos.vn/v2/payment-requests/{orderCode}/refund
+        // You may need to check PayOS docs for the exact endpoint and payload
+        try {
+            const res = await axios.post(
+                `https://api-merchant.payos.vn/v2/payment-requests/${orderCode}/refund`,
+                {},
+                {
+                    headers: {
+                        'x-api-key': this.apiKey ?? '',
+                        'x-client-id': this.clientId ?? '',
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            return res.data;
+        } catch (err: any) {
+            throw new HttpException(err.response?.data || 'Lỗi khi hoàn tiền PayOS', err.response?.status || 500);
+        }
+    }
 }

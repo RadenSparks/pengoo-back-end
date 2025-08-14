@@ -56,6 +56,21 @@ let PayosService = class PayosService {
         await this.invoicesService.generateInvoice(orderId);
         return { message: 'Invoice generated and sent to user.' };
     }
+    async refundOrder(orderCode) {
+        try {
+            const res = await axios_1.default.post(`https://api-merchant.payos.vn/v2/payment-requests/${orderCode}/refund`, {}, {
+                headers: {
+                    'x-api-key': this.apiKey ?? '',
+                    'x-client-id': this.clientId ?? '',
+                    'Content-Type': 'application/json',
+                },
+            });
+            return res.data;
+        }
+        catch (err) {
+            throw new common_1.HttpException(err.response?.data || 'Lỗi khi hoàn tiền PayOS', err.response?.status || 500);
+        }
+    }
 };
 exports.PayosService = PayosService;
 exports.PayosService = PayosService = __decorate([
