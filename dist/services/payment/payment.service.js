@@ -35,7 +35,7 @@ let PaymentsService = class PaymentsService {
         this.invoicesService = invoicesService;
     }
     async assertCanAct(userId, order, userRole) {
-        if (order.user.id !== userId && userRole !== 'ADMIN') {
+        if (order.user.id !== userId && userRole !== 'admin') {
             throw new common_1.ForbiddenException('You are not allowed to perform this action on this order.');
         }
     }
