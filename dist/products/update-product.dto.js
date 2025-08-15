@@ -51,7 +51,7 @@ class UpdateProductDto {
     quantity_sold;
     quantity_stock;
     category_ID;
-    publisher_ID;
+    publisherID;
     status;
     tags;
     cms_content;
@@ -140,7 +140,7 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], UpdateProductDto.prototype, "publisher_ID", void 0);
+], UpdateProductDto.prototype, "publisherID", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsNotEmpty)(),

@@ -17,7 +17,7 @@ export declare class UpdateProductDto {
     quantity_sold: number;
     quantity_stock: number;
     category_ID: number;
-    publisher_ID: number;
+    publisherID: number;
     status: string;
     tags?: string[] | string;
     cms_content?: any;

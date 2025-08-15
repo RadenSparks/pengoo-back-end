@@ -87,7 +87,7 @@ export class UpdateProductDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  publisher_ID: number;
+  publisherID: number; // <-- unified
 
   @ApiProperty()
   @IsNotEmpty()

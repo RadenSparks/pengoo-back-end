@@ -334,8 +334,8 @@ export class ProductsService {
       product.category_ID = await this.categoriesService.findById(updateProductDto.category_ID);
     }
 
-    if (updateProductDto.publisher_ID) {
-      product.publisher_ID = await this.publishersService.findOne(updateProductDto.publisher_ID);
+    if (updateProductDto.publisherID) {
+      product.publisher_ID = await this.publishersService.findOne(updateProductDto.publisherID);
     }
     if (deleteImages?.length) {
       const toRemove = await this.imageRepository.findBy({
