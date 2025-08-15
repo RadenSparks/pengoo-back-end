@@ -290,6 +290,11 @@ let ProductsService = class ProductsService {
         }
         if (mainImage) {
             const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
+            const prevMainImg = product.images.find(img => img.name === "main");
+            if (prevMainImg) {
+                await this.imageRepository.remove(prevMainImg);
+                product.images = product.images.filter(img => img.id !== prevMainImg.id);
+            }
             const mainImg = this.imageRepository.create({
                 product,
                 name: "main",
