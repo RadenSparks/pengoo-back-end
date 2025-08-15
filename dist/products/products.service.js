@@ -65,19 +65,22 @@ let ProductsService = class ProductsService {
         const publisher_ID = await this.publishersService.findOne(createProductDto.publisherID);
         const newProduct = new product_entity_1.Product();
         const images = [];
+        const folderName = createProductDto.slug || (0, slugify_1.default)(createProductDto.product_name, { lower: true });
         if (mainImage) {
-            const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
+            const uploadMain = await this.cloudinaryService.uploadImage(mainImage, folderName);
             const mainImg = new image_entity_1.Image();
             mainImg.url = uploadMain.secure_url;
-            mainImg.name = 'main';
+            mainImg.name = `main_${folderName}`;
+            mainImg.folder = folderName;
             images.push(mainImg);
         }
         if (detailImages && detailImages.length > 0) {
-            const detailImageEntities = await Promise.all(detailImages.map(async (file) => {
-                const result = await this.cloudinaryService.uploadImage(file);
+            const detailImageEntities = await Promise.all(detailImages.map(async (file, idx) => {
+                const result = await this.cloudinaryService.uploadImage(file, folderName);
                 const img = new image_entity_1.Image();
                 img.url = result.secure_url;
-                img.name = 'detail';
+                img.name = `detail_${folderName}-${idx + 1}`;
+                img.folder = folderName;
                 return img;
             }));
             images.push(...detailImageEntities);
@@ -90,10 +93,11 @@ let ProductsService = class ProductsService {
                 if (!imageFile?.buffer) {
                     throw new common_1.BadRequestException(`Missing feature image for feature ${i}`);
                 }
-                const uploaded = await this.cloudinaryService.uploadImage(imageFile);
+                const uploaded = await this.cloudinaryService.uploadImage(imageFile, folderName);
                 const img = new image_entity_1.Image();
                 img.url = uploaded.secure_url;
-                img.name = 'featured';
+                img.name = `featured_${folderName}-${f.ord}`;
+                img.folder = folderName;
                 img.ord = f.ord;
                 return img;
             }));
@@ -115,7 +119,7 @@ let ProductsService = class ProductsService {
         newProduct.product_name = createProductDto.product_name;
         newProduct.description = createProductDto.description;
         newProduct.product_price = createProductDto.product_price;
-        newProduct.slug = createProductDto.slug || (0, slugify_1.default)(createProductDto.product_name, { lower: true });
+        newProduct.slug = folderName;
         newProduct.quantity_sold = createProductDto.quantity_sold;
         newProduct.quantity_stock = createProductDto.quantity_stock;
         newProduct.category_ID = category_ID;
@@ -272,45 +276,32 @@ let ProductsService = class ProductsService {
         if (!product) {
             throw new common_1.NotFoundException(`Product with ID ${id} not found`);
         }
-        if (updateProductDto.category_ID) {
-            product.category_ID = await this.categoriesService.findById(updateProductDto.category_ID);
-        }
-        if (updateProductDto.publisher_ID) {
-            product.publisher_ID = await this.publishersService.findOne(updateProductDto.publisher_ID);
-        }
-        if (deleteImages?.length) {
-            const toRemove = await this.imageRepository.findBy({
-                id: (0, typeorm_2.In)(deleteImages),
-                product: { id },
-            });
-            if (toRemove.length > 0) {
-                await this.imageRepository.remove(toRemove);
-                product.images = product.images.filter(img => !deleteImages.includes(img.id));
-            }
-        }
+        const folderName = updateProductDto.slug || product.slug;
         if (mainImage) {
-            const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
-            const prevMainImg = product.images.find(img => img.name === "main");
+            const uploadMain = await this.cloudinaryService.uploadImage(mainImage, folderName);
+            const prevMainImg = product.images.find(img => img.name.startsWith("main_"));
             if (prevMainImg) {
                 await this.imageRepository.remove(prevMainImg);
                 product.images = product.images.filter(img => img.id !== prevMainImg.id);
             }
             const mainImg = this.imageRepository.create({
                 product,
-                name: "main",
+                name: `main_${folderName}`,
                 url: uploadMain.secure_url,
+                folder: folderName,
                 ord: 0,
             });
             const savedMainImg = await this.imageRepository.save(mainImg);
             product.images.push(savedMainImg);
         }
         if (detailImages && detailImages.length > 0) {
-            const detailImageEntities = await Promise.all(detailImages.map(async (file) => {
-                const detailUploads = await this.cloudinaryService.uploadImage(file);
+            const detailImageEntities = await Promise.all(detailImages.map(async (file, idx) => {
+                const detailUploads = await this.cloudinaryService.uploadImage(file, folderName);
                 const img = this.imageRepository.create({
                     product: product,
-                    name: "detail",
+                    name: `detail_${folderName}-${idx + 1}`,
                     url: detailUploads.secure_url,
+                    folder: folderName,
                     ord: 0,
                 });
                 return await this.imageRepository.save(img);
@@ -318,16 +309,17 @@ let ProductsService = class ProductsService {
             product.images.push(...detailImageEntities);
         }
         if (featureImages?.length && features?.length) {
-            const featuredImages = product.images.filter(i => i.name === 'featured');
+            const featuredImages = product.images.filter(i => i.name.startsWith('featured_'));
             let ordLastImage = featuredImages.length > 0
                 ? Math.max(...featuredImages.map(i => i.ord ?? 0))
                 : -1;
-            const featuredImageEntities = await Promise.all(featureImages.map(async (f) => {
+            const featuredImageEntities = await Promise.all(featureImages.map(async (f, idx) => {
                 ordLastImage += 1;
-                const uploaded = await this.cloudinaryService.uploadImage(f);
+                const uploaded = await this.cloudinaryService.uploadImage(f, folderName);
                 const newImg = this.imageRepository.create({
                     url: uploaded.secure_url,
-                    name: 'featured',
+                    name: `featured_${folderName}-${ordLastImage}`,
+                    folder: folderName,
                     ord: ordLastImage,
                     product,
                 });
