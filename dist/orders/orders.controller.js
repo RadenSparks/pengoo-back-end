@@ -48,11 +48,7 @@ let OrdersController = class OrdersController {
         return this.ordersService.findById(parsedId);
     }
     findOrderByOrderCode(order_code) {
-        const parsedId = parseInt(order_code, 10);
-        if (isNaN(parsedId)) {
-            throw new common_1.BadRequestException('Order ID must be an integer');
-        }
-        return this.ordersService.findByOrderCode(parsedId);
+        return this.ordersService.findByOrderCode(+(order_code));
     }
     async handleOrderSuccess(query) {
         const { orderCode } = query;
