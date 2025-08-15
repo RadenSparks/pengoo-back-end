@@ -48,9 +48,4 @@ export declare class ProductsService {
     remove(id: number): Promise<void>;
     updateCmsContent(id: number, data: Partial<CmsContent>): Promise<CmsContent | null>;
     createCmsContentForProduct(id: number): Promise<Product>;
-    findExpansionsForBaseGame(baseSlug: string): Promise<Product[]>;
-    getBaseGameWithExpansions(baseSlug: string): Promise<{
-        baseGame: Product;
-        expansions: Product[];
-    }>;
 }

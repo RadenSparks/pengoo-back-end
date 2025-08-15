@@ -17,8 +17,4 @@ export declare class ProductsController {
     remove(id: number): Promise<void>;
     getCmsContent(id: number): Promise<any>;
     updateCmsContent(id: number, body: any): Promise<import("../cms-content/cms-content.entity").CmsContent>;
-    getBaseGameWithExpansions(baseSlug: string): Promise<{
-        baseGame: import("./product.entity").Product;
-        expansions: import("./product.entity").Product[];
-    }>;
 }

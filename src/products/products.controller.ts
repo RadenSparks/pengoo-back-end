@@ -179,10 +179,4 @@ export class ProductsController {
     if (!updated) throw new NotFoundException('CMS content not found');
     return updated;
   }
-
-  @Get('base-with-expansions/:baseSlug')
-  @Public()
-  async getBaseGameWithExpansions(@Param('baseSlug') baseSlug: string) {
-    return this.productsService.getBaseGameWithExpansions(baseSlug);
-  }
 }
