@@ -132,6 +132,7 @@ let OrdersService = class OrdersService {
         if (!order)
             throw new Error('Order not found');
         order.payment_status = order_entity_1.PaymentStatus.Paid;
+        order.productStatus = order_entity_1.ProductStatus.Pending;
         await this.invoicesService.generateInvoice(order.id);
         return await this.ordersRepository.save(order);
     }

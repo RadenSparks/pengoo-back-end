@@ -86,21 +86,20 @@ export class OrdersController {
     return this.ordersService.findById(parsedId);
   }
   @Post('payos/order-success')
-  async handleOrderSuccess(@Query() query: any, @Res() res: Response) {
+  async handleOrderSuccess(@Query() query: any) {
     const { orderCode } = query;
-    try {
-      await this.ordersService.markOrderAsPaidByCode(+orderCode); // sets status to 'paid'
-      return res.redirect(`https://pengoo.store/order/success?orderCode=${orderCode}`);
-    } catch (err) {
-      return res.status(404).json({ message: err.message || 'Order not found' });
-    }
+    return await this.ordersService.markOrderAsPaidByCode(+orderCode); // sets status to 'paid'
+
+
   }
 
   @Post('payos/order-cancel')
-  async handleOrderCancel(@Query() query: any, @Res() res: Response) {
+  async handleOrderCancel(@Query() query: any) {
     const { orderCode } = query;
-    await this.ordersService.handleOrderCancellation(+orderCode);
-    return res.redirect(`https://pengoo.store/order/cancel?orderCode=${orderCode}`);
+    const data = await this.ordersService.handleOrderCancellation(+orderCode);
+    console.log(data)
+    return data
+    // return res.redirect(`https://pengoo.store/order/cancel?orderCode=${orderCode}`);
   }
   @Delete(':id')
   @Public()

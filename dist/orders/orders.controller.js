@@ -47,20 +47,15 @@ let OrdersController = class OrdersController {
         }
         return this.ordersService.findById(parsedId);
     }
-    async handleOrderSuccess(query, res) {
+    async handleOrderSuccess(query) {
         const { orderCode } = query;
-        try {
-            await this.ordersService.markOrderAsPaidByCode(+orderCode);
-            return res.redirect(`https://pengoo.store/order/success?orderCode=${orderCode}`);
-        }
-        catch (err) {
-            return res.status(404).json({ message: err.message || 'Order not found' });
-        }
+        return await this.ordersService.markOrderAsPaidByCode(+orderCode);
     }
-    async handleOrderCancel(query, res) {
+    async handleOrderCancel(query) {
         const { orderCode } = query;
-        await this.ordersService.handleOrderCancellation(+orderCode);
-        return res.redirect(`https://pengoo.store/order/cancel?orderCode=${orderCode}`);
+        const data = await this.ordersService.handleOrderCancellation(+orderCode);
+        console.log(data);
+        return data;
     }
     removeOrder(id) {
         const parsedId = parseInt(id, 10);
@@ -154,17 +149,15 @@ __decorate([
 __decorate([
     (0, common_1.Post)('payos/order-success'),
     __param(0, (0, common_1.Query)()),
-    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "handleOrderSuccess", null);
 __decorate([
     (0, common_1.Post)('payos/order-cancel'),
     __param(0, (0, common_1.Query)()),
-    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "handleOrderCancel", null);
 __decorate([
