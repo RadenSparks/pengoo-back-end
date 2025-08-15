@@ -10,7 +10,7 @@ export declare class OrdersController {
     findAllOrders(): Promise<import("./order.entity").Order[]>;
     getDelivery(): Promise<import("../delivery/delivery.entity").Delivery[]>;
     findOrderById(id: string): Promise<import("./order.entity").Order | null>;
-    handleOrderSuccess(query: any, res: Response): Promise<import("./order.entity").Order | Response<any, Record<string, any>>>;
-    handleOrderCancel(query: any, res: Response): Promise<import("./order.entity").Order | undefined>;
+    handleOrderSuccess(query: any, res: Response): Promise<void | Response<any, Record<string, any>>>;
+    handleOrderCancel(query: any, res: Response): Promise<void>;
     removeOrder(id: string): Promise<void>;
 }
