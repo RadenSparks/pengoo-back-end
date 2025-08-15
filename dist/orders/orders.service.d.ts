@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { Order, OrderDetail } from './order.entity';
 import { CreateOrderDto } from './create-orders.dto';
@@ -30,7 +31,7 @@ export declare class OrdersService {
     findAll(): Promise<Order[]>;
     findById(orderId: number): Promise<Order | null>;
     markOrderAsPaidByCode(orderCode: number): Promise<Order>;
-    handleOrderCancellation(orderCode: number): Promise<Order | undefined>;
+    handleOrderCancellation(orderCode: number): Promise<Order | NotFoundException>;
     updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order>;
     remove(id: number): Promise<void>;
     getDelivery(): Promise<Delivery[]>;

@@ -137,9 +137,9 @@ let OrdersService = class OrdersService {
     }
     async handleOrderCancellation(orderCode) {
         const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
+        console.log(`Handling cancellation for order code: ${order?.order_code}`);
         if (!order) {
-            console.warn(`Order ${orderCode} not found during cancellation.`);
-            return;
+            return new common_1.NotFoundException('Order not found');
         }
         order.payment_status = order_entity_1.PaymentStatus.Canceled;
         order.productStatus = order_entity_1.ProductStatus.Cancelled;
