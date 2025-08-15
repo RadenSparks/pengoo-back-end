@@ -140,6 +140,7 @@ export class OrdersService {
     const order = await this.ordersRepository.findOne({ where: { order_code: orderCode }, relations: ['user'] });
     if (!order) throw new Error('Order not found');
     order.payment_status = PaymentStatus.Paid;
+    order.productStatus = ProductStatus.Pending;
 
     // Send invoice email
     await this.invoicesService.generateInvoice(order.id);
