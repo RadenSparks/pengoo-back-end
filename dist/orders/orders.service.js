@@ -127,6 +127,9 @@ let OrdersService = class OrdersService {
     async findById(orderId) {
         return this.ordersRepository.findOne({ where: { id: orderId } });
     }
+    async findByOrderCode(order_code) {
+        return this.ordersRepository.findOne({ where: { order_code } });
+    }
     async markOrderAsPaidByCode(orderCode) {
         const order = await this.ordersRepository.findOne({ where: { order_code: orderCode }, relations: ['user'] });
         if (!order)

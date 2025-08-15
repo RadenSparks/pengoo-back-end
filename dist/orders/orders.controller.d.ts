@@ -9,6 +9,7 @@ export declare class OrdersController {
     findAllOrders(): Promise<import("./order.entity").Order[]>;
     getDelivery(): Promise<import("../delivery/delivery.entity").Delivery[]>;
     findOrderById(id: string): Promise<import("./order.entity").Order | null>;
+    findOrderByOrderCode(order_code: string): Promise<import("./order.entity").Order | null>;
     handleOrderSuccess(query: any): Promise<import("./order.entity").Order>;
     handleOrderCancel(query: any): Promise<import("./order.entity").Order | import("@nestjs/common").NotFoundException>;
     removeOrder(id: string): Promise<void>;

@@ -85,6 +85,15 @@ export class OrdersController {
     }
     return this.ordersService.findById(parsedId);
   }
+  @Get('order-code/:id')
+  @Public()
+  findOrderByOrderCode(@Param('order_code') order_code: string) {
+    const parsedId = parseInt(order_code, 10);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('Order ID must be an integer');
+    }
+    return this.ordersService.findByOrderCode(parsedId);
+  }
   @Post('payos/order-success')
   async handleOrderSuccess(@Query() query: any) {
     const { orderCode } = query;

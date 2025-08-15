@@ -136,6 +136,9 @@ export class OrdersService {
   async findById(orderId: number): Promise<Order | null> {
     return this.ordersRepository.findOne({ where: { id: orderId } });
   }
+  async findByOrderCode(order_code: number): Promise<Order | null> {
+    return this.ordersRepository.findOne({ where: { order_code } });
+  }
   async markOrderAsPaidByCode(orderCode: number) {
     const order = await this.ordersRepository.findOne({ where: { order_code: orderCode }, relations: ['user'] });
     if (!order) throw new Error('Order not found');

@@ -47,6 +47,13 @@ let OrdersController = class OrdersController {
         }
         return this.ordersService.findById(parsedId);
     }
+    findOrderByOrderCode(order_code) {
+        const parsedId = parseInt(order_code, 10);
+        if (isNaN(parsedId)) {
+            throw new common_1.BadRequestException('Order ID must be an integer');
+        }
+        return this.ordersService.findByOrderCode(parsedId);
+    }
     async handleOrderSuccess(query) {
         const { orderCode } = query;
         return await this.ordersService.markOrderAsPaidByCode(+orderCode);
@@ -146,6 +153,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "findOrderById", null);
+__decorate([
+    (0, common_1.Get)('order-code/:id'),
+    (0, public_decorator_1.Public)(),
+    __param(0, (0, common_1.Param)('order_code')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "findOrderByOrderCode", null);
 __decorate([
     (0, common_1.Post)('payos/order-success'),
     __param(0, (0, common_1.Query)()),
