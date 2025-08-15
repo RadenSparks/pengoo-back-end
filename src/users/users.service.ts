@@ -123,7 +123,7 @@ export class UsersService {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) throw new Error('User not found');
     if (file) {
-      updateUserDto.avatar_url = (await this.cloudinaryService.uploadImage(file, 'users')).secure_url;
+      updateUserDto.avatar_url = (await this.cloudinaryService.uploadImage(file)).secure_url;
     }
     Object.assign(user, updateUserDto);
     return this.usersRepository.save(user);

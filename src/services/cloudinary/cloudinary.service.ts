@@ -11,15 +11,10 @@ cloudinary.config({
 
 @Injectable()
 export class CloudinaryService {
-    /**
-     * Uploads an image to Cloudinary, assigning it to a dynamic folder.
-     * @param file The image file (Express.Multer.File)
-     * @param folderName The folder to upload to (e.g. product slug)
-     */
-    async uploadImage(file: Express.Multer.File, folderName: string): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    async uploadImage(file: Express.Multer.File): Promise<UploadApiResponse | UploadApiErrorResponse> {
         return new Promise((resolve, reject) => {
             cloudinary.uploader.upload_stream(
-                { folder: `products/${folderName}` }, // Use dynamic folder
+                { folder: 'products' },
                 (error, result) => {
                     if (error) return reject(error);
                     if (!result) {

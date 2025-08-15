@@ -17,9 +17,9 @@ cloudinary_1.v2.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 let CloudinaryService = class CloudinaryService {
-    async uploadImage(file, folderName) {
+    async uploadImage(file) {
         return new Promise((resolve, reject) => {
-            cloudinary_1.v2.uploader.upload_stream({ folder: `products/${folderName}` }, (error, result) => {
+            cloudinary_1.v2.uploader.upload_stream({ folder: 'products' }, (error, result) => {
                 if (error)
                     return reject(error);
                 if (!result) {
