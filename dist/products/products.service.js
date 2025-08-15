@@ -388,6 +388,18 @@ let ProductsService = class ProductsService {
         }
         return product;
     }
+    async findExpansionsForBaseGame(baseSlug) {
+        return this.productsRepository.createQueryBuilder('product')
+            .where('product.slug LIKE :expansionSlug', { expansionSlug: `${baseSlug}-%` })
+            .getMany();
+    }
+    async getBaseGameWithExpansions(baseSlug) {
+        const baseGame = await this.productsRepository.findOne({ where: { slug: baseSlug } });
+        if (!baseGame)
+            throw new common_1.NotFoundException('Base game not found');
+        const expansions = await this.findExpansionsForBaseGame(baseSlug);
+        return { baseGame, expansions };
+    }
 };
 exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = __decorate([

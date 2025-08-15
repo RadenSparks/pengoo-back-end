@@ -91,6 +91,9 @@ let ProductsController = class ProductsController {
             throw new common_1.NotFoundException('CMS content not found');
         return updated;
     }
+    async getBaseGameWithExpansions(baseSlug) {
+        return this.productsService.getBaseGameWithExpansions(baseSlug);
+    }
 };
 exports.ProductsController = ProductsController;
 __decorate([
@@ -198,6 +201,14 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "updateCmsContent", null);
+__decorate([
+    (0, common_1.Get)('base-with-expansions/:baseSlug'),
+    (0, public_decorator_1.Public)(),
+    __param(0, (0, common_1.Param)('baseSlug')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "getBaseGameWithExpansions", null);
 exports.ProductsController = ProductsController = __decorate([
     (0, common_1.Controller)('products'),
     __metadata("design:paramtypes", [products_service_1.ProductsService])

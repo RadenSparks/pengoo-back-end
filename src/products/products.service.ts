@@ -468,4 +468,18 @@ export class ProductsService {
     }
     return product;
   }
+
+  async findExpansionsForBaseGame(baseSlug: string): Promise<Product[]> {
+    // Find expansions whose slug starts with baseSlug + '-'
+    return this.productsRepository.createQueryBuilder('product')
+      .where('product.slug LIKE :expansionSlug', { expansionSlug: `${baseSlug}-%` })
+      .getMany();
+  }
+
+  async getBaseGameWithExpansions(baseSlug: string): Promise<{ baseGame: Product, expansions: Product[] }> {
+    const baseGame = await this.productsRepository.findOne({ where: { slug: baseSlug } });
+    if (!baseGame) throw new NotFoundException('Base game not found');
+    const expansions = await this.findExpansionsForBaseGame(baseSlug);
+    return { baseGame, expansions };
+  }
 }
