@@ -150,7 +150,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "findOrderById", null);
 __decorate([
-    (0, common_1.Get)('order-code/:id'),
+    (0, common_1.Get)('order-code/:order_code'),
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('order_code')),
     __metadata("design:type", Function),
