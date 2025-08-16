@@ -18,7 +18,7 @@ export class PublishersService {
   }
 
   async findAll(): Promise<Publisher[]> {
-    return await this.publishersRepository.find({
+    const publishers = await this.publishersRepository.find({
       relations: [
         'products',
         'products.tags',
@@ -27,6 +27,17 @@ export class PublishersService {
         'products.publisher_ID'
       ]
     });
+
+    // Map publisher_ID to publisherID for each product in each publisher
+    return publishers.map(pub => ({
+      ...pub,
+      products: pub.products.map(p => ({
+        ...p,
+        publisherID: p.publisher_ID
+          ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+          : null,
+      })),
+    }));
   }
 
   async findOne(id: number): Promise<Publisher> {
@@ -41,7 +52,15 @@ export class PublishersService {
       ]
     });
     if (!publisher) throw new NotFoundException('Publisher not found');
-    return publisher;
+    return {
+      ...publisher,
+      products: publisher.products.map(p => ({
+        ...p,
+        publisherID: p.publisher_ID
+          ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+          : null,
+      })),
+    };
   }
 
   async update(id: number, updateDto: UpdatePublisherDto): Promise<Publisher> {
