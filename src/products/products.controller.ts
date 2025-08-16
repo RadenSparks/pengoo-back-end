@@ -104,7 +104,7 @@ export class ProductsController {
       status,
       sort,
       page: page ? Number(page) : 1,
-      limit: limit ? Number(limit) : 20,
+      limit: limit ? Number(limit) : 50,
     };
     return this.productsService.paginatedSearchAndFilter(filter);
   }

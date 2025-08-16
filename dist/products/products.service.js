@@ -174,7 +174,7 @@ let ProductsService = class ProductsService {
                 query.orderBy('product.created_at', 'DESC');
         }
         const page = filter.page || 1;
-        const limit = filter.limit || 20;
+        const limit = filter.limit || 50;
         query.skip((page - 1) * limit).take(limit);
         const products = await query.getMany();
         return products;
@@ -221,7 +221,7 @@ let ProductsService = class ProductsService {
                 query.orderBy('product.created_at', 'DESC');
         }
         const page = filter.page || 1;
-        const limit = filter.limit || 20;
+        const limit = filter.limit || 50;
         query.skip((page - 1) * limit).take(limit);
         const [data, total] = await query.getManyAndCount();
         return { data, total, page, limit };

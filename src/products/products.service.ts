@@ -209,7 +209,7 @@ export class ProductsService {
 
     // Pagination
     const page = filter.page || 1;
-    const limit = filter.limit || 20;
+    const limit = filter.limit || 50;
     query.skip((page - 1) * limit).take(limit);
 
     // Only get the array of products, not [items, total]
@@ -264,7 +264,7 @@ export class ProductsService {
 
     // Pagination
     const page = filter.page || 1;
-    const limit = filter.limit || 20;
+    const limit = filter.limit || 50;
     query.skip((page - 1) * limit).take(limit);
 
     const [data, total] = await query.getManyAndCount();
