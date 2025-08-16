@@ -85,7 +85,7 @@ export class OrdersController {
     }
     return this.ordersService.findById(parsedId);
   }
-  @Get('order-code/:id')
+  @Get('order-code/:order_code')
   @Public()
   findOrderByOrderCode(@Param('order_code') order_code: string) {
 
