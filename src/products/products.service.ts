@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
-import { UpdateProductDto } from '../products/update-product.dto';
+import { UpdateProductDto } from './update-product.dto';
 import { CategoriesService } from '../categories/categories.service';
 import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
 import { Tag } from '../tags/entities/tag.entity';

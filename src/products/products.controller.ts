@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './create-product.dto';
-import { UpdateProductDto } from '../products/update-product.dto';
+import { UpdateProductDto } from './update-product.dto';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator'; // adjust path if needed
@@ -106,13 +106,30 @@ export class ProductsController {
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 50,
     };
-    return this.productsService.paginatedSearchAndFilter(filter);
+    const result = await this.productsService.paginatedSearchAndFilter(filter);
+    // Map publisher_ID to publisherID for each product
+    result.data = result.data.map(p => ({
+      ...p,
+      publisherID: p.publisher_ID
+        ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+        : null,
+      // Optionally remove publisher_ID from response
+      // ...other fields
+    }));
+    return result;
   }
 
   @Get(':id')
   @Public()
-  findById(@Param('id') id: number) {
-    return this.productsService.findById(id);
+  async findById(@Param('id') id: number) {
+    const product = await this.productsService.findById(id);
+    return {
+      ...product,
+      publisherID: product.publisher_ID
+        ? { id: product.publisher_ID.id, name: product.publisher_ID.name }
+        : null,
+      // Optionally remove publisher_ID from response
+    };
   }
 
   @Get('slug/:slug')
@@ -143,7 +160,7 @@ export class ProductsController {
       ? JSON.parse(updateProductDto.deleteImages)
       : updateProductDto.deleteImages;
     console.log(featureImages)
-    return this.productsService.update(
+    const product = await this.productsService.update(
       id,
       updateProductDto,
       mainImage,
@@ -152,6 +169,12 @@ export class ProductsController {
       featureImages,
       deleteImages
     );
+    return {
+      ...product,
+      publisherID: product.publisher_ID
+        ? { id: product.publisher_ID.id, name: product.publisher_ID.name }
+        : null,
+    };
   }
 
   @Delete(':id')
