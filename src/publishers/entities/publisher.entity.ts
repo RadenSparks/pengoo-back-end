@@ -1,5 +1,5 @@
 import { Product } from "../../products/product.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('publisher')
 export class Publisher {
@@ -11,4 +11,7 @@ export class Publisher {
 
     @OneToMany(() => Product, (product: Product) => product.publisher_ID)
     products: Product[];
+
+    @DeleteDateColumn({ nullable: true })
+    deletedAt?: Date;
 }

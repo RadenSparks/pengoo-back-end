@@ -9,4 +9,7 @@ export declare class TagsController {
     findOne(id: string): Promise<import("./entities/tag.entity").Tag>;
     update(id: string, dto: UpdateTagDto): Promise<import("./entities/tag.entity").Tag>;
     remove(id: string): Promise<void>;
+    restore(id: number): Promise<{
+        message: string;
+    }>;
 }

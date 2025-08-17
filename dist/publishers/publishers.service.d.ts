@@ -3,11 +3,16 @@ import { Publisher } from './entities/publisher.entity';
 import { CreatePublisherDto } from './dto/create-publisher.dto';
 import { UpdatePublisherDto } from './dto/update-publisher.dto';
 export declare class PublishersService {
-    private readonly publishersRepository;
-    constructor(publishersRepository: Repository<Publisher>);
+    private publishersRepo;
+    constructor(publishersRepo: Repository<Publisher>);
     create(createPublisherDto: CreatePublisherDto): Promise<Publisher>;
     findAll(): Promise<Publisher[]>;
     findOne(id: number): Promise<Publisher>;
     update(id: number, updateDto: UpdatePublisherDto): Promise<Publisher>;
-    remove(id: number): Promise<void>;
+    remove(id: number): Promise<{
+        deleted: boolean;
+    }>;
+    restore(id: number): Promise<{
+        restored: boolean;
+    }>;
 }

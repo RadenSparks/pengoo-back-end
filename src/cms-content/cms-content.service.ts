@@ -10,7 +10,7 @@ import { UpdateCmsContentDto } from './dto/update-cms-content.dto';
 export class CmsContentService {
   constructor(
     @InjectRepository(CmsContent)
-    private cmsRepo: Repository<CmsContent>,
+    private cmsContentRepo: Repository<CmsContent>,
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
   ) {}
@@ -18,18 +18,28 @@ export class CmsContentService {
   async create(productId: number, dto: CreateCmsContentDto) {
     const product = await this.productRepo.findOneBy({ id: productId });
     if (!product) throw new NotFoundException('Product not found');
-    const cms = this.cmsRepo.create({ ...dto, product });
-    return this.cmsRepo.save(cms);
+    const cms = this.cmsContentRepo.create({ ...dto, product });
+    return this.cmsContentRepo.save(cms);
   }
 
   async update(productId: number, dto: UpdateCmsContentDto) {
-    const cms = await this.cmsRepo.findOne({ where: { product: { id: productId } } });
+    const cms = await this.cmsContentRepo.findOne({ where: { product: { id: productId } } });
     if (!cms) throw new NotFoundException('CMS Content not found');
     Object.assign(cms, dto);
-    return this.cmsRepo.save(cms);
+    return this.cmsContentRepo.save(cms);
   }
 
   async findByProduct(productId: number) {
-    return this.cmsRepo.findOne({ where: { product: { id: productId } } });
+    return this.cmsContentRepo.findOne({ where: { product: { id: productId } } });
+  }
+
+  async remove(id: number) {
+    await this.cmsContentRepo.softDelete(id);
+    return { deleted: true };
+  }
+
+  async restore(id: number) {
+    await this.cmsContentRepo.restore(id);
+    return { restored: true };
   }
 }

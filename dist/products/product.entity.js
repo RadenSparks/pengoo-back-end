@@ -41,6 +41,7 @@ let Product = class Product {
     created_at;
     updated_at;
     cmsContent;
+    deletedAt;
 };
 exports.Product = Product;
 __decorate([
@@ -128,6 +129,10 @@ __decorate([
     (0, typeorm_1.OneToOne)(() => cms_content_entity_1.CmsContent, cmsContent => cmsContent.product, { cascade: true, eager: true }),
     __metadata("design:type", cms_content_entity_1.CmsContent)
 ], Product.prototype, "cmsContent", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Date)
+], Product.prototype, "deletedAt", void 0);
 exports.Product = Product = __decorate([
     (0, typeorm_1.Entity)('product')
 ], Product);

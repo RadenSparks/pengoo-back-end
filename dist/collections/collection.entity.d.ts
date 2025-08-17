@@ -7,5 +7,6 @@ export declare class Collection {
     image_url: string;
     createdAt: Date;
     updatedAt: Date;
+    deletedAt?: Date;
     products: Product[];
 }

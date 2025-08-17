@@ -17,6 +17,7 @@ let Category = class Category {
     name;
     description;
     products;
+    deletedAt;
 };
 exports.Category = Category;
 __decorate([
@@ -35,6 +36,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => product_entity_1.Product, (product) => product.category_ID),
     __metadata("design:type", Array)
 ], Category.prototype, "products", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Date)
+], Category.prototype, "deletedAt", void 0);
 exports.Category = Category = __decorate([
     (0, typeorm_1.Entity)('category')
 ], Category);

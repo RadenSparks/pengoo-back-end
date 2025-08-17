@@ -18,16 +18,16 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const publisher_entity_1 = require("./entities/publisher.entity");
 let PublishersService = class PublishersService {
-    publishersRepository;
-    constructor(publishersRepository) {
-        this.publishersRepository = publishersRepository;
+    publishersRepo;
+    constructor(publishersRepo) {
+        this.publishersRepo = publishersRepo;
     }
     async create(createPublisherDto) {
-        const publisher = this.publishersRepository.create(createPublisherDto);
-        return await this.publishersRepository.save(publisher);
+        const publisher = this.publishersRepo.create(createPublisherDto);
+        return await this.publishersRepo.save(publisher);
     }
     async findAll() {
-        return await this.publishersRepository.find({
+        const publishers = await this.publishersRepo.find({
             relations: [
                 'products',
                 'products.tags',
@@ -36,9 +36,18 @@ let PublishersService = class PublishersService {
                 'products.publisher_ID'
             ]
         });
+        return publishers.map(pub => ({
+            ...pub,
+            products: pub.products.map(p => ({
+                ...p,
+                publisherID: p.publisher_ID
+                    ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+                    : null,
+            })),
+        }));
     }
     async findOne(id) {
-        const publisher = await this.publishersRepository.findOne({
+        const publisher = await this.publishersRepo.findOne({
             where: { id },
             relations: [
                 'products',
@@ -50,16 +59,28 @@ let PublishersService = class PublishersService {
         });
         if (!publisher)
             throw new common_1.NotFoundException('Publisher not found');
-        return publisher;
+        return {
+            ...publisher,
+            products: publisher.products.map(p => ({
+                ...p,
+                publisherID: p.publisher_ID
+                    ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+                    : null,
+            })),
+        };
     }
     async update(id, updateDto) {
         const publisher = await this.findOne(id);
         Object.assign(publisher, updateDto);
-        return await this.publishersRepository.save(publisher);
+        return await this.publishersRepo.save(publisher);
     }
     async remove(id) {
-        const publisher = await this.findOne(id);
-        await this.publishersRepository.remove(publisher);
+        await this.publishersRepo.softDelete(id);
+        return { deleted: true };
+    }
+    async restore(id) {
+        await this.publishersRepo.restore(id);
+        return { restored: true };
     }
 };
 exports.PublishersService = PublishersService;

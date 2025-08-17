@@ -53,7 +53,12 @@ export class CollectionsService {
   }
 
   async remove(id: number) {
-    await this.collectionsRepo.delete(id);
+    await this.collectionsRepo.softDelete(id);
     return { deleted: true };
+  }
+
+  async restore(id: number) {
+    await this.collectionsRepo.restore(id);
+    return { restored: true };
   }
 }

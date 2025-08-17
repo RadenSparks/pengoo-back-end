@@ -34,6 +34,7 @@ export declare class Order {
     details: OrderDetail[];
     reviews: Review[];
     wishlistItems: Wishlist[];
+    deletedAt?: Date;
 }
 export declare class OrderDetail {
     id: number;

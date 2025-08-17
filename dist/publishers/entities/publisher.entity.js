@@ -16,6 +16,7 @@ let Publisher = class Publisher {
     id;
     name;
     products;
+    deletedAt;
 };
 exports.Publisher = Publisher;
 __decorate([
@@ -30,6 +31,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => product_entity_1.Product, (product) => product.publisher_ID),
     __metadata("design:type", Array)
 ], Publisher.prototype, "products", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Date)
+], Publisher.prototype, "deletedAt", void 0);
 exports.Publisher = Publisher = __decorate([
     (0, typeorm_1.Entity)('publisher')
 ], Publisher);

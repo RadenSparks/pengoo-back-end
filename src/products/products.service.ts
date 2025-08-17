@@ -450,7 +450,7 @@ export class ProductsService {
 
   async remove(id: number): Promise<void> {
     const product = await this.findById(id);
-    await this.productsRepository.remove(product);
+    await this.productsRepository.softRemove(product);
   }
 
   async updateCmsContent(id: number, data: Partial<CmsContent>): Promise<CmsContent | null> {
@@ -475,5 +475,9 @@ export class ProductsService {
       await this.productsRepository.save(product);
     }
     return product;
+  }
+
+  async restore(id: number): Promise<void> {
+    await this.productsRepository.restore(id);
   }
 }

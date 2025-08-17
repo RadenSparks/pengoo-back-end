@@ -14,4 +14,7 @@ export declare class CollectionsService {
     remove(id: number): Promise<{
         deleted: boolean;
     }>;
+    restore(id: number): Promise<{
+        restored: boolean;
+    }>;
 }

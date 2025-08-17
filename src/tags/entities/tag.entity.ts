@@ -1,6 +1,6 @@
 import { Exclude } from "class-transformer";
 import { Product } from "../../products/product.entity";
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('tag')
 export class Tag {
@@ -16,4 +16,7 @@ export class Tag {
         eager: false,
       })
       products: Product[];
+
+      @DeleteDateColumn({ nullable: true })
+      deletedAt?: Date;
 }

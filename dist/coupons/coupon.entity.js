@@ -32,6 +32,7 @@ let Coupon = class Coupon {
     description;
     userCoupons;
     milestonePoints;
+    deletedAt;
 };
 exports.Coupon = Coupon;
 __decorate([
@@ -86,6 +87,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true }),
     __metadata("design:type", Object)
 ], Coupon.prototype, "milestonePoints", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Date)
+], Coupon.prototype, "deletedAt", void 0);
 exports.Coupon = Coupon = __decorate([
     (0, typeorm_1.Entity)()
 ], Coupon);

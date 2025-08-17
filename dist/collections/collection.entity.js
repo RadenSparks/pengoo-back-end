@@ -21,6 +21,7 @@ let Collection = class Collection {
     image_url;
     createdAt;
     updatedAt;
+    deletedAt;
     products;
 };
 exports.Collection = Collection;
@@ -52,6 +53,10 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], Collection.prototype, "updatedAt", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Date)
+], Collection.prototype, "deletedAt", void 0);
 __decorate([
     (0, class_transformer_1.Exclude)(),
     (0, typeorm_1.OneToMany)(() => product_entity_1.Product, (product) => product.collection),

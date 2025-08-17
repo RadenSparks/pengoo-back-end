@@ -19,28 +19,36 @@ const typeorm_2 = require("typeorm");
 const cms_content_entity_1 = require("./cms-content.entity");
 const product_entity_1 = require("../products/product.entity");
 let CmsContentService = class CmsContentService {
-    cmsRepo;
+    cmsContentRepo;
     productRepo;
-    constructor(cmsRepo, productRepo) {
-        this.cmsRepo = cmsRepo;
+    constructor(cmsContentRepo, productRepo) {
+        this.cmsContentRepo = cmsContentRepo;
         this.productRepo = productRepo;
     }
     async create(productId, dto) {
         const product = await this.productRepo.findOneBy({ id: productId });
         if (!product)
             throw new common_1.NotFoundException('Product not found');
-        const cms = this.cmsRepo.create({ ...dto, product });
-        return this.cmsRepo.save(cms);
+        const cms = this.cmsContentRepo.create({ ...dto, product });
+        return this.cmsContentRepo.save(cms);
     }
     async update(productId, dto) {
-        const cms = await this.cmsRepo.findOne({ where: { product: { id: productId } } });
+        const cms = await this.cmsContentRepo.findOne({ where: { product: { id: productId } } });
         if (!cms)
             throw new common_1.NotFoundException('CMS Content not found');
         Object.assign(cms, dto);
-        return this.cmsRepo.save(cms);
+        return this.cmsContentRepo.save(cms);
     }
     async findByProduct(productId) {
-        return this.cmsRepo.findOne({ where: { product: { id: productId } } });
+        return this.cmsContentRepo.findOne({ where: { product: { id: productId } } });
+    }
+    async remove(id) {
+        await this.cmsContentRepo.softDelete(id);
+        return { deleted: true };
+    }
+    async restore(id) {
+        await this.cmsContentRepo.restore(id);
+        return { restored: true };
     }
 };
 exports.CmsContentService = CmsContentService;

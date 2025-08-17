@@ -40,5 +40,11 @@ export class CategoriesController {
     removeCategory(@Param('id') id: number) {
         return this.categoriesService.remove(id);
     }    
+
+    @Put(':id/restore')
+    async restore(@Param('id') id: number) {
+      await this.categoriesService.restore(id);
+      return { message: 'Category restored successfully.' };
+    }
 }
 

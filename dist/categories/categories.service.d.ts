@@ -10,4 +10,5 @@ export declare class CategoriesService {
     findById(id: number): Promise<Category>;
     update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category>;
     remove(id: number): Promise<void>;
+    restore(id: number): Promise<void>;
 }

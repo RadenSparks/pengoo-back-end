@@ -49,6 +49,7 @@ let Order = class Order {
     details;
     reviews;
     wishlistItems;
+    deletedAt;
 };
 exports.Order = Order;
 __decorate([
@@ -116,6 +117,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => wishlist_entity_1.Wishlist, wishlist => wishlist.movedToOrder),
     __metadata("design:type", Array)
 ], Order.prototype, "wishlistItems", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Date)
+], Order.prototype, "deletedAt", void 0);
 exports.Order = Order = __decorate([
     (0, typeorm_1.Entity)()
 ], Order);

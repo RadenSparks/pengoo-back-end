@@ -367,7 +367,7 @@ let ProductsService = class ProductsService {
     }
     async remove(id) {
         const product = await this.findById(id);
-        await this.productsRepository.remove(product);
+        await this.productsRepository.softRemove(product);
     }
     async updateCmsContent(id, data) {
         const product = await this.productsRepository.findOne({
@@ -392,6 +392,9 @@ let ProductsService = class ProductsService {
             await this.productsRepository.save(product);
         }
         return product;
+    }
+    async restore(id) {
+        await this.productsRepository.restore(id);
     }
 };
 exports.ProductsService = ProductsService;

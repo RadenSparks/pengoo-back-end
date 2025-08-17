@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, JoinColumn, DeleteDateColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
 import { Delivery } from '../delivery/delivery.entity';
@@ -72,6 +72,9 @@ export class Order {
 
   @OneToMany(() => Wishlist, wishlist => wishlist.movedToOrder)
   wishlistItems: Wishlist[];
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date;
 }
 
 @Entity()

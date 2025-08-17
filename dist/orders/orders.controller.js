@@ -67,6 +67,10 @@ let OrdersController = class OrdersController {
         }
         return this.ordersService.remove(parsedId);
     }
+    async restore(id) {
+        await this.ordersService.restore(id);
+        return { message: 'Order restored successfully.' };
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -179,6 +183,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "removeOrder", null);
+__decorate([
+    (0, common_1.Put)(':id/restore'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "restore", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])

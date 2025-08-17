@@ -18,4 +18,5 @@ export declare class Coupon {
     description?: string;
     userCoupons: UserCoupon[];
     milestonePoints: number | null;
+    deletedAt?: Date;
 }

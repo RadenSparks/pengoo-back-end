@@ -4,4 +4,5 @@ export declare class Category {
     name: string;
     description: string;
     products: Product[];
+    deletedAt?: Date;
 }

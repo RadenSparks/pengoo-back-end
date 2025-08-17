@@ -35,6 +35,7 @@ export declare class OrdersService {
     handleOrderCancellation(orderCode: number): Promise<Order | NotFoundException>;
     updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order>;
     remove(id: number): Promise<void>;
+    restore(id: number): Promise<void>;
     getDelivery(): Promise<Delivery[]>;
     findByPaypalOrderId(paypalOrderId: string): Promise<Order | null>;
     save(order: Order): Promise<Order>;

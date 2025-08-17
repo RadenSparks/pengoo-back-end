@@ -40,4 +40,10 @@ export class TagsController {
   remove(@Param('id') id: string) {
     return this.tagsService.remove(+id);
   }
+
+  @Put(':id/restore')
+  async restore(@Param('id') id: number) {
+    await this.tagsService.restore(id);
+    return { message: 'Tag restored successfully.' };
+  }
 }

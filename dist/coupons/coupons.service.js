@@ -19,21 +19,21 @@ const typeorm_2 = require("typeorm");
 const coupon_entity_1 = require("./coupon.entity");
 const user_coupon_entity_1 = require("./user-coupon.entity");
 let CouponsService = class CouponsService {
-    couponsRepository;
+    couponsRepo;
     userCouponRepo;
-    constructor(couponsRepository, userCouponRepo) {
-        this.couponsRepository = couponsRepository;
+    constructor(couponsRepo, userCouponRepo) {
+        this.couponsRepo = couponsRepo;
         this.userCouponRepo = userCouponRepo;
     }
     async create(dto) {
-        const coupon = this.couponsRepository.create({
+        const coupon = this.couponsRepo.create({
             ...dto,
             status: dto.status
         });
-        return this.couponsRepository.save(coupon);
+        return this.couponsRepo.save(coupon);
     }
     async validateAndApply(code, orderValue, userId, productIds) {
-        const coupon = await this.couponsRepository.findOne({
+        const coupon = await this.couponsRepo.findOne({
             where: { code: (0, typeorm_2.ILike)(code) },
         });
         if (!coupon)
@@ -58,22 +58,22 @@ let CouponsService = class CouponsService {
         if (discount > coupon.maxOrderValue) {
             discount = coupon.maxOrderValue;
         }
-        await this.couponsRepository.save(coupon);
+        await this.couponsRepo.save(coupon);
         return { coupon, discount };
     }
     async findActiveCoupon() {
-        const coupon = await this.couponsRepository.findOne({
+        const coupon = await this.couponsRepo.findOne({
             where: { status: coupon_entity_1.CouponStatus.Active },
             order: { id: 'ASC' },
         });
         return coupon ?? undefined;
     }
     async getAll() {
-        const coupon = await this.couponsRepository.find();
+        const coupon = await this.couponsRepo.find();
         return coupon ?? undefined;
     }
     async getNextAvailableCoupon(userId, userPoints) {
-        const nextCoupon = await this.couponsRepository.createQueryBuilder("coupon")
+        const nextCoupon = await this.couponsRepo.createQueryBuilder("coupon")
             .where("coupon.milestonePoints > :userPoints", { userPoints })
             .andWhere("coupon.status = :status", { status: coupon_entity_1.CouponStatus.Active })
             .orderBy("coupon.milestonePoints", "ASC")
@@ -81,36 +81,36 @@ let CouponsService = class CouponsService {
         return nextCoupon ?? null;
     }
     async getMilestoneCoupons() {
-        return this.couponsRepository.find({
+        return this.couponsRepo.find({
             where: { milestonePoints: (0, typeorm_2.Not)((0, typeorm_2.IsNull)()), status: coupon_entity_1.CouponStatus.Active },
             order: { milestonePoints: 'ASC' },
         });
     }
     async update(id, dto) {
-        const coupon = await this.couponsRepository.findOne({
+        const coupon = await this.couponsRepo.findOne({
             where: { id }
         });
         if (!coupon)
             throw new common_1.NotFoundException('Coupon not found');
         Object.assign(coupon, dto);
-        return this.couponsRepository.save(coupon);
+        return this.couponsRepo.save(coupon);
     }
     async updateStatus(id, status) {
-        const coupon = await this.couponsRepository.findOne({ where: { id } });
+        const coupon = await this.couponsRepo.findOne({ where: { id } });
         if (!coupon)
             throw new common_1.NotFoundException('Coupon not found');
         coupon.status = status;
-        return this.couponsRepository.save(coupon);
+        return this.couponsRepo.save(coupon);
     }
     async delete(id) {
-        const coupon = await this.couponsRepository.findOne({ where: { id } });
+        const coupon = await this.couponsRepo.findOne({ where: { id } });
         if (!coupon)
             throw new common_1.NotFoundException('Coupon not found');
-        return this.couponsRepository.remove(coupon);
+        return this.couponsRepo.remove(coupon);
     }
     async checkVoucherByUserPoint(user, voucherCode) {
         const point = user.points;
-        const isActive = await this.couponsRepository.createQueryBuilder("coupon")
+        const isActive = await this.couponsRepo.createQueryBuilder("coupon")
             .where("coupon.milestonePoints <= :point", { point })
             .andWhere("coupon.status = :status", { status: coupon_entity_1.CouponStatus.Active })
             .andWhere("coupon.code = :voucherCode", { voucherCode })
@@ -143,6 +143,14 @@ let CouponsService = class CouponsService {
             },
             relations: ['coupon'],
         });
+    }
+    async remove(id) {
+        await this.couponsRepo.softDelete(id);
+        return { deleted: true };
+    }
+    async restore(id) {
+        await this.couponsRepo.restore(id);
+        return { restored: true };
     }
 };
 exports.CouponsService = CouponsService;

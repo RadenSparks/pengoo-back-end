@@ -41,6 +41,10 @@ let TagsController = class TagsController {
     remove(id) {
         return this.tagsService.remove(+id);
     }
+    async restore(id) {
+        await this.tagsService.restore(id);
+        return { message: 'Tag restored successfully.' };
+    }
 };
 exports.TagsController = TagsController;
 __decorate([
@@ -84,6 +88,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], TagsController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Put)(':id/restore'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], TagsController.prototype, "restore", null);
 exports.TagsController = TagsController = __decorate([
     (0, common_1.Controller)('tags'),
     __metadata("design:paramtypes", [tags_service_1.TagsService])

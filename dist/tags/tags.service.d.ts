@@ -11,5 +11,6 @@ export declare class TagsService {
     findOneByName(name: string): Promise<any>;
     update(id: number, dto: UpdateTagDto): Promise<Tag>;
     remove(id: number): Promise<void>;
+    restore(id: number): Promise<void>;
     findByType(type: string): Promise<Tag[]>;
 }

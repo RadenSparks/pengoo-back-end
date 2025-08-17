@@ -13,4 +13,7 @@ export declare class OrdersController {
     handleOrderSuccess(query: any): Promise<import("./order.entity").Order>;
     handleOrderCancel(query: any): Promise<import("./order.entity").Order | import("@nestjs/common").NotFoundException>;
     removeOrder(id: string): Promise<void>;
+    restore(id: number): Promise<{
+        message: string;
+    }>;
 }

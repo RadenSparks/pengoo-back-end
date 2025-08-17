@@ -16,7 +16,7 @@ exports.ProductsController = void 0;
 const common_1 = require("@nestjs/common");
 const products_service_1 = require("./products.service");
 const create_product_dto_1 = require("./create-product.dto");
-const update_product_dto_1 = require("../products/update-product.dto");
+const update_product_dto_1 = require("./update-product.dto");
 const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
 const public_decorator_1 = require("../auth/public.decorator");
@@ -51,10 +51,23 @@ let ProductsController = class ProductsController {
             page: page ? Number(page) : 1,
             limit: limit ? Number(limit) : 50,
         };
-        return this.productsService.paginatedSearchAndFilter(filter);
+        const result = await this.productsService.paginatedSearchAndFilter(filter);
+        result.data = result.data.map(p => ({
+            ...p,
+            publisherID: p.publisher_ID
+                ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+                : null,
+        }));
+        return result;
     }
-    findById(id) {
-        return this.productsService.findById(id);
+    async findById(id) {
+        const product = await this.productsService.findById(id);
+        return {
+            ...product,
+            publisherID: product.publisher_ID
+                ? { id: product.publisher_ID.id, name: product.publisher_ID.name }
+                : null,
+        };
     }
     async findBySlug(slug) {
         return this.productsService.findBySlug(slug);
@@ -70,7 +83,13 @@ let ProductsController = class ProductsController {
             ? JSON.parse(updateProductDto.deleteImages)
             : updateProductDto.deleteImages;
         console.log(featureImages);
-        return this.productsService.update(id, updateProductDto, mainImage, detailImages, features, featureImages, deleteImages);
+        const product = await this.productsService.update(id, updateProductDto, mainImage, detailImages, features, featureImages, deleteImages);
+        return {
+            ...product,
+            publisherID: product.publisher_ID
+                ? { id: product.publisher_ID.id, name: product.publisher_ID.name }
+                : null,
+        };
     }
     remove(id) {
         return this.productsService.remove(id);
@@ -90,6 +109,10 @@ let ProductsController = class ProductsController {
         if (!updated)
             throw new common_1.NotFoundException('CMS content not found');
         return updated;
+    }
+    async restore(id) {
+        await this.productsService.restore(id);
+        return { message: 'Product restored successfully.' };
     }
 };
 exports.ProductsController = ProductsController;
@@ -154,7 +177,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findById", null);
 __decorate([
     (0, common_1.Get)('slug/:slug'),
@@ -198,6 +221,14 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "updateCmsContent", null);
+__decorate([
+    (0, common_1.Put)(':id/restore'),
+    (0, public_decorator_1.Public)(),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "restore", null);
 exports.ProductsController = ProductsController = __decorate([
     (0, common_1.Controller)('products'),
     __metadata("design:paramtypes", [products_service_1.ProductsService])

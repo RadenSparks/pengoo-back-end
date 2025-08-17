@@ -5,9 +5,9 @@ import { UserCoupon } from './user-coupon.entity';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
 import { User } from '../users/user.entity';
 export declare class CouponsService {
-    private couponsRepository;
+    private couponsRepo;
     private userCouponRepo;
-    constructor(couponsRepository: Repository<Coupon>, userCouponRepo: Repository<UserCoupon>);
+    constructor(couponsRepo: Repository<Coupon>, userCouponRepo: Repository<UserCoupon>);
     create(dto: CreateCouponDto): Promise<Coupon>;
     validateAndApply(code: string, orderValue: number, userId: number, productIds: number[]): Promise<{
         coupon: Coupon;
@@ -23,4 +23,10 @@ export declare class CouponsService {
     checkVoucherByUserPoint(user: User, voucherCode: string): Promise<UserCoupon[]>;
     handleSaveCouponForUser(userId: any, voucherId: any): Promise<UserCoupon>;
     getVoucherByUserId(id: number): Promise<UserCoupon[]>;
+    remove(id: number): Promise<{
+        deleted: boolean;
+    }>;
+    restore(id: number): Promise<{
+        restored: boolean;
+    }>;
 }

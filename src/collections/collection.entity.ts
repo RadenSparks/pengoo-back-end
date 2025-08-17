@@ -6,7 +6,8 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
-    OneToMany
+    OneToMany,
+    DeleteDateColumn
 } from 'typeorm';
 
 @Entity()
@@ -31,6 +32,9 @@ export class Collection {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @DeleteDateColumn({ nullable: true })
+    deletedAt?: Date;
 
     @Exclude()
     @OneToMany(() => Product, (product) => product.collection)

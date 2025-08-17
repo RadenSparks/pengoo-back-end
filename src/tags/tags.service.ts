@@ -46,8 +46,11 @@ export class TagsService {
   }
 
   async remove(id: number): Promise<void> {
-    const tag = await this.findOne(id);
-    await this.tagRepository.remove(tag);
+    await this.tagRepository.softDelete(id);
+  }
+
+  async restore(id: number): Promise<void> {
+    await this.tagRepository.restore(id);
   }
 
   async findByType(type: string): Promise<Tag[]> {

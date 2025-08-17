@@ -20,6 +20,7 @@ let UserCoupon = class UserCoupon {
     redeemed;
     redeemedAt;
     redeemToken;
+    deletedAt;
 };
 exports.UserCoupon = UserCoupon;
 __decorate([
@@ -46,6 +47,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
     __metadata("design:type", Object)
 ], UserCoupon.prototype, "redeemToken", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Date)
+], UserCoupon.prototype, "deletedAt", void 0);
 exports.UserCoupon = UserCoupon = __decorate([
     (0, typeorm_1.Entity)(),
     (0, typeorm_1.Unique)(['user', 'coupon'])

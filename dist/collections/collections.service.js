@@ -63,8 +63,12 @@ let CollectionsService = class CollectionsService {
         return this.collectionsRepo.save(collection);
     }
     async remove(id) {
-        await this.collectionsRepo.delete(id);
+        await this.collectionsRepo.softDelete(id);
         return { deleted: true };
+    }
+    async restore(id) {
+        await this.collectionsRepo.restore(id);
+        return { restored: true };
     }
 };
 exports.CollectionsService = CollectionsService;

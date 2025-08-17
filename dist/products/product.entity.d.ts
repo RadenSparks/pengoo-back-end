@@ -28,4 +28,5 @@ export declare class Product {
     created_at: Date;
     updated_at: Date;
     cmsContent: CmsContent;
+    deletedAt?: Date;
 }

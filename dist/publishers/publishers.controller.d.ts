@@ -8,5 +8,7 @@ export declare class PublishersController {
     findAll(): Promise<import("./entities/publisher.entity").Publisher[]>;
     findOne(id: string): Promise<import("./entities/publisher.entity").Publisher>;
     update(id: string, dto: UpdatePublisherDto): Promise<import("./entities/publisher.entity").Publisher>;
-    remove(id: string): Promise<void>;
+    remove(id: string): Promise<{
+        deleted: boolean;
+    }>;
 }

@@ -53,8 +53,10 @@ let TagsService = class TagsService {
         return await this.tagRepository.save(tag);
     }
     async remove(id) {
-        const tag = await this.findOne(id);
-        await this.tagRepository.remove(tag);
+        await this.tagRepository.softDelete(id);
+    }
+    async restore(id) {
+        await this.tagRepository.restore(id);
     }
     async findByType(type) {
         return this.tagRepository.find({

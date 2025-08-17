@@ -202,4 +202,11 @@ export class ProductsController {
     if (!updated) throw new NotFoundException('CMS content not found');
     return updated;
   }
+
+  @Put(':id/restore')
+  @Public()
+  async restore(@Param('id') id: number) {
+    await this.productsService.restore(id);
+    return { message: 'Product restored successfully.' };
+  }
 }

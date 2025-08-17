@@ -9,4 +9,7 @@ export declare class CategoriesController {
     findCategoryById(id: number): Promise<import("./category.entity").Category>;
     updateCategory(id: number, updateCategoryDto: UpdateCategoryDto): Promise<import("./category.entity").Category>;
     removeCategory(id: number): Promise<void>;
+    restore(id: number): Promise<{
+        message: string;
+    }>;
 }

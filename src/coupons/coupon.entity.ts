@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, DeleteDateColumn } from 'typeorm';
 import { UserCoupon } from './user-coupon.entity';
 
 export enum CouponStatus {
@@ -49,4 +49,7 @@ export class Coupon {
 
   @Column({ type: 'int', nullable: true })
   milestonePoints: number | null; // Points required to unlock this coupon
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date;
 }

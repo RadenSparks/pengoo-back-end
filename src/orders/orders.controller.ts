@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException, Put } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
@@ -116,5 +116,9 @@ export class OrdersController {
     }
     return this.ordersService.remove(parsedId);
   }
-
+  @Put(':id/restore')
+  async restore(@Param('id') id: number) {
+    await this.ordersService.restore(id);
+    return { message: 'Order restored successfully.' };
+  }
 }

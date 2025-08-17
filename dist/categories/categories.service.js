@@ -48,11 +48,10 @@ let CategoriesService = class CategoriesService {
         return this.categoriesRepository.save(category);
     }
     async remove(id) {
-        const category = await this.findById(id);
-        if (!category) {
-            throw new common_1.NotFoundException('Category not found');
-        }
-        await this.categoriesRepository.remove(category);
+        await this.categoriesRepository.softDelete(id);
+    }
+    async restore(id) {
+        await this.categoriesRepository.restore(id);
     }
 };
 exports.CategoriesService = CategoriesService;

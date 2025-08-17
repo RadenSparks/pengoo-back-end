@@ -7,4 +7,5 @@ export declare class UserCoupon {
     redeemed: boolean;
     redeemedAt: Date | null;
     redeemToken: string | null;
+    deletedAt?: Date;
 }

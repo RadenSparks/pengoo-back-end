@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, Unique, DeleteDateColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Coupon } from './coupon.entity';
 
@@ -22,4 +22,7 @@ export class UserCoupon {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   redeemToken: string | null;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date;
 }

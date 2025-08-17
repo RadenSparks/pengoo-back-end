@@ -18,6 +18,7 @@ let Tag = class Tag {
     name;
     type;
     products;
+    deletedAt;
 };
 exports.Tag = Tag;
 __decorate([
@@ -39,6 +40,10 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], Tag.prototype, "products", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Date)
+], Tag.prototype, "deletedAt", void 0);
 exports.Tag = Tag = __decorate([
     (0, typeorm_1.Entity)('tag')
 ], Tag);

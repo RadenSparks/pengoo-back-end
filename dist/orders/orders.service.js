@@ -158,11 +158,10 @@ let OrdersService = class OrdersService {
         return this.ordersRepository.save(order);
     }
     async remove(id) {
-        const order = await this.findById(id);
-        if (!order) {
-            throw new common_1.NotFoundException('Order not found');
-        }
-        await this.ordersRepository.remove(order);
+        await this.ordersRepository.softDelete(id);
+    }
+    async restore(id) {
+        await this.ordersRepository.restore(id);
     }
     async getDelivery() {
         return this.deliveryRepository.find();

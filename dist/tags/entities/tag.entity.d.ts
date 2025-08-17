@@ -4,4 +4,5 @@ export declare class Tag {
     name: string;
     type: string;
     products: Product[];
+    deletedAt?: Date;
 }

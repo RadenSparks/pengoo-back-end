@@ -38,6 +38,10 @@ let CategoriesController = class CategoriesController {
     removeCategory(id) {
         return this.categoriesService.remove(id);
     }
+    async restore(id) {
+        await this.categoriesService.restore(id);
+        return { message: 'Category restored successfully.' };
+    }
 };
 exports.CategoriesController = CategoriesController;
 __decorate([
@@ -80,6 +84,13 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "removeCategory", null);
+__decorate([
+    (0, common_1.Put)(':id/restore'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], CategoriesController.prototype, "restore", null);
 exports.CategoriesController = CategoriesController = __decorate([
     (0, common_1.Controller)('categories'),
     __metadata("design:paramtypes", [categories_service_1.CategoriesService])

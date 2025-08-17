@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, ManyToMany, JoinTable, OneToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, ManyToMany, JoinTable, OneToOne, DeleteDateColumn } from 'typeorm';
 import { Category } from '../categories/category.entity';
 import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
@@ -73,4 +73,7 @@ export class Product {
 
   @OneToOne(() => CmsContent, cmsContent => cmsContent.product, { cascade: true, eager: true })
   cmsContent: CmsContent;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date;
 }

@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
-import { UpdateProductDto } from '../products/update-product.dto';
+import { UpdateProductDto } from './update-product.dto';
 import { CategoriesService } from '../categories/categories.service';
 import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
 import { Tag } from '../tags/entities/tag.entity';
@@ -48,4 +48,5 @@ export declare class ProductsService {
     remove(id: number): Promise<void>;
     updateCmsContent(id: number, data: Partial<CmsContent>): Promise<CmsContent | null>;
     createCmsContentForProduct(id: number): Promise<Product>;
+    restore(id: number): Promise<void>;
 }

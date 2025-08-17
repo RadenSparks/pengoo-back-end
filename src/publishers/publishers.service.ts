@@ -9,16 +9,16 @@ import { UpdatePublisherDto } from './dto/update-publisher.dto';
 export class PublishersService {
   constructor(
     @InjectRepository(Publisher)
-    private readonly publishersRepository: Repository<Publisher>,
+    private publishersRepo: Repository<Publisher>,
   ) { }
 
   async create(createPublisherDto: CreatePublisherDto): Promise<Publisher> {
-    const publisher = this.publishersRepository.create(createPublisherDto);
-    return await this.publishersRepository.save(publisher);
+    const publisher = this.publishersRepo.create(createPublisherDto);
+    return await this.publishersRepo.save(publisher);
   }
 
   async findAll(): Promise<Publisher[]> {
-    const publishers = await this.publishersRepository.find({
+    const publishers = await this.publishersRepo.find({
       relations: [
         'products',
         'products.tags',
@@ -41,7 +41,7 @@ export class PublishersService {
   }
 
   async findOne(id: number): Promise<Publisher> {
-    const publisher = await this.publishersRepository.findOne({
+    const publisher = await this.publishersRepo.findOne({
       where: { id },
       relations: [
         'products',
@@ -66,11 +66,16 @@ export class PublishersService {
   async update(id: number, updateDto: UpdatePublisherDto): Promise<Publisher> {
     const publisher = await this.findOne(id);
     Object.assign(publisher, updateDto);
-    return await this.publishersRepository.save(publisher);
+    return await this.publishersRepo.save(publisher);
   }
 
-  async remove(id: number): Promise<void> {
-    const publisher = await this.findOne(id);
-    await this.publishersRepository.remove(publisher);
+  async remove(id: number) {
+    await this.publishersRepo.softDelete(id);
+    return { deleted: true };
+  }
+
+  async restore(id: number) {
+    await this.publishersRepo.restore(id);
+    return { restored: true };
   }
 }

@@ -171,12 +171,13 @@ export class OrdersService {
   }
 
   async remove(id: number): Promise<void> {
-    const order = await this.findById(id);
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-    await this.ordersRepository.remove(order);
+    await this.ordersRepository.softDelete(id);
   }
+
+  async restore(id: number): Promise<void> {
+    await this.ordersRepository.restore(id);
+  }
+
   async getDelivery() {
     return this.deliveryRepository.find();
   }
