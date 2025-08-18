@@ -25,6 +25,8 @@ const coupons_service_1 = require("../coupons/coupons.service");
 const payos_service_1 = require("../services/payos/payos.service");
 const invoice_service_1 = require("../services/invoices/invoice.service");
 const product_entity_1 = require("../products/product.entity");
+const refund_request_entity_1 = require("./refund-request.entity");
+const file_entity_1 = require("./file.entity");
 let OrdersService = class OrdersService {
     payosService;
     ordersRepository;
@@ -195,6 +197,49 @@ let OrdersService = class OrdersService {
             order.payment_status = order_entity_1.PaymentStatus.Paid;
             await manager.save(order);
         });
+    }
+    async createRefundRequest(data) {
+        const refundRequest = await this.dataSource.transaction(async (manager) => {
+            const order = await manager.findOne(order_entity_1.Order, {
+                where: { id: data.order_id },
+                relations: ['details', 'details.product'],
+            });
+            if (!order)
+                throw new common_1.NotFoundException('Order not found');
+            if (order.payment_status !== order_entity_1.PaymentStatus.Paid) {
+                throw new common_1.BadRequestException('Order is not paid or already refunded.');
+            }
+            const exist = await manager.findOne(refund_request_entity_1.RefundRequest, {
+                where: { order: { id: data.order_id } },
+                order: { times: 'DESC' },
+            });
+            const requestTimes = exist?.times || 0;
+            if (requestTimes >= 3) {
+                throw new common_1.BadRequestException('Bạn đã hết lượt yêu cầu hoàn tiền cho đơn hàng này');
+            }
+            const refundRequest = manager.create(refund_request_entity_1.RefundRequest, {
+                order,
+                reason: data.reason,
+                user: { id: user_id },
+                amount: order.total_price,
+                times: requestTimes + 1,
+            });
+            await manager.save(refundRequest);
+            for (const file of data.uploadFiles) {
+                const upload = manager.create(file_entity_1.UploadFiles, {
+                    type: file.type,
+                    url: file.url,
+                    refundRequest,
+                });
+                await manager.save(upload);
+            }
+            return refundRequest;
+        });
+        return {
+            status: 200,
+            message: 'Refund request created successfully.',
+            data: refundRequest,
+        };
     }
 };
 exports.OrdersService = OrdersService;

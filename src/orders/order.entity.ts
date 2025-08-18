@@ -4,6 +4,7 @@ import { Product } from '../products/product.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
+import { RefundRequest } from './refund-request.entity';
 
 export enum PaymentStatus {
   Paid = 'paid',
@@ -75,6 +76,9 @@ export class Order {
 
   @DeleteDateColumn({ nullable: true })
   deletedAt?: Date;
+
+  @OneToMany(() => RefundRequest, refundRequest => refundRequest.order)
+  refundRequests: RefundRequest[];
 }
 
 @Entity()

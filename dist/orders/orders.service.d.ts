@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { Order, OrderDetail } from './order.entity';
-import { CreateOrderDto } from './create-orders.dto';
+import { CreateOrderDto, CreateRefundRequestDto } from './create-orders.dto';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
@@ -10,6 +10,7 @@ import { Delivery } from '../delivery/delivery.entity';
 import { CouponsService } from '../coupons/coupons.service';
 import { PayosService } from '../services/payos/payos.service';
 import { InvoicesService } from '../services/invoices/invoice.service';
+import { RefundRequest } from './refund-request.entity';
 export declare class OrdersService {
     private readonly payosService;
     private ordersRepository;
@@ -40,4 +41,9 @@ export declare class OrdersService {
     findByPaypalOrderId(paypalOrderId: string): Promise<Order | null>;
     save(order: Order): Promise<Order>;
     completeOrder(orderId: number): Promise<void>;
+    createRefundRequest(data: CreateRefundRequestDto): Promise<{
+        status: number;
+        message: string;
+        data: RefundRequest;
+    }>;
 }

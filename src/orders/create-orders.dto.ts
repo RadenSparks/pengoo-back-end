@@ -14,6 +14,26 @@ class CreateOrderDetailDto {
   @IsNumber()
   price: number;
 }
+export class CreateRefundRequestDto {
+  @IsNotEmpty()
+  @IsNumber()
+  order_id: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  user_id: number;
+
+  @IsNotEmpty()
+  @IsString()
+  reason: string;
+
+  @IsNotEmpty()
+  uploadFiles: {
+    type: string;
+    url: string;
+  }[];
+
+}
 
 export class CreateOrderDto {
   @IsNotEmpty()
@@ -23,7 +43,7 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @IsNumber()
   delivery_id: number;
-  
+
   @IsNotEmpty()
   @IsEnum(PaymentMethod)
   payment_type: PaymentMethod;

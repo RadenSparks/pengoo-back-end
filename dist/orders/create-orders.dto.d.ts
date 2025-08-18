@@ -4,6 +4,15 @@ declare class CreateOrderDetailDto {
     quantity: number;
     price: number;
 }
+export declare class CreateRefundRequestDto {
+    order_id: number;
+    user_id: number;
+    reason: string;
+    uploadFiles: {
+        type: string;
+        url: string;
+    }[];
+}
 export declare class CreateOrderDto {
     userId: number;
     delivery_id: number;

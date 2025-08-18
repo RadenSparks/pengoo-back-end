@@ -3,6 +3,7 @@ import { Product } from '../products/product.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
+import { RefundRequest } from './refund-request.entity';
 export declare enum PaymentStatus {
     Paid = "paid",
     Pending = "pending",
@@ -35,6 +36,7 @@ export declare class Order {
     reviews: Review[];
     wishlistItems: Wishlist[];
     deletedAt?: Date;
+    refundRequests: RefundRequest[];
 }
 export declare class OrderDetail {
     id: number;

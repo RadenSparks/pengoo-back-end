@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Order, OrderDetail, PaymentStatus, ProductStatus } from './order.entity'; // Import PaymentStatus and ProductStatus
-import { CreateOrderDto } from './create-orders.dto';
+import { CreateOrderDto, CreateRefundRequestDto } from './create-orders.dto';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
@@ -13,6 +13,8 @@ import { PayosService } from '../services/payos/payos.service';
 import { CouponStatus } from 'src/coupons/coupon.entity';
 import { InvoicesService } from '../services/invoices/invoice.service'; // Add this import
 import { Product } from 'src/products/product.entity';
+import { RefundRequest } from './refund-request.entity';
+import { UploadFiles } from './file.entity';
 
 @Injectable()
 export class OrdersService {
@@ -216,4 +218,55 @@ export class OrdersService {
       // ...send invoice, etc...
     });
   }
+  async createRefundRequest(data: CreateRefundRequestDto) {
+  const refundRequest = await this.dataSource.transaction(async manager => {
+    const order = await manager.findOne(Order, {
+      where: { id: data.order_id },
+      relations: ['details', 'details.product'],
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.payment_status !== PaymentStatus.Paid) {
+      throw new BadRequestException('Order is not paid or already refunded.');
+    }
+
+    const exist = await manager.findOne(RefundRequest, {
+      where: { order: { id: data.order_id } },
+      order: { times: 'DESC' },
+    });
+
+    const requestTimes = exist?.times || 0; // sửa lại: nếu chưa có thì bắt đầu từ 0
+    if (requestTimes >= 3) {
+      throw new BadRequestException('Bạn đã hết lượt yêu cầu hoàn tiền cho đơn hàng này');
+    }
+
+    // tạo + lưu refund request
+    const refundRequest = manager.create(RefundRequest, {
+      order,
+      reason: data.reason,
+      user: { id: user_id }, // sửa lại đúng biến
+      amount: order.total_price,
+      times: requestTimes + 1,
+    });
+    await manager.save(refundRequest);
+
+    // lưu upload files
+    for (const file of data.uploadFiles) {
+      const upload = manager.create(UploadFiles, {
+        type: file.type,
+        url: file.url,
+        refundRequest,
+      });
+      await manager.save(upload);
+    }
+
+    return refundRequest;
+  });
+
+  return {
+    status: 200,
+    message: 'Refund request created successfully.',
+    data: refundRequest,
+  };
+}
 }

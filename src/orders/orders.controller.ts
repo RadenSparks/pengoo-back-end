@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException, Put, UseGuards } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
-import { CreateOrderDto } from './create-orders.dto';
+import { CreateOrderDto, CreateRefundRequestDto } from './create-orders.dto';
 import { Response } from 'express';
 import { Public } from '../auth/public.decorator'; // Add this import
+import { JwtGuard } from 'src/auth/jwt/jwt.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Role } from 'src/roles/role.entity';
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) { }
@@ -120,5 +123,10 @@ export class OrdersController {
   async restore(@Param('id') id: number) {
     await this.ordersService.restore(id);
     return { message: 'Order restored successfully.' };
+  }
+  @UseGuards()
+  @Post('refund-request')
+  createRefundRequest(@Body() body: CreateRefundRequestDto) {
+    return this.ordersService.createRefundRequest(body);
   }
 }

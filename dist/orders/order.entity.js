@@ -16,6 +16,7 @@ const product_entity_1 = require("../products/product.entity");
 const delivery_entity_1 = require("../delivery/delivery.entity");
 const review_entity_1 = require("../reviews/review.entity");
 const wishlist_entity_1 = require("../wishlist/wishlist.entity");
+const refund_request_entity_1 = require("./refund-request.entity");
 var PaymentStatus;
 (function (PaymentStatus) {
     PaymentStatus["Paid"] = "paid";
@@ -50,6 +51,7 @@ let Order = class Order {
     reviews;
     wishlistItems;
     deletedAt;
+    refundRequests;
 };
 exports.Order = Order;
 __decorate([
@@ -121,6 +123,10 @@ __decorate([
     (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
     __metadata("design:type", Date)
 ], Order.prototype, "deletedAt", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => refund_request_entity_1.RefundRequest, refundRequest => refundRequest.order),
+    __metadata("design:type", Array)
+], Order.prototype, "refundRequests", void 0);
 exports.Order = Order = __decorate([
     (0, typeorm_1.Entity)()
 ], Order);
