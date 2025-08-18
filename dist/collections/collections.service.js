@@ -18,6 +18,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const collection_entity_1 = require("./collection.entity");
 const product_entity_1 = require("../products/product.entity");
+const products_service_1 = require("../products/products.service");
 let CollectionsService = class CollectionsService {
     collectionsRepo;
     productsRepo;
@@ -69,6 +70,19 @@ let CollectionsService = class CollectionsService {
     async restore(id) {
         await this.collectionsRepo.restore(id);
         return { restored: true };
+    }
+    async createBoardGameCollection(baseSlug) {
+        const allProducts = await this.productsRepo.find({ relations: ['category_ID'] });
+        const baseGame = allProducts.find(p => p.slug === baseSlug && (0, products_service_1.isBaseGame)(p));
+        if (!baseGame)
+            throw new Error('Base game not found');
+        const expansions = (0, products_service_1.findExpansionsForBaseGame)(allProducts, baseSlug);
+        const collection = this.collectionsRepo.create({
+            name: `${baseGame.product_name} Collection`,
+            slug: `${baseGame.slug}-collection`,
+            products: [baseGame, ...expansions],
+        });
+        return this.collectionsRepo.save(collection);
     }
 };
 exports.CollectionsService = CollectionsService;

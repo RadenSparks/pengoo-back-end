@@ -481,3 +481,26 @@ export class ProductsService {
     await this.productsRepository.restore(id);
   }
 }
+
+// Helper to check if a product is a base game
+export function isBaseGame(product: Product): boolean {
+  return product.category_ID?.name === "Board Game";
+}
+
+// Helper to check if a product is an expansion
+export function isExpansion(product: Product): boolean {
+  return product.category_ID?.name === "Expansions";
+}
+
+// Get base slug from an expansion's slug
+export function getBaseSlug(slug: string): string {
+  const match = slug.match(/^(.+)-.+$/);
+  return match ? match[1] : slug;
+}
+
+// Find expansions for a base game by slug
+export function findExpansionsForBaseGame(products: Product[], baseSlug: string): Product[] {
+  return products.filter(
+    p => isExpansion(p) && p.slug.startsWith(baseSlug + "-")
+  );
+}

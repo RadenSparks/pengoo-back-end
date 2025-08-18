@@ -50,3 +50,7 @@ export declare class ProductsService {
     createCmsContentForProduct(id: number): Promise<Product>;
     restore(id: number): Promise<void>;
 }
+export declare function isBaseGame(product: Product): boolean;
+export declare function isExpansion(product: Product): boolean;
+export declare function getBaseSlug(slug: string): string;
+export declare function findExpansionsForBaseGame(products: Product[], baseSlug: string): Product[];

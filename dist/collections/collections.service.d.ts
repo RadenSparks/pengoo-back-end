@@ -17,4 +17,5 @@ export declare class CollectionsService {
     restore(id: number): Promise<{
         restored: boolean;
     }>;
+    createBoardGameCollection(baseSlug: string): Promise<Collection>;
 }
