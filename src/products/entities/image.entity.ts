@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, DeleteDateColumn } from 'typeorm';
 import { Product } from '../product.entity';
 
 @Entity()
@@ -20,4 +20,7 @@ export class Image {
 
   @ManyToOne(() => Product, (product) => product.images, { nullable: true, onDelete: 'CASCADE' })
   product?: Product;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date; // <-- Add this line for soft delete support
 }

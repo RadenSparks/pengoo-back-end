@@ -19,6 +19,7 @@ let Image = class Image {
     folder;
     ord;
     product;
+    deletedAt;
 };
 exports.Image = Image;
 __decorate([
@@ -45,6 +46,10 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => product_entity_1.Product, (product) => product.images, { nullable: true, onDelete: 'CASCADE' }),
     __metadata("design:type", product_entity_1.Product)
 ], Image.prototype, "product", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Date)
+], Image.prototype, "deletedAt", void 0);
 exports.Image = Image = __decorate([
     (0, typeorm_1.Entity)()
 ], Image);
