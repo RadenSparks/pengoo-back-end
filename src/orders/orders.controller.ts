@@ -124,9 +124,14 @@ export class OrdersController {
     await this.ordersService.restore(id);
     return { message: 'Order restored successfully.' };
   }
-  @UseGuards()
+
   @Post('refund-request')
   createRefundRequest(@Body() body: CreateRefundRequestDto) {
     return this.ordersService.createRefundRequest(body);
+  }
+
+  @Post('approved-refund-request')
+  approvedRefund() {
+    return this.ordersService.approvedRefundRequest(8);
   }
 }

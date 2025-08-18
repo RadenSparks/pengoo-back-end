@@ -21,4 +21,5 @@ export declare class OrdersController {
         message: string;
         data: import("./refund-request.entity").RefundRequest;
     }>;
+    approvedRefund(): Promise<any>;
 }

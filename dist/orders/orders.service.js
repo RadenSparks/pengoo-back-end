@@ -27,6 +27,7 @@ const invoice_service_1 = require("../services/invoices/invoice.service");
 const product_entity_1 = require("../products/product.entity");
 const refund_request_entity_1 = require("./refund-request.entity");
 const file_entity_1 = require("./file.entity");
+const refund_entity_1 = require("./refund.entity");
 let OrdersService = class OrdersService {
     payosService;
     ordersRepository;
@@ -201,8 +202,7 @@ let OrdersService = class OrdersService {
     async createRefundRequest(data) {
         const refundRequest = await this.dataSource.transaction(async (manager) => {
             const order = await manager.findOne(order_entity_1.Order, {
-                where: { id: data.order_id },
-                relations: ['details', 'details.product'],
+                where: { id: data.order_id }
             });
             if (!order)
                 throw new common_1.NotFoundException('Order not found');
@@ -212,6 +212,7 @@ let OrdersService = class OrdersService {
             const exist = await manager.findOne(refund_request_entity_1.RefundRequest, {
                 where: { order: { id: data.order_id } },
                 order: { times: 'DESC' },
+                relations: ['user']
             });
             const requestTimes = exist?.times || 0;
             if (requestTimes >= 3) {
@@ -220,9 +221,12 @@ let OrdersService = class OrdersService {
             const refundRequest = manager.create(refund_request_entity_1.RefundRequest, {
                 order,
                 reason: data.reason,
-                user: { id: user_id },
+                user: { id: data.user_id },
                 amount: order.total_price,
                 times: requestTimes + 1,
+                toBin: data.toBin,
+                toAccountNumber: data.toAccountNumber,
+                bank: data.bank,
             });
             await manager.save(refundRequest);
             for (const file of data.uploadFiles) {
@@ -233,6 +237,11 @@ let OrdersService = class OrdersService {
                 });
                 await manager.save(upload);
             }
+            const refund = manager.create(refund_entity_1.Refund, {
+                paymentMethod: order.payment_type,
+                refundRequest
+            });
+            await manager.save(refund);
             return refundRequest;
         });
         return {
@@ -240,6 +249,23 @@ let OrdersService = class OrdersService {
             message: 'Refund request created successfully.',
             data: refundRequest,
         };
+    }
+    async approvedRefundRequest(id) {
+        const result = await this.dataSource.transaction(async (manager) => {
+            const request = await manager.findOne(refund_request_entity_1.RefundRequest, {
+                where: { id },
+                relations: ['order', 'user'],
+            });
+            if (!request)
+                throw new common_1.BadRequestException("Không tìm thấy yêu cầu hoàn tiền");
+            return await this.payosService.refundOrder({
+                toAccountNumber: request.toAccountNumber,
+                toBin: request.toBin,
+                amount: 2000,
+                orderCode: request.order.order_code
+            });
+        });
+        return result;
     }
 };
 exports.OrdersService = OrdersService;

@@ -22,11 +22,7 @@ var RefundStatus;
 let Refund = class Refund {
     id;
     refundRequest;
-    amount;
     paymentMethod;
-    toAccountNumber;
-    toBin;
-    bank;
     transaction_id;
     status;
     created_at;
@@ -42,33 +38,17 @@ __decorate([
     __metadata("design:type", refund_request_entity_1.RefundRequest)
 ], Refund.prototype, "refundRequest", void 0);
 __decorate([
-    (0, typeorm_1.Column)('decimal'),
-    __metadata("design:type", Number)
-], Refund.prototype, "amount", void 0);
-__decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
     __metadata("design:type", String)
 ], Refund.prototype, "paymentMethod", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
-    __metadata("design:type", String)
-], Refund.prototype, "toAccountNumber", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
-    __metadata("design:type", String)
-], Refund.prototype, "toBin", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
-    __metadata("design:type", String)
-], Refund.prototype, "bank", void 0);
-__decorate([
-    (0, typeorm_1.Column)('varchar', { length: 255 }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
     __metadata("design:type", String)
 ], Refund.prototype, "transaction_id", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'varchar', length: 255,
-        default: 'PENDING',
+        default: 'PROCESSING',
     }),
     __metadata("design:type", String)
 ], Refund.prototype, "status", void 0);

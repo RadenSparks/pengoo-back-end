@@ -35,7 +35,10 @@ __decorate([
 class CreateRefundRequestDto {
     order_id;
     user_id;
+    bank;
+    toBin;
     reason;
+    toAccountNumber;
     uploadFiles;
 }
 exports.CreateRefundRequestDto = CreateRefundRequestDto;
@@ -53,7 +56,22 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
+], CreateRefundRequestDto.prototype, "bank", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateRefundRequestDto.prototype, "toBin", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
 ], CreateRefundRequestDto.prototype, "reason", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateRefundRequestDto.prototype, "toAccountNumber", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Array)

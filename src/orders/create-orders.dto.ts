@@ -25,7 +25,16 @@ export class CreateRefundRequestDto {
 
   @IsNotEmpty()
   @IsString()
+  bank: string;
+  @IsNotEmpty()
+  @IsString()
+  toBin: string;
+  @IsNotEmpty()
+  @IsString()
   reason: string;
+  @IsNotEmpty()
+  @IsString()
+  toAccountNumber: string;
 
   @IsNotEmpty()
   uploadFiles: {

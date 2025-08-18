@@ -16,7 +16,7 @@ export class PaymentsService {
     private dataSource: DataSource,
     private payosService: PayosService,
     private invoicesService: InvoicesService,
-  ) {}
+  ) { }
 
   // Only allow order owner or admin
   private async assertCanAct(userId: number, order: Order, userRole: string) {
@@ -126,9 +126,9 @@ export class PaymentsService {
         await this.paypalService.refundOrder(order.id);
       }
       // Refund via PayOS
-      if (order.payment_type === PaymentMethod.PAYOS) {
-        await this.payosService.refundOrder(order.order_code);
-      }
+      // if (order.payment_type === PaymentMethod.PAYOS) {
+      //   await this.payosService.refundOrder(order.order_code);
+      // }
       order.payment_status = PaymentStatus.Refunded;
       order.productStatus = 'cancelled';
       await manager.save(order);

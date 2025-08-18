@@ -7,7 +7,10 @@ declare class CreateOrderDetailDto {
 export declare class CreateRefundRequestDto {
     order_id: number;
     user_id: number;
+    bank: string;
+    toBin: string;
     reason: string;
+    toAccountNumber: string;
     uploadFiles: {
         type: string;
         url: string;

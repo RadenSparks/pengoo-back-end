@@ -23,25 +23,15 @@ export class Refund {
     @ManyToOne(() => RefundRequest, (refundRequest) => refundRequest.refund, { eager: true })
     refundRequest: RefundRequest;
 
-
-    @Column('decimal')
-    amount: number;
-
     @Column({ type: 'varchar', length: 255 })
     paymentMethod: PaymentMethod;
-    @Column({ type: 'varchar', length: 255 })
-    toAccountNumber: string;
-    @Column({ type: 'varchar', length: 255 })
-    toBin: string;
-    @Column({ type: 'varchar', length: 255 })
-    bank: string;
 
-    @Column('varchar', { length: 255 })
+    @Column({ type: 'varchar', length: 255, nullable: true })
     transaction_id: string;
 
     @Column({
         type: 'varchar', length: 255,
-        default: 'PENDING',
+        default: 'PROCESSING',
     })
     status: RefundStatus;
 

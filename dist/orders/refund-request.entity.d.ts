@@ -14,6 +14,9 @@ export declare class RefundRequest {
     uploadFiles: UploadFiles[];
     refund: Refund[];
     amount: number;
+    toAccountNumber: string;
+    toBin: string;
+    bank: string;
     reason: string;
     times: number;
     status: RefundRequestStatus;

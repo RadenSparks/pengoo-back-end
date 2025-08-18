@@ -28,6 +28,9 @@ let RefundRequest = class RefundRequest {
     uploadFiles;
     refund;
     amount;
+    toAccountNumber;
+    toBin;
+    bank;
     reason;
     times;
     status;
@@ -59,6 +62,18 @@ __decorate([
     (0, typeorm_1.Column)('decimal', { precision: 15, scale: 2 }),
     __metadata("design:type", Number)
 ], RefundRequest.prototype, "amount", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    __metadata("design:type", String)
+], RefundRequest.prototype, "toAccountNumber", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    __metadata("design:type", String)
+], RefundRequest.prototype, "toBin", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    __metadata("design:type", String)
+], RefundRequest.prototype, "bank", void 0);
 __decorate([
     (0, typeorm_1.Column)('text'),
     __metadata("design:type", String)

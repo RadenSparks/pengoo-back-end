@@ -74,6 +74,9 @@ let OrdersController = class OrdersController {
     createRefundRequest(body) {
         return this.ordersService.createRefundRequest(body);
     }
+    approvedRefund() {
+        return this.ordersService.approvedRefundRequest(8);
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -194,13 +197,18 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "restore", null);
 __decorate([
-    (0, common_1.UseGuards)(),
     (0, common_1.Post)('refund-request'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_orders_dto_1.CreateRefundRequestDto]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "createRefundRequest", null);
+__decorate([
+    (0, common_1.Post)('approved-refund-request'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "approvedRefund", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])

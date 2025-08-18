@@ -2,7 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common';
 import axios from 'axios';
 import * as crypto from 'crypto';
 import { InvoicesService } from '../invoices/invoice.service';
-
+import { v4 as uuidv4 } from 'uuid'
 @Injectable()
 export class PayosService {
     private readonly apiUrl = 'https://api-merchant.payos.vn/v2/payment-requests';
@@ -12,7 +12,7 @@ export class PayosService {
 
     constructor(
         private invoicesService: InvoicesService, // Inject the invoice service
-    ) {}
+    ) { }
 
     async createInvoice(data: {
         orderCode: number;
@@ -62,19 +62,38 @@ export class PayosService {
         return { message: 'Invoice generated and sent to user.' };
     }
 
-    async refundOrder(orderCode: number): Promise<any> {
+    async refundOrder(data: {
+        orderCode: number,
+        amount: number,
+        toBin: string,
+        toAccountNumber: string
+    }): Promise<any> {
+        const { amount, toBin, toAccountNumber, orderCode } = data
+        const payload = {
+            referenceId: `REFUND_${orderCode}_${Date.now()}`,
+            amount,
+            description: "Hoàn tiền đơn hàng",
+            toBin,
+            toAccountNumber,
+            category: [
+                "refund"
+            ]
+        }
         // Implement PayOS refund API call here
         // Example: POST to https://api-merchant.payos.vn/v2/payment-requests/{orderCode}/refund
         // You may need to check PayOS docs for the exact endpoint and payload
         try {
+            const idempotencyKey = uuidv4()
             const res = await axios.post(
-                `https://api-merchant.payos.vn/v2/payment-requests/${orderCode}/refund`,
-                {},
+                `https://api-merchant.payos.vn/v1/payouts`,
+                payload,
                 {
                     headers: {
-                        'x-api-key': this.apiKey ?? '',
-                        'x-client-id': this.clientId ?? '',
+                        'x-api-key': '05da13c1-d4ea-474e-a02e-064e17dc40c4',
+                        'x-client-id': 'f29b16ad-8e30-4433-b04a-b92082561928',
                         'Content-Type': 'application/json',
+                        'x-signature': this.generateSignature(data),
+                        'x-x-idempotency-key': idempotencyKey
                     },
                 }
             );
@@ -82,5 +101,12 @@ export class PayosService {
         } catch (err: any) {
             throw new HttpException(err.response?.data || 'Lỗi khi hoàn tiền PayOS', err.response?.status || 500);
         }
+    }
+    generateSignature(data: any): string {
+        const jsonString = JSON.stringify(data);
+        return crypto
+            .createHmac('sha256', this.clientSecret)
+            .update(jsonString)
+            .digest('hex');
     }
 }

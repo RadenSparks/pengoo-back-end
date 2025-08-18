@@ -125,9 +125,6 @@ let PaymentsService = class PaymentsService {
             if (order.payment_type === payment_types_1.PaymentMethod.PAYPAL) {
                 await this.paypalService.refundOrder(order.id);
             }
-            if (order.payment_type === payment_types_1.PaymentMethod.PAYOS) {
-                await this.payosService.refundOrder(order.order_code);
-            }
             order.payment_status = order_entity_1.PaymentStatus.Refunded;
             order.productStatus = 'cancelled';
             await manager.save(order);

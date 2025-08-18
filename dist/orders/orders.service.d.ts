@@ -46,4 +46,5 @@ export declare class OrdersService {
         message: string;
         data: RefundRequest;
     }>;
+    approvedRefundRequest(id: number): Promise<any>;
 }

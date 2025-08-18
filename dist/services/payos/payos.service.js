@@ -14,6 +14,7 @@ const common_1 = require("@nestjs/common");
 const axios_1 = require("axios");
 const crypto = require("crypto");
 const invoice_service_1 = require("../invoices/invoice.service");
+const uuid_1 = require("uuid");
 let PayosService = class PayosService {
     invoicesService;
     apiUrl = 'https://api-merchant.payos.vn/v2/payment-requests';
@@ -56,13 +57,27 @@ let PayosService = class PayosService {
         await this.invoicesService.generateInvoice(orderId);
         return { message: 'Invoice generated and sent to user.' };
     }
-    async refundOrder(orderCode) {
+    async refundOrder(data) {
+        const { amount, toBin, toAccountNumber, orderCode } = data;
+        const payload = {
+            referenceId: `REFUND_${orderCode}_${Date.now()}`,
+            amount,
+            description: "Hoàn tiền đơn hàng",
+            toBin,
+            toAccountNumber,
+            category: [
+                "refund"
+            ]
+        };
         try {
-            const res = await axios_1.default.post(`https://api-merchant.payos.vn/v2/payment-requests/${orderCode}/refund`, {}, {
+            const idempotencyKey = (0, uuid_1.v4)();
+            const res = await axios_1.default.post(`https://api-merchant.payos.vn/v1/payouts`, payload, {
                 headers: {
-                    'x-api-key': this.apiKey ?? '',
-                    'x-client-id': this.clientId ?? '',
+                    'x-api-key': '05da13c1-d4ea-474e-a02e-064e17dc40c4',
+                    'x-client-id': 'f29b16ad-8e30-4433-b04a-b92082561928',
                     'Content-Type': 'application/json',
+                    'x-signature': this.generateSignature(data),
+                    'x-x-idempotency-key': idempotencyKey
                 },
             });
             return res.data;
@@ -70,6 +85,13 @@ let PayosService = class PayosService {
         catch (err) {
             throw new common_1.HttpException(err.response?.data || 'Lỗi khi hoàn tiền PayOS', err.response?.status || 500);
         }
+    }
+    generateSignature(data) {
+        const jsonString = JSON.stringify(data);
+        return crypto
+            .createHmac('sha256', this.clientSecret)
+            .update(jsonString)
+            .digest('hex');
     }
 };
 exports.PayosService = PayosService;

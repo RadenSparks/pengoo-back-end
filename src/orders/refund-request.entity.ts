@@ -36,6 +36,15 @@ export class RefundRequest {
     @Column('decimal', { precision: 15, scale: 2 })
     amount: number;
 
+    @Column({ type: 'varchar', length: 255 })
+    toAccountNumber: string;
+
+    @Column({ type: 'varchar', length: 255 })
+    toBin: string;
+
+    @Column({ type: 'varchar', length: 255 })
+    bank: string;
+
     @Column('text')
     reason: string;
 

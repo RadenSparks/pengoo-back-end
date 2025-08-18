@@ -16,5 +16,11 @@ export declare class PayosService {
     handlePayosPaymentSuccess(orderId: number): Promise<{
         message: string;
     }>;
-    refundOrder(orderCode: number): Promise<any>;
+    refundOrder(data: {
+        orderCode: number;
+        amount: number;
+        toBin: string;
+        toAccountNumber: string;
+    }): Promise<any>;
+    generateSignature(data: any): string;
 }
