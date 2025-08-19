@@ -9,38 +9,48 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UploadFiles = void 0;
+exports.Image = void 0;
 const typeorm_1 = require("typeorm");
-const refund_request_entity_1 = require("./refund-request.entity");
-let UploadFiles = class UploadFiles {
+const product_entity_1 = require("../product.entity");
+let Image = class Image {
     id;
-    refundRequest;
-    type;
     url;
-    created_at;
+    name;
+    folder;
+    ord;
+    product;
+    deletedAt;
 };
-exports.UploadFiles = UploadFiles;
+exports.Image = Image;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], UploadFiles.prototype, "id", void 0);
+], Image.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => refund_request_entity_1.RefundRequest, (refundRequest) => refundRequest.uploadFiles, { eager: true }),
-    __metadata("design:type", refund_request_entity_1.RefundRequest)
-], UploadFiles.prototype, "refundRequest", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], UploadFiles.prototype, "type", void 0);
+], Image.prototype, "url", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], UploadFiles.prototype, "url", void 0);
+], Image.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Image.prototype, "folder", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true, type: 'int' }),
+    __metadata("design:type", Number)
+], Image.prototype, "ord", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => product_entity_1.Product, (product) => product.images, { nullable: true, onDelete: 'CASCADE' }),
+    __metadata("design:type", product_entity_1.Product)
+], Image.prototype, "product", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
     __metadata("design:type", Date)
-], UploadFiles.prototype, "created_at", void 0);
-exports.UploadFiles = UploadFiles = __decorate([
-    (0, typeorm_1.Entity)('upload_files')
-], UploadFiles);
-//# sourceMappingURL=file.entity.js.map
+], Image.prototype, "deletedAt", void 0);
+exports.Image = Image = __decorate([
+    (0, typeorm_1.Entity)()
+], Image);
+//# sourceMappingURL=image.entity.js.map
