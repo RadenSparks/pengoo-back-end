@@ -25,6 +25,10 @@ const coupons_service_1 = require("../coupons/coupons.service");
 const payos_service_1 = require("../services/payos/payos.service");
 const invoice_service_1 = require("../services/invoices/invoice.service");
 const product_entity_1 = require("../products/product.entity");
+const refund_request_entity_1 = require("./refund-request.entity");
+const file_entity_1 = require("./file.entity");
+const config_1 = require("@nestjs/config");
+const cloudinary_service_1 = require("../services/cloudinary/cloudinary.service");
 let OrdersService = class OrdersService {
     payosService;
     ordersRepository;
@@ -36,7 +40,9 @@ let OrdersService = class OrdersService {
     couponsService;
     invoicesService;
     dataSource;
-    constructor(payosService, ordersRepository, orderDetailsRepository, deliveryRepository, usersService, productsService, notificationsService, couponsService, invoicesService, dataSource) {
+    configService;
+    cloudinaryService;
+    constructor(payosService, ordersRepository, orderDetailsRepository, deliveryRepository, usersService, productsService, notificationsService, couponsService, invoicesService, dataSource, configService, cloudinaryService) {
         this.payosService = payosService;
         this.ordersRepository = ordersRepository;
         this.orderDetailsRepository = orderDetailsRepository;
@@ -47,6 +53,8 @@ let OrdersService = class OrdersService {
         this.couponsService = couponsService;
         this.invoicesService = invoicesService;
         this.dataSource = dataSource;
+        this.configService = configService;
+        this.cloudinaryService = cloudinaryService;
     }
     async create(createOrderDto) {
         const { userId, delivery_id, payment_type, shipping_address, payment_status, productStatus, details, couponCode, } = createOrderDto;
@@ -196,6 +204,102 @@ let OrdersService = class OrdersService {
             await manager.save(order);
         });
     }
+    async createRefundRequest(data, files) {
+        const refundRequest = await this.dataSource.transaction(async (manager) => {
+            const order = await manager.findOne(order_entity_1.Order, {
+                where: { id: data.order_id },
+                relations: ['details', 'details.product', 'refundRequests', 'user'],
+            });
+            if (!order)
+                throw new common_1.NotFoundException('Order not found');
+            if (order.productStatus !== order_entity_1.ProductStatus.Delivered) {
+                throw new common_1.BadRequestException('Refunds can only be requested for delivered orders.');
+            }
+            const deliveredAt = order.order_date;
+            const REFUND_WINDOW_DAYS = 14;
+            const now = new Date();
+            const deliveredDate = new Date(deliveredAt);
+            if ((now.getTime() - deliveredDate.getTime()) > REFUND_WINDOW_DAYS * 24 * 60 * 60 * 1000) {
+                throw new common_1.BadRequestException('Refund period has expired.');
+            }
+            const previousRequests = order.refundRequests || [];
+            const pendingRequest = previousRequests.find(r => r.status === refund_request_entity_1.RefundRequestStatus.PENDING);
+            if (pendingRequest) {
+                throw new common_1.BadRequestException('There is already a pending refund request for this order.');
+            }
+            if (previousRequests.length >= 3) {
+                throw new common_1.BadRequestException('You have reached the maximum number of refund requests for this order.');
+            }
+            if (!data.reason || data.reason.trim().length < 10) {
+                throw new common_1.BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters).');
+            }
+            if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
+                throw new common_1.BadRequestException('Please upload at least one evidence file.');
+            }
+            let refundAmount = order.total_price;
+            if (order.payment_status === order_entity_1.PaymentStatus.Refunded) {
+                throw new common_1.BadRequestException('This order has already been refunded.');
+            }
+            const refundRequest = manager.create(refund_request_entity_1.RefundRequest, {
+                order,
+                reason: data.reason,
+                user: { id: data.user_id },
+                amount: order.total_price,
+                times: (order.refundRequests?.length ?? 0) + 1,
+                status: refund_request_entity_1.RefundRequestStatus.PENDING,
+            });
+            await manager.save(refundRequest);
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const uploadResult = await this.cloudinaryService.uploadImage(file, 'refund', { userId: data.user_id });
+                const upload = manager.create(file_entity_1.UploadFiles, {
+                    type: file.mimetype,
+                    url: uploadResult.secure_url,
+                    refundRequest,
+                });
+                await manager.save(upload);
+            }
+            const adminUsers = await manager.find('User', { where: { role: 'admin', status: true } });
+            const adminEmails = adminUsers
+                .map((user) => user.email)
+                .filter((email) => !!email);
+            if (adminEmails.length === 0) {
+                adminEmails.push(this.configService.get('ADMIN_EMAIL') || 'admin@pengoo.store');
+            }
+            const subject = `Refund Request #${refundRequest.id} Created`;
+            const message = `
+        A new refund request has been created.<br>
+        <b>Order ID:</b> ${order.id}<br>
+        <b>User:</b> ${order.user?.email || 'Unknown'}<br>
+        <b>Reason:</b> ${refundRequest.reason}<br>
+        <b>Amount:</b> ${refundRequest.amount}<br>
+        <b>Time:</b> ${new Date().toLocaleString()}<br>
+      `;
+            for (const email of adminEmails) {
+                await this.notificationsService.sendEmail(email, subject, `A new refund request has been created for order #${order.id}.`, undefined, message);
+            }
+            const auditLog = `
+        [AUDIT] Refund request created for order ${order.id} by user ${data.user_id}<br>
+        <b>Order ID:</b> ${order.id}<br>
+        <b>User ID:</b> ${data.user_id}<br>
+        <b>User Email:</b> ${order.user?.email || 'Unknown'}<br>
+        <b>Reason:</b> ${refundRequest.reason}<br>
+        <b>Amount:</b> ${refundRequest.amount}<br>
+        <b>Time:</b> ${new Date().toLocaleString()}<br>
+      `;
+            for (const email of adminEmails) {
+                await this.notificationsService.sendEmail(email, `Audit Log: Refund Request #${refundRequest.id}`, `[AUDIT] Refund request created for order ${order.id} by user ${data.user_id}`, undefined, auditLog);
+            }
+            console.log(`[AUDIT] Refund request created for order ${order.id} by user ${data.user_id}`);
+            return refundRequest;
+        });
+        return {
+            status: 200,
+            message: 'Refund request created successfully.',
+            data: refundRequest,
+            estimatedProcessingTime: '3-7 business days',
+        };
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([
@@ -212,6 +316,8 @@ exports.OrdersService = OrdersService = __decorate([
         notifications_service_1.NotificationsService,
         coupons_service_1.CouponsService,
         invoice_service_1.InvoicesService,
-        typeorm_2.DataSource])
+        typeorm_2.DataSource,
+        config_1.ConfigService,
+        cloudinary_service_1.CloudinaryService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

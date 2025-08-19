@@ -32,7 +32,7 @@ export declare class ProductsController {
         tags: import("../tags/entities/tag.entity").Tag[];
         reviews: import("../reviews/review.entity").Review[];
         wishlists: import("../wishlist/wishlist.entity").Wishlist[];
-        images: import("./entities/image.entity").Image[];
+        images: import("../images/entities/image.entity").Image[];
         collection: import("../collections/collection.entity").Collection | null;
         created_at: Date;
         updated_at: Date;
@@ -61,7 +61,7 @@ export declare class ProductsController {
         tags: import("../tags/entities/tag.entity").Tag[];
         reviews: import("../reviews/review.entity").Review[];
         wishlists: import("../wishlist/wishlist.entity").Wishlist[];
-        images: import("./entities/image.entity").Image[];
+        images: import("../images/entities/image.entity").Image[];
         collection: import("../collections/collection.entity").Collection | null;
         created_at: Date;
         updated_at: Date;

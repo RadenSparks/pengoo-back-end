@@ -9,7 +9,7 @@ import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
 import { Tag } from '../tags/entities/tag.entity';
 import { PublishersService } from '../publishers/publishers.service';
 import { TagsService } from '../tags/tags.service';
-import { Image } from './entities/image.entity';
+import { Image } from '../images/entities/image.entity';
 // import { Featured } from './entities/featured.entity';
 import slugify from 'slugify';
 import { CmsContentService } from '../cms-content/cms-content.service'; // Add this import
@@ -63,7 +63,7 @@ export class ProductsService {
 
     // 1. Upload main image
     if (mainImage) {
-      const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
+      const uploadMain = await this.cloudinaryService.uploadImage(mainImage, 'product', { userId: 0 });
       const mainImg = new Image();
       mainImg.url = uploadMain.secure_url;
       mainImg.name = 'main';
@@ -74,7 +74,7 @@ export class ProductsService {
     if (detailImages && detailImages.length > 0) {
       const detailImageEntities = await Promise.all(
         detailImages.map(async (file) => {
-          const result = await this.cloudinaryService.uploadImage(file);
+          const result = await this.cloudinaryService.uploadImage(file, 'product', { userId: 0 });
           const img = new Image();
           img.url = result.secure_url;
           img.name = 'detail';
@@ -96,7 +96,7 @@ export class ProductsService {
           if (!imageFile?.buffer) {
             throw new BadRequestException(`Missing feature image for feature ${i}`);
           }
-          const uploaded = await this.cloudinaryService.uploadImage(imageFile);
+          const uploaded = await this.cloudinaryService.uploadImage(imageFile, 'product', { userId: 0 });
           const img = new Image();
           img.url = uploaded.secure_url;
           img.name = 'featured';
@@ -350,7 +350,7 @@ export class ProductsService {
 
     // If you want to update the main image, update the images array instead.
     if (mainImage) {
-      const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
+      const uploadMain = await this.cloudinaryService.uploadImage(mainImage, 'product', { userId: 0 });
 
       // Find and remove previous main image
       const prevMainImg = product.images.find(img => img.name === "main");
@@ -373,7 +373,7 @@ export class ProductsService {
     if (detailImages && detailImages.length > 0) {
       const detailImageEntities = await Promise.all(
         detailImages.map(async (file) => {
-          const detailUploads = await this.cloudinaryService.uploadImage(file);
+          const detailUploads = await this.cloudinaryService.uploadImage(file, 'product', { userId: 0 });
           const img = this.imageRepository.create({
             product: product,
             name: "detail",
@@ -395,7 +395,7 @@ export class ProductsService {
       const featuredImageEntities = await Promise.all(
         featureImages.map(async (f) => {
           ordLastImage += 1;
-          const uploaded = await this.cloudinaryService.uploadImage(f);
+          const uploaded = await this.cloudinaryService.uploadImage(f, 'product', { userId: 0 });
 
           const newImg = this.imageRepository.create({
             url: uploaded.secure_url,

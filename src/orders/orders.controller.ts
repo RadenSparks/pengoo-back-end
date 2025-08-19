@@ -1,10 +1,16 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException, Put, UseGuards } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
-import { CreateOrderDto } from './create-orders.dto';
+import { CreateOrderDto, CreateRefundRequestDto } from './create-orders.dto';
 import { Response } from 'express';
-import { Public } from '../auth/public.decorator'; // Add this import
+import { Public } from '../auth/public.decorator';
+import { JwtGuard } from 'src/auth/jwt/jwt.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Role } from 'src/roles/role.entity';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { UploadedFiles, UseInterceptors } from '@nestjs/common';
+
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) { }
@@ -71,11 +77,13 @@ export class OrdersController {
   findAllOrders() {
     return this.ordersService.findAll();
   }
+
   @Get('/delivery')
   @Public()
   getDelivery() {
     return this.ordersService.getDelivery();
   }
+
   @Get(':id')
   @Public()
   findOrderById(@Param('id') id: string) {
@@ -85,18 +93,17 @@ export class OrdersController {
     }
     return this.ordersService.findById(parsedId);
   }
+
   @Get('order-code/:order_code')
   @Public()
   findOrderByOrderCode(@Param('order_code') order_code: string) {
-
     return this.ordersService.findByOrderCode(+(order_code));
   }
+
   @Post('payos/order-success')
   async handleOrderSuccess(@Query() query: any) {
     const { orderCode } = query;
-    return await this.ordersService.markOrderAsPaidByCode(+orderCode); // sets status to 'paid'
-
-
+    return await this.ordersService.markOrderAsPaidByCode(+orderCode);
   }
 
   @Post('payos/order-cancel')
@@ -105,8 +112,8 @@ export class OrdersController {
     const data = await this.ordersService.handleOrderCancellation(+orderCode);
     console.log(data)
     return data
-    // return res.redirect(`https://pengoo.store/order/cancel?orderCode=${orderCode}`);
   }
+
   @Delete(':id')
   @Public()
   removeOrder(@Param('id') id: string) {
@@ -116,9 +123,28 @@ export class OrdersController {
     }
     return this.ordersService.remove(parsedId);
   }
+
   @Put(':id/restore')
   async restore(@Param('id') id: number) {
     await this.ordersService.restore(id);
     return { message: 'Order restored successfully.' };
+  }
+
+  // Updated refund request endpoint with improved logic
+  @UseGuards(JwtAuthGuard)
+  @Post('refund-request')
+  @UseInterceptors(FilesInterceptor('files'))
+  async createRefundRequest(
+    @Body() body: CreateRefundRequestDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    // The service now handles:
+    // - Only delivered orders
+    // - Refund window (14 days)
+    // - Max 3 requests, only one pending
+    // - Reason length and evidence required
+    // - Duplicate refund prevention
+    // - Audit and notification logging
+    return await this.ordersService.createRefundRequest(body, files);
   }
 }

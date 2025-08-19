@@ -1,6 +1,6 @@
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
-import { CreateOrderDto } from './create-orders.dto';
+import { CreateOrderDto, CreateRefundRequestDto } from './create-orders.dto';
 export declare class OrdersController {
     private readonly ordersService;
     constructor(ordersService: OrdersService);
@@ -15,5 +15,11 @@ export declare class OrdersController {
     removeOrder(id: string): Promise<void>;
     restore(id: number): Promise<{
         message: string;
+    }>;
+    createRefundRequest(body: CreateRefundRequestDto, files: Express.Multer.File[]): Promise<{
+        status: number;
+        message: string;
+        data: import("./refund-request.entity").RefundRequest;
+        estimatedProcessingTime: string;
     }>;
 }

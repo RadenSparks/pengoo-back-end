@@ -26,7 +26,7 @@ const cloudinary_service_1 = require("../services/cloudinary/cloudinary.service"
 const tag_entity_1 = require("../tags/entities/tag.entity");
 const publishers_service_1 = require("../publishers/publishers.service");
 const tags_service_1 = require("../tags/tags.service");
-const image_entity_1 = require("./entities/image.entity");
+const image_entity_1 = require("../images/entities/image.entity");
 const slugify_1 = require("slugify");
 const cms_content_service_1 = require("../cms-content/cms-content.service");
 const cms_content_entity_1 = require("../cms-content/cms-content.entity");
@@ -70,7 +70,7 @@ let ProductsService = class ProductsService {
         const newProduct = new product_entity_1.Product();
         const images = [];
         if (mainImage) {
-            const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
+            const uploadMain = await this.cloudinaryService.uploadImage(mainImage, 'product', { userId: 0 });
             const mainImg = new image_entity_1.Image();
             mainImg.url = uploadMain.secure_url;
             mainImg.name = 'main';
@@ -78,7 +78,7 @@ let ProductsService = class ProductsService {
         }
         if (detailImages && detailImages.length > 0) {
             const detailImageEntities = await Promise.all(detailImages.map(async (file) => {
-                const result = await this.cloudinaryService.uploadImage(file);
+                const result = await this.cloudinaryService.uploadImage(file, 'product', { userId: 0 });
                 const img = new image_entity_1.Image();
                 img.url = result.secure_url;
                 img.name = 'detail';
@@ -94,7 +94,7 @@ let ProductsService = class ProductsService {
                 if (!imageFile?.buffer) {
                     throw new common_1.BadRequestException(`Missing feature image for feature ${i}`);
                 }
-                const uploaded = await this.cloudinaryService.uploadImage(imageFile);
+                const uploaded = await this.cloudinaryService.uploadImage(imageFile, 'product', { userId: 0 });
                 const img = new image_entity_1.Image();
                 img.url = uploaded.secure_url;
                 img.name = 'featured';
@@ -293,7 +293,7 @@ let ProductsService = class ProductsService {
             }
         }
         if (mainImage) {
-            const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
+            const uploadMain = await this.cloudinaryService.uploadImage(mainImage, 'product', { userId: 0 });
             const prevMainImg = product.images.find(img => img.name === "main");
             if (prevMainImg) {
                 await this.imageRepository.remove(prevMainImg);
@@ -310,7 +310,7 @@ let ProductsService = class ProductsService {
         }
         if (detailImages && detailImages.length > 0) {
             const detailImageEntities = await Promise.all(detailImages.map(async (file) => {
-                const detailUploads = await this.cloudinaryService.uploadImage(file);
+                const detailUploads = await this.cloudinaryService.uploadImage(file, 'product', { userId: 0 });
                 const img = this.imageRepository.create({
                     product: product,
                     name: "detail",
@@ -328,7 +328,7 @@ let ProductsService = class ProductsService {
                 : -1;
             const featuredImageEntities = await Promise.all(featureImages.map(async (f) => {
                 ordLastImage += 1;
-                const uploaded = await this.cloudinaryService.uploadImage(f);
+                const uploaded = await this.cloudinaryService.uploadImage(f, 'product', { userId: 0 });
                 const newImg = this.imageRepository.create({
                     url: uploaded.secure_url,
                     name: 'featured',

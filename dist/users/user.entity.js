@@ -15,6 +15,7 @@ const wishlist_entity_1 = require("../wishlist/wishlist.entity");
 const typeorm_1 = require("typeorm");
 const ticket_earning_log_entity_1 = require("../minigame/ticket-earning-log.entity");
 const user_coupon_entity_1 = require("../coupons/user-coupon.entity");
+const refund_request_entity_1 = require("../orders/refund-request.entity");
 let User = class User {
     id;
     username;
@@ -34,6 +35,7 @@ let User = class User {
     wishlists;
     ticketEarningLogs;
     userCoupons;
+    refundRequests;
     lastFreeTicketClaim;
     mfaCode;
     mfaCodeExpires;
@@ -112,6 +114,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => user_coupon_entity_1.UserCoupon, uc => uc.user),
     __metadata("design:type", Array)
 ], User.prototype, "userCoupons", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => refund_request_entity_1.RefundRequest, rf => rf.order),
+    __metadata("design:type", Array)
+], User.prototype, "refundRequests", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'date', nullable: true }),
     __metadata("design:type", Object)

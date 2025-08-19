@@ -8,7 +8,7 @@ import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
 import { Publisher } from '../publishers/entities/publisher.entity';
 import { Tag } from '../tags/entities/tag.entity';
-import { Image } from '../products/entities/image.entity';
+import { Image } from '../images/entities/image.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Coupon } from '../coupons/coupon.entity';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
@@ -20,6 +20,9 @@ import { Role } from '../roles/role.entity';
 import { RolePermission } from '../roles/role-permission.entity';
 import { Permission } from '../roles/permission.entity';
 import { Collection } from '../collections/collection.entity';
+import { Refund } from 'src/orders/refund.entity';
+import { RefundRequest } from 'src/orders/refund-request.entity';
+import { UploadFiles } from 'src/orders/file.entity';
 
 
 config();
@@ -35,7 +38,7 @@ const dataSourceOptions: DataSourceOptions = {
     entities: [
         User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
         Post, PostCatalogue, Collection, Publisher, Tag, TicketEarningLog,
-        Admin, Role, RolePermission, Permission
+        Admin, Role, RolePermission, Permission, Refund, RefundRequest, UploadFiles
     ],
     synchronize: true
 };

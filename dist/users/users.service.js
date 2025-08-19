@@ -118,7 +118,8 @@ let UsersService = class UsersService {
         if (!user)
             throw new Error('User not found');
         if (file) {
-            updateUserDto.avatar_url = (await this.cloudinaryService.uploadImage(file)).secure_url;
+            const avatarUpload = await this.cloudinaryService.uploadImage(file, 'user', { userId: id });
+            updateUserDto.avatar_url = avatarUpload.secure_url;
         }
         Object.assign(user, updateUserDto);
         return this.usersRepository.save(user);

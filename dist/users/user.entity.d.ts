@@ -2,6 +2,7 @@ import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
 import { UserCoupon } from '../coupons/user-coupon.entity';
+import { RefundRequest } from 'src/orders/refund-request.entity';
 export declare class User {
     id: number;
     username: string;
@@ -21,6 +22,7 @@ export declare class User {
     wishlists: Wishlist[];
     ticketEarningLogs: TicketEarningLog[];
     userCoupons: UserCoupon[];
+    refundRequests: RefundRequest[];
     lastFreeTicketClaim: Date | null;
     mfaCode: string | null;
     mfaCodeExpires: Date | null;

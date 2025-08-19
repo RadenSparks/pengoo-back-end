@@ -16,7 +16,7 @@ exports.ImagesService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const image_entity_1 = require("../products/entities/image.entity");
+const image_entity_1 = require("../images/entities/image.entity");
 const cloudinary_1 = require("cloudinary");
 let ImagesService = class ImagesService {
     imageRepo;

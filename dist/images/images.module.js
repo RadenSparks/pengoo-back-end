@@ -12,7 +12,7 @@ const images_service_1 = require("./images.service");
 const images_controller_1 = require("./images.controller");
 const typeorm_1 = require("@nestjs/typeorm");
 const product_entity_1 = require("../products/product.entity");
-const image_entity_1 = require("../products/entities/image.entity");
+const image_entity_1 = require("./entities/image.entity");
 let ImagesModule = class ImagesModule {
 };
 exports.ImagesModule = ImagesModule;

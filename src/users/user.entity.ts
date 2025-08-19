@@ -4,6 +4,7 @@ import { Wishlist } from '../wishlist/wishlist.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, } from 'typeorm';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
 import { UserCoupon } from '../coupons/user-coupon.entity';
+import { RefundRequest } from 'src/orders/refund-request.entity';
 
 @Entity('user')
 export class User {
@@ -62,6 +63,9 @@ export class User {
 
   @OneToMany(() => UserCoupon, uc => uc.user)
   userCoupons: UserCoupon[];
+
+  @OneToMany(() => RefundRequest, rf => rf.order)
+  refundRequests: RefundRequest[];
 
   @Column({ type: 'date', nullable: true })
   lastFreeTicketClaim: Date | null;

@@ -31,7 +31,7 @@ import { Coupon } from './coupons/coupon.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/roles.guard';
 import { ImagesModule } from './images/images.module';
-import { Image } from './products/entities/image.entity';
+import { Image } from './images/entities/image.entity';
 import { RolesModule } from './roles/roles.module';
 import { Post } from './posts/posts.entity';
 import { PostCatalogue } from './posts/post-catalogue.entity';
@@ -49,6 +49,9 @@ import { RolePermission } from './roles/role-permission.entity'; // Adjust the p
 import { Permission } from './roles/permission.entity'; // Adjust the path if needed
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UploadFiles } from './orders/file.entity';
+import { RefundRequest } from './orders/refund-request.entity';
+import { Refund } from './orders/refund.entity';
 
 
 
@@ -65,14 +68,14 @@ import { AppService } from './app.service';
         entities: [
           User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
           Post, PostCatalogue, Collection, CmsContent, Publisher, Tag, TicketEarningLog,
-          Admin, Role, RolePermission, Permission // <-- Add Permission here
+          Admin, Role, RolePermission, Permission, Refund, RefundRequest, UploadFiles
         ],
       }),
     }),
     TypeOrmModule.forFeature([
       User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
       Post, PostCatalogue, Collection, CmsContent, Publisher, Tag, TicketEarningLog,
-      Admin, Role, RolePermission, Permission // <-- Add Permission here
+      Admin, Role, RolePermission, Permission, Refund, RefundRequest, UploadFiles
     ]),
     UsersModule,
     AuthModule,

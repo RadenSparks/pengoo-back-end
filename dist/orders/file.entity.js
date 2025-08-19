@@ -9,35 +9,34 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Image = void 0;
+exports.UploadFiles = void 0;
 const typeorm_1 = require("typeorm");
-const product_entity_1 = require("../product.entity");
-let Image = class Image {
+const refund_request_entity_1 = require("./refund-request.entity");
+let UploadFiles = class UploadFiles {
     id;
+    refundRequest;
+    type;
     url;
-    name;
-    folder;
-    ord;
-    product;
+    created_at;
     deletedAt;
 };
-exports.Image = Image;
+exports.UploadFiles = UploadFiles;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], Image.prototype, "id", void 0);
+], UploadFiles.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Image.prototype, "url", void 0);
+    (0, typeorm_1.ManyToOne)(() => refund_request_entity_1.RefundRequest, (refundRequest) => refundRequest.uploadFiles, { eager: true }),
+    __metadata("design:type", refund_request_entity_1.RefundRequest)
+], UploadFiles.prototype, "refundRequest", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
     __metadata("design:type", String)
-], Image.prototype, "name", void 0);
+], UploadFiles.prototype, "type", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
     __metadata("design:type", String)
-], Image.prototype, "folder", void 0);
+], UploadFiles.prototype, "url", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true, type: 'int' }),
     __metadata("design:type", Number)
@@ -46,10 +45,6 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => product_entity_1.Product, (product) => product.images, { nullable: true, onDelete: 'CASCADE' }),
     __metadata("design:type", product_entity_1.Product)
 ], Image.prototype, "product", void 0);
-__decorate([
-    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
-    __metadata("design:type", Date)
-], Image.prototype, "deletedAt", void 0);
 exports.Image = Image = __decorate([
     (0, typeorm_1.Entity)()
 ], Image);

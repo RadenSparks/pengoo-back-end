@@ -15,7 +15,7 @@ import { Tag } from '../tags/entities/tag.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { Delivery } from '../delivery/delivery.entity';
 import { CouponsModule } from '../coupons/coupons.module';
-import { Image } from '../products/entities/image.entity';
+import { Image } from '../images/entities/image.entity';
 import { PayosService } from '../services/payos/payos.service';
 import { CmsContentModule } from '../cms-content/cms-content.module';
 import { ProductsModule } from '../products/products.module';
