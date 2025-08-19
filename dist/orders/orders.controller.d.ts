@@ -16,9 +16,10 @@ export declare class OrdersController {
     restore(id: number): Promise<{
         message: string;
     }>;
-    createRefundRequest(body: CreateRefundRequestDto): Promise<{
+    createRefundRequest(body: CreateRefundRequestDto, files: Express.Multer.File[]): Promise<{
         status: number;
         message: string;
         data: import("./refund-request.entity").RefundRequest;
+        estimatedProcessingTime: string;
     }>;
 }

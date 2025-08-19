@@ -8,7 +8,7 @@ import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
 import { Publisher } from '../publishers/entities/publisher.entity';
 import { Tag } from '../tags/entities/tag.entity';
-import { Image } from '../products/entities/image.entity';
+import { Image } from '../images/entities/image.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Coupon } from '../coupons/coupon.entity';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';

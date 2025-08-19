@@ -31,7 +31,7 @@ import { Coupon } from './coupons/coupon.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/roles.guard';
 import { ImagesModule } from './images/images.module';
-import { Image } from './products/entities/image.entity';
+import { Image } from './images/entities/image.entity';
 import { RolesModule } from './roles/roles.module';
 import { Post } from './posts/posts.entity';
 import { PostCatalogue } from './posts/post-catalogue.entity';

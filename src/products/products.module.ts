@@ -10,7 +10,7 @@ import { TagsService } from '../tags/tags.service';
 import { PublishersService } from '../publishers/publishers.service';
 import { Tag } from '../tags/entities/tag.entity';
 import { Publisher } from '../publishers/entities/publisher.entity';
-import { Image } from '../products/entities/image.entity';
+import { Image } from '../images/entities/image.entity';
 import { ImagesService } from '../images/images.service';
 import { Collection } from '../collections/collection.entity';
 import { CmsContentModule } from '../cms-content/cms-content.module';

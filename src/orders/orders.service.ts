@@ -13,8 +13,10 @@ import { PayosService } from '../services/payos/payos.service';
 import { CouponStatus } from 'src/coupons/coupon.entity';
 import { InvoicesService } from '../services/invoices/invoice.service'; // Add this import
 import { Product } from 'src/products/product.entity';
-import { RefundRequest } from './refund-request.entity';
+import { RefundRequest, RefundRequestStatus } from './refund-request.entity'; // For status tracking
 import { UploadFiles } from './file.entity';
+import { ConfigService } from '@nestjs/config'; // Add this import
+import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
 
 @Injectable()
 export class OrdersService {
@@ -30,8 +32,10 @@ export class OrdersService {
     private productsService: ProductsService,
     private notificationsService: NotificationsService,
     private couponsService: CouponsService,
-    private invoicesService: InvoicesService, // Inject this
-    private dataSource: DataSource, // <-- Inject DataSource
+    private invoicesService: InvoicesService,
+    private dataSource: DataSource,
+    private configService: ConfigService, // <-- Inject ConfigService here
+    private cloudinaryService: CloudinaryService,
   ) { }
 
   async create(createOrderDto: CreateOrderDto): Promise<any> {
@@ -218,55 +222,144 @@ export class OrdersService {
       // ...send invoice, etc...
     });
   }
-  async createRefundRequest(data: CreateRefundRequestDto) {
-  const refundRequest = await this.dataSource.transaction(async manager => {
-    const order = await manager.findOne(Order, {
-      where: { id: data.order_id },
-      relations: ['details', 'details.product'],
-    });
-
-    if (!order) throw new NotFoundException('Order not found');
-    if (order.payment_status !== PaymentStatus.Paid) {
-      throw new BadRequestException('Order is not paid or already refunded.');
-    }
-
-    const exist = await manager.findOne(RefundRequest, {
-      where: { order: { id: data.order_id } },
-      order: { times: 'DESC' },
-    });
-
-    const requestTimes = exist?.times || 0; // sửa lại: nếu chưa có thì bắt đầu từ 0
-    if (requestTimes >= 3) {
-      throw new BadRequestException('Bạn đã hết lượt yêu cầu hoàn tiền cho đơn hàng này');
-    }
-
-    // tạo + lưu refund request
-    const refundRequest = manager.create(RefundRequest, {
-      order,
-      reason: data.reason,
-      user: { id: user_id }, // sửa lại đúng biến
-      amount: order.total_price,
-      times: requestTimes + 1,
-    });
-    await manager.save(refundRequest);
-
-    // lưu upload files
-    for (const file of data.uploadFiles) {
-      const upload = manager.create(UploadFiles, {
-        type: file.type,
-        url: file.url,
-        refundRequest,
+  async createRefundRequest(data: CreateRefundRequestDto, files: Express.Multer.File[]) {
+    const refundRequest = await this.dataSource.transaction(async manager => {
+      const order = await manager.findOne(Order, {
+        where: { id: data.order_id },
+        relations: ['details', 'details.product', 'refundRequests', 'user'],
       });
-      await manager.save(upload);
-    }
 
-    return refundRequest;
-  });
+      if (!order) throw new NotFoundException('Order not found');
 
-  return {
-    status: 200,
-    message: 'Refund request created successfully.',
-    data: refundRequest,
-  };
-}
+      // 1. Only allow refund for delivered orders
+      if (order.productStatus !== ProductStatus.Delivered) {
+        throw new BadRequestException('Refunds can only be requested for delivered orders.');
+      }
+
+      // 2. Check refund window (e.g., 14 days after delivery)
+      // Fix: Use order_date as delivered date (or add deliveredAt to Order entity if needed)
+      const deliveredAt = order.order_date;
+      const REFUND_WINDOW_DAYS = 14;
+      const now = new Date();
+      const deliveredDate = new Date(deliveredAt);
+      if ((now.getTime() - deliveredDate.getTime()) > REFUND_WINDOW_DAYS * 24 * 60 * 60 * 1000) {
+        throw new BadRequestException('Refund period has expired.');
+      }
+
+      // 3. Check if refund already exists and limit requests
+      const previousRequests = order.refundRequests || [];
+      const pendingRequest = previousRequests.find(r => r.status === RefundRequestStatus.PENDING);
+      if (pendingRequest) {
+        throw new BadRequestException('There is already a pending refund request for this order.');
+      }
+      if (previousRequests.length >= 3) {
+        throw new BadRequestException('You have reached the maximum number of refund requests for this order.');
+      }
+
+      // 4. Validate reason and evidence
+      if (!data.reason || data.reason.trim().length < 10) {
+        throw new BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters).');
+      }
+      if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
+        throw new BadRequestException('Please upload at least one evidence file.');
+      }
+
+      // 5. Allow partial refund (optional: here, full refund)
+      let refundAmount = order.total_price;
+
+      // 6. Prevent duplicate refund for already refunded orders
+      if (order.payment_status === PaymentStatus.Refunded) {
+        throw new BadRequestException('This order has already been refunded.');
+      }
+
+      // 7. Create refund request with status tracking
+      const refundRequest = manager.create(RefundRequest, {
+        order,
+        reason: data.reason,
+        user: { id: data.user_id },
+        amount: order.total_price,
+        times: (order.refundRequests?.length ?? 0) + 1,
+        status: RefundRequestStatus.PENDING,
+      });
+      await manager.save(refundRequest);
+
+      // 8. Save upload files with new naming
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const uploadResult = await this.cloudinaryService.uploadImage(
+          file, // Express.Multer.File
+          'refund', // purpose: 'refund'
+          { userId: data.user_id } // options: only userId for refund, remove orderId and createdAt if not used in your service
+        );
+        const upload = manager.create(UploadFiles, {
+          type: file.mimetype,
+          url: uploadResult.secure_url,
+          refundRequest,
+        });
+        await manager.save(upload);
+      }
+
+      // 9. Select admin emails from users table
+      const adminUsers = await manager.find('User', { where: { role: 'admin', status: true } });
+      const adminEmails = adminUsers
+        .map((user: any) => user.email)
+        .filter((email: string | undefined) => !!email);
+
+      // Fallback to config if no admin found
+      if (adminEmails.length === 0) {
+        adminEmails.push(this.configService.get<string>('ADMIN_EMAIL') || 'admin@pengoo.store');
+      }
+
+      const subject = `Refund Request #${refundRequest.id} Created`;
+      const message = `
+        A new refund request has been created.<br>
+        <b>Order ID:</b> ${order.id}<br>
+        <b>User:</b> ${order.user?.email || 'Unknown'}<br>
+        <b>Reason:</b> ${refundRequest.reason}<br>
+        <b>Amount:</b> ${refundRequest.amount}<br>
+        <b>Time:</b> ${new Date().toLocaleString()}<br>
+      `;
+      for (const email of adminEmails) {
+        await this.notificationsService.sendEmail(
+          email,
+          subject,
+          `A new refund request has been created for order #${order.id}.`,
+          undefined,
+          message
+        );
+      }
+
+      // 10. Audit trail (log action)
+      const auditLog = `
+        [AUDIT] Refund request created for order ${order.id} by user ${data.user_id}<br>
+        <b>Order ID:</b> ${order.id}<br>
+        <b>User ID:</b> ${data.user_id}<br>
+        <b>User Email:</b> ${order.user?.email || 'Unknown'}<br>
+        <b>Reason:</b> ${refundRequest.reason}<br>
+        <b>Amount:</b> ${refundRequest.amount}<br>
+        <b>Time:</b> ${new Date().toLocaleString()}<br>
+      `;
+      for (const email of adminEmails) {
+        await this.notificationsService.sendEmail(
+          email,
+          `Audit Log: Refund Request #${refundRequest.id}`,
+          `[AUDIT] Refund request created for order ${order.id} by user ${data.user_id}`,
+          undefined,
+          auditLog
+        );
+      }
+
+      // Also log to console for local audit
+      console.log(`[AUDIT] Refund request created for order ${order.id} by user ${data.user_id}`);
+
+      return refundRequest;
+    });
+
+    return {
+      status: 200,
+      message: 'Refund request created successfully.',
+      data: refundRequest,
+      estimatedProcessingTime: '3-7 business days',
+    };
+  }
 }

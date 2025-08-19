@@ -11,7 +11,7 @@ import { User } from 'src/users/user.entity';
 import { Order } from 'src/orders/order.entity';
 import { UploadFiles } from './file.entity';
 import { Refund } from './refund.entity';
-enum RefundRequestStatus {
+export enum RefundRequestStatus {
     PENDING = 'PENDING',
     APPROVED = 'APPROVED',
     REJECTED = 'REJECTED',
@@ -42,10 +42,7 @@ export class RefundRequest {
     @Column('int2')
     times: number;
 
-    @Column({
-        type: 'varchar', length: 255,
-        default: 'PENDING'
-    })
+    @Column({ type: 'varchar', length: 255, default: RefundRequestStatus.PENDING })
     status: RefundRequestStatus;
 
     @CreateDateColumn()

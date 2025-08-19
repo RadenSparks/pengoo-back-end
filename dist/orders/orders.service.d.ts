@@ -11,6 +11,8 @@ import { CouponsService } from '../coupons/coupons.service';
 import { PayosService } from '../services/payos/payos.service';
 import { InvoicesService } from '../services/invoices/invoice.service';
 import { RefundRequest } from './refund-request.entity';
+import { ConfigService } from '@nestjs/config';
+import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
 export declare class OrdersService {
     private readonly payosService;
     private ordersRepository;
@@ -22,7 +24,9 @@ export declare class OrdersService {
     private couponsService;
     private invoicesService;
     private dataSource;
-    constructor(payosService: PayosService, ordersRepository: Repository<Order>, orderDetailsRepository: Repository<OrderDetail>, deliveryRepository: Repository<Delivery>, usersService: UsersService, productsService: ProductsService, notificationsService: NotificationsService, couponsService: CouponsService, invoicesService: InvoicesService, dataSource: DataSource);
+    private configService;
+    private cloudinaryService;
+    constructor(payosService: PayosService, ordersRepository: Repository<Order>, orderDetailsRepository: Repository<OrderDetail>, deliveryRepository: Repository<Delivery>, usersService: UsersService, productsService: ProductsService, notificationsService: NotificationsService, couponsService: CouponsService, invoicesService: InvoicesService, dataSource: DataSource, configService: ConfigService, cloudinaryService: CloudinaryService);
     create(createOrderDto: CreateOrderDto): Promise<any>;
     generateSafeOrderCode: () => number;
     createOrderPayOS(amount: number): Promise<{
@@ -41,9 +45,10 @@ export declare class OrdersService {
     findByPaypalOrderId(paypalOrderId: string): Promise<Order | null>;
     save(order: Order): Promise<Order>;
     completeOrder(orderId: number): Promise<void>;
-    createRefundRequest(data: CreateRefundRequestDto): Promise<{
+    createRefundRequest(data: CreateRefundRequestDto, files: Express.Multer.File[]): Promise<{
         status: number;
         message: string;
         data: RefundRequest;
+        estimatedProcessingTime: string;
     }>;
 }

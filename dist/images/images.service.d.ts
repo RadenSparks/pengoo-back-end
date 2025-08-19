@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Image } from '../products/entities/image.entity';
+import { Image } from '../images/entities/image.entity';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 export declare class ImagesService {

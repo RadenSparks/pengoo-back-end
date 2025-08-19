@@ -71,7 +71,7 @@ export declare class MinigameController {
     revealScratch(req: any, body: {
         gameId: string;
     }): Promise<{
-        rewardType: "points" | "coupon" | "none";
+        rewardType: "coupon" | "points" | "none";
         rewardValue: string | number;
         message: string;
         tickets: number;

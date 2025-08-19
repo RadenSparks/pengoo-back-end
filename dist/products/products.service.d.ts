@@ -7,7 +7,7 @@ import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
 import { Tag } from '../tags/entities/tag.entity';
 import { PublishersService } from '../publishers/publishers.service';
 import { TagsService } from '../tags/tags.service';
-import { Image } from './entities/image.entity';
+import { Image } from '../images/entities/image.entity';
 import { CmsContentService } from '../cms-content/cms-content.service';
 import { CmsContent } from '../cms-content/cms-content.entity';
 export declare class FilterProductDto {

@@ -75,7 +75,7 @@ export declare class MinigameService {
         message?: undefined;
     }>;
     revealScratch(userId: number, gameId: string): Promise<{
-        rewardType: "points" | "coupon" | "none";
+        rewardType: "coupon" | "points" | "none";
         rewardValue: string | number;
         message: string;
         tickets: number;
