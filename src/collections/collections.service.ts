@@ -5,6 +5,7 @@ import { Collection } from './collection.entity';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { Product } from '../products/product.entity';
+import { isBaseGame, isExpansion, getBaseSlug, findExpansionsForBaseGame } from '../products/products.service';
 
 @Injectable()
 export class CollectionsService {
@@ -60,5 +61,19 @@ export class CollectionsService {
   async restore(id: number) {
     await this.collectionsRepo.restore(id);
     return { restored: true };
+  }
+
+  async createBoardGameCollection(baseSlug: string) {
+    const allProducts = await this.productsRepo.find({ relations: ['category_ID'] });
+    const baseGame = allProducts.find(p => p.slug === baseSlug && isBaseGame(p));
+    if (!baseGame) throw new Error('Base game not found');
+    const expansions = findExpansionsForBaseGame(allProducts, baseSlug);
+
+    const collection = this.collectionsRepo.create({
+      name: `${baseGame.product_name} Collection`,
+      slug: `${baseGame.slug}-collection`,
+      products: [baseGame, ...expansions],
+    });
+    return this.collectionsRepo.save(collection);
   }
 }

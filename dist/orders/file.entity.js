@@ -18,6 +18,7 @@ let UploadFiles = class UploadFiles {
     type;
     url;
     created_at;
+    deletedAt;
 };
 exports.UploadFiles = UploadFiles;
 __decorate([
@@ -37,10 +38,14 @@ __decorate([
     __metadata("design:type", String)
 ], UploadFiles.prototype, "url", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
-    __metadata("design:type", Date)
-], UploadFiles.prototype, "created_at", void 0);
-exports.UploadFiles = UploadFiles = __decorate([
-    (0, typeorm_1.Entity)('upload_files')
-], UploadFiles);
-//# sourceMappingURL=file.entity.js.map
+    (0, typeorm_1.Column)({ nullable: true, type: 'int' }),
+    __metadata("design:type", Number)
+], Image.prototype, "ord", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => product_entity_1.Product, (product) => product.images, { nullable: true, onDelete: 'CASCADE' }),
+    __metadata("design:type", product_entity_1.Product)
+], Image.prototype, "product", void 0);
+exports.Image = Image = __decorate([
+    (0, typeorm_1.Entity)()
+], Image);
+//# sourceMappingURL=image.entity.js.map

@@ -13,6 +13,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsService = exports.FilterProductDto = void 0;
+exports.isBaseGame = isBaseGame;
+exports.isExpansion = isExpansion;
+exports.getBaseSlug = getBaseSlug;
+exports.findExpansionsForBaseGame = findExpansionsForBaseGame;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
@@ -414,4 +418,17 @@ exports.ProductsService = ProductsService = __decorate([
         cms_content_service_1.CmsContentService,
         typeorm_2.Repository])
 ], ProductsService);
+function isBaseGame(product) {
+    return product.category_ID?.name === "Board Game";
+}
+function isExpansion(product) {
+    return product.category_ID?.name === "Expansions";
+}
+function getBaseSlug(slug) {
+    const match = slug.match(/^(.+)-.+$/);
+    return match ? match[1] : slug;
+}
+function findExpansionsForBaseGame(products, baseSlug) {
+    return products.filter(p => isExpansion(p) && p.slug.startsWith(baseSlug + "-"));
+}
 //# sourceMappingURL=products.service.js.map
