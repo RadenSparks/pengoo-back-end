@@ -137,7 +137,11 @@ let PaypalService = class PaypalService {
         });
         if (!refundRes.ok)
             throw new common_1.InternalServerErrorException('Failed to refund PayPal payment');
-        return;
+        const refundData = await refundRes.json();
+        order.payment_status = order_entity_1.PaymentStatus.Refunded;
+        order.productStatus = 'cancelled';
+        await this.ordersService.save(order);
+        return refundData;
     }
 };
 exports.PaypalService = PaypalService;

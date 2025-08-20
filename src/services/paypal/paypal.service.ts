@@ -105,18 +105,14 @@ export class PaypalService {
     return data;
   }
 
-  async refundOrder(orderId: number): Promise<void> {
+  async refundOrder(orderId: number): Promise<any> {
     const order = await this.ordersService.findById(orderId);
     if (!order || !order.paypal_order_id) {
       throw new NotFoundException('Order or PayPal order ID not found');
     }
     const accessToken = await this.getAccessToken();
 
-    // You need the capture ID from the PayPal order capture response
-    // For demo, let's assume you store it in order.paypal_capture_id
-    // If not, you may need to fetch the order details from PayPal to get the capture ID
-
-    // Example: GET /v2/checkout/orders/{paypal_order_id}
+    // Fetch PayPal order details to get the capture ID
     const orderRes = await fetch(`${this.apiBase}/v2/checkout/orders/${order.paypal_order_id}`, {
       method: 'GET',
       headers: {
@@ -129,7 +125,7 @@ export class PaypalService {
     const captureId = orderData.purchase_units?.[0]?.payments?.captures?.[0]?.id;
     if (!captureId) throw new InternalServerErrorException('PayPal capture ID not found');
 
-    // Refund API
+    // Refund API call
     const refundRes = await fetch(`${this.apiBase}/v2/payments/captures/${captureId}/refund`, {
       method: 'POST',
       headers: {
@@ -139,7 +135,13 @@ export class PaypalService {
       body: JSON.stringify({}),
     });
     if (!refundRes.ok) throw new InternalServerErrorException('Failed to refund PayPal payment');
-    // Optionally handle refund response
-    return;
+    const refundData = await refundRes.json();
+
+    // Optionally update order status in your DB
+    order.payment_status = PaymentStatus.Refunded;
+    order.productStatus = 'cancelled';
+    await this.ordersService.save(order);
+
+    return refundData;
   }
 }
