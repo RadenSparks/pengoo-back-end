@@ -13,12 +13,18 @@ const paypal_service_1 = require("./paypal.service");
 const orders_module_1 = require("../../orders/orders.module");
 const invoices_module_1 = require("../invoices/invoices.module");
 const config_1 = require("@nestjs/config");
+const notifications_module_1 = require("../../notifications/notifications.module");
 let PaypalModule = class PaypalModule {
 };
 exports.PaypalModule = PaypalModule;
 exports.PaypalModule = PaypalModule = __decorate([
     (0, common_1.Module)({
-        imports: [orders_module_1.OrdersModule, invoices_module_1.InvoicesModule, config_1.ConfigModule],
+        imports: [
+            orders_module_1.OrdersModule,
+            invoices_module_1.InvoicesModule,
+            config_1.ConfigModule,
+            notifications_module_1.NotificationsModule,
+        ],
         controllers: [paypal_controller_1.PaypalController],
         providers: [paypal_service_1.PaypalService],
         exports: [paypal_service_1.PaypalService],

@@ -4,9 +4,15 @@ import { PaypalService } from './paypal.service';
 import { OrdersModule } from '../../orders/orders.module';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { ConfigModule } from '@nestjs/config';
+import { NotificationsModule } from '../../notifications/notifications.module'; // <-- Add this
 
 @Module({
-  imports: [OrdersModule, InvoicesModule, ConfigModule],
+  imports: [
+    OrdersModule,
+    InvoicesModule,
+    ConfigModule,
+    NotificationsModule, // <-- Add this
+  ],
   controllers: [PaypalController],
   providers: [PaypalService],
   exports: [PaypalService],
