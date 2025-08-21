@@ -4,24 +4,24 @@ import { PaymentsService } from './payment.service';
 import { PaymentsController } from './payment.controller';
 import { Order } from '../../orders/order.entity';
 import { UsersModule } from '../../users/users.module';
-import { PaypalService } from '../paypal/paypal.service';
 import { OrdersModule } from '../../orders/orders.module';
-import { InvoicesService } from '../invoices/invoice.service';
 import { InvoicesModule } from '../invoices/invoices.module';
-import { PayosModule } from '../payos/payos.module'; // <-- import here
-import { NotificationsModule } from '../../notifications/notifications.module'; // <-- add this import
+import { PayosModule } from '../payos/payos.module';
+import { NotificationsModule } from '../../notifications/notifications.module';
+import { PaypalModule } from '../paypal/paypal.module'; // <-- Add this
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order]),
     UsersModule,
     OrdersModule,
-    InvoicesModule, // Add this
-    PayosModule, // <-- add here
-    NotificationsModule, // <-- add this line
+    InvoicesModule,
+    PayosModule,
+    NotificationsModule,
+    PaypalModule, // <-- Add this
   ],
-  providers: [PaymentsService, PaypalService, InvoicesService], // Add InvoicesService
+  providers: [PaymentsService],
   controllers: [PaymentsController],
-  exports: [PaymentsService, PaypalService],
+  exports: [PaymentsService],
 })
 export class PaymentModule {}

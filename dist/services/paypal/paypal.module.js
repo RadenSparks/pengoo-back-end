@@ -10,11 +10,15 @@ exports.PaypalModule = void 0;
 const common_1 = require("@nestjs/common");
 const paypal_controller_1 = require("./paypal.controller");
 const paypal_service_1 = require("./paypal.service");
+const orders_module_1 = require("../../orders/orders.module");
+const invoices_module_1 = require("../invoices/invoices.module");
+const config_1 = require("@nestjs/config");
 let PaypalModule = class PaypalModule {
 };
 exports.PaypalModule = PaypalModule;
 exports.PaypalModule = PaypalModule = __decorate([
     (0, common_1.Module)({
+        imports: [orders_module_1.OrdersModule, invoices_module_1.InvoicesModule, config_1.ConfigModule],
         controllers: [paypal_controller_1.PaypalController],
         providers: [paypal_service_1.PaypalService],
         exports: [paypal_service_1.PaypalService],

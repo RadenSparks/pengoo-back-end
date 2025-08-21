@@ -13,12 +13,11 @@ const payment_service_1 = require("./payment.service");
 const payment_controller_1 = require("./payment.controller");
 const order_entity_1 = require("../../orders/order.entity");
 const users_module_1 = require("../../users/users.module");
-const paypal_service_1 = require("../paypal/paypal.service");
 const orders_module_1 = require("../../orders/orders.module");
-const invoice_service_1 = require("../invoices/invoice.service");
 const invoices_module_1 = require("../invoices/invoices.module");
 const payos_module_1 = require("../payos/payos.module");
 const notifications_module_1 = require("../../notifications/notifications.module");
+const paypal_module_1 = require("../paypal/paypal.module");
 let PaymentModule = class PaymentModule {
 };
 exports.PaymentModule = PaymentModule;
@@ -31,10 +30,11 @@ exports.PaymentModule = PaymentModule = __decorate([
             invoices_module_1.InvoicesModule,
             payos_module_1.PayosModule,
             notifications_module_1.NotificationsModule,
+            paypal_module_1.PaypalModule,
         ],
-        providers: [payment_service_1.PaymentsService, paypal_service_1.PaypalService, invoice_service_1.InvoicesService],
+        providers: [payment_service_1.PaymentsService],
         controllers: [payment_controller_1.PaymentsController],
-        exports: [payment_service_1.PaymentsService, paypal_service_1.PaypalService],
+        exports: [payment_service_1.PaymentsService],
     })
 ], PaymentModule);
 //# sourceMappingURL=payment.module.js.map

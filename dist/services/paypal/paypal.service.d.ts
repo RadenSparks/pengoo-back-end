@@ -5,11 +5,9 @@ export declare class PaypalService {
     private ordersService;
     private configService;
     private invoicesService;
-    private clientId;
-    private clientSecret;
-    private apiBase;
+    private environment;
+    private client;
     constructor(ordersService: OrdersService, configService: ConfigService, invoicesService: InvoicesService);
-    private getAccessToken;
     createOrder(orderId: number): Promise<{
         paypalOrderId: any;
         approvalUrl: any;
