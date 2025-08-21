@@ -41,7 +41,7 @@ export class PaypalService {
       purchase_units: [
         {
           amount: {
-            currency_code: 'VND',
+            currency_code: 'USD',
             value: order.total_price.toString(),
           },
         },

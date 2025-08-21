@@ -57,60 +57,76 @@ let OrdersService = class OrdersService {
         this.cloudinaryService = cloudinaryService;
     }
     async create(createOrderDto) {
-        const { userId, delivery_id, payment_type, shipping_address, payment_status, productStatus, details, couponCode, } = createOrderDto;
-        let total_price = createOrderDto.total_price;
-        const userEntity = await this.usersService.findById(userId);
-        if (!userEntity) {
-            throw new common_1.NotFoundException('User not found');
-        }
-        const delivery = await this.deliveryRepository.findOne({ where: { id: delivery_id } });
-        if (!delivery)
-            throw new common_1.NotFoundException('Delivery method not found');
-        const orderDetails = [];
-        for (const item of details) {
-            const product = await this.productsService.findById(item.productId);
-            if (!product) {
-                throw new common_1.NotFoundException(`Product with ID ${item.productId} not found`);
+        return await this.dataSource.transaction(async (manager) => {
+            const { userId, delivery_id, payment_type, shipping_address, payment_status, productStatus, details, couponCode, } = createOrderDto;
+            let total_price = createOrderDto.total_price;
+            const userEntity = await this.usersService.findById(userId);
+            if (!userEntity) {
+                throw new common_1.NotFoundException('User not found');
             }
-            const orderDetail = this.orderDetailsRepository.create({
-                product,
-                quantity: item.quantity,
-                price: item.price,
+            const delivery = await this.deliveryRepository.findOne({ where: { id: delivery_id } });
+            if (!delivery)
+                throw new common_1.NotFoundException('Delivery method not found');
+            const orderDetails = [];
+            for (const item of createOrderDto.details) {
+                const product = await manager
+                    .createQueryBuilder(product_entity_1.Product, 'product')
+                    .setLock('pessimistic_write')
+                    .where('product.id = :id', { id: item.productId })
+                    .getOne();
+                if (!product)
+                    throw new common_1.NotFoundException(`Product with ID ${item.productId} not found`);
+                if (product.quantity_stock < item.quantity) {
+                    throw new common_1.BadRequestException({
+                        message: `Not enough stock for ${product.product_name}`,
+                        productId: product.id,
+                        requested: item.quantity,
+                        available: product.quantity_stock,
+                        allowPartial: product.quantity_stock > 0,
+                    });
+                }
+                product.quantity_stock -= item.quantity;
+                await manager.save(product);
+                const orderDetail = this.orderDetailsRepository.create({
+                    product,
+                    quantity: item.quantity,
+                    price: item.price,
+                });
+                orderDetails.push(orderDetail);
+            }
+            let coupon_id = null;
+            let coupon_code = null;
+            if (couponCode) {
+                const { coupon, discount } = await this.couponsService.validateAndApply(couponCode, total_price, userId, details.map(d => d.productId));
+                total_price = total_price - discount;
+                coupon_id = coupon.id;
+                coupon_code = coupon.code;
+            }
+            let order_code = null;
+            let checkout_url = null;
+            if (payment_type === "payos") {
+                const data = await this.createOrderPayOS(2000);
+                order_code = data.order_code;
+                checkout_url = data.checkout_url;
+            }
+            const order = this.ordersRepository.create({
+                user: userEntity,
+                delivery,
+                coupon_id,
+                coupon_code,
+                payment_type,
+                total_price,
+                shipping_address,
+                payment_status: payment_status,
+                productStatus: productStatus,
+                details: orderDetails,
+                order_code,
             });
-            orderDetails.push(orderDetail);
-        }
-        let coupon_id = null;
-        let coupon_code = null;
-        if (couponCode) {
-            const { coupon, discount } = await this.couponsService.validateAndApply(couponCode, total_price, userId, details.map(d => d.productId));
-            total_price = total_price - discount;
-            coupon_id = coupon.id;
-            coupon_code = coupon.code;
-        }
-        let order_code = null;
-        let checkout_url = null;
-        if (payment_type === "payos") {
-            const data = await this.createOrderPayOS(2000);
-            order_code = data.order_code;
-            checkout_url = data.checkout_url;
-        }
-        const order = this.ordersRepository.create({
-            user: userEntity,
-            delivery,
-            coupon_id,
-            coupon_code,
-            payment_type,
-            total_price,
-            shipping_address,
-            payment_status: payment_status,
-            productStatus: productStatus,
-            details: orderDetails,
-            order_code,
+            const savedOrder = await manager.save(order);
+            savedOrder.checkout_url = checkout_url ?? null;
+            await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
+            return savedOrder;
         });
-        let savedOrder = await this.ordersRepository.save(order);
-        savedOrder.checkout_url = checkout_url ?? null;
-        await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
-        return savedOrder;
     }
     generateSafeOrderCode = () => {
         const min = 1000000000000;
@@ -299,6 +315,25 @@ let OrdersService = class OrdersService {
             data: refundRequest,
             estimatedProcessingTime: '3-7 business days',
         };
+    }
+    async cancelOversoldOrders() {
+        const orders = await this.ordersRepository.find({ relations: ['details', 'details.product', 'user'] });
+        for (const order of orders) {
+            let canFulfill = true;
+            for (const detail of order.details) {
+                if (detail.product.quantity_stock < detail.quantity) {
+                    canFulfill = false;
+                    break;
+                }
+            }
+            if (!canFulfill && order.productStatus !== order_entity_1.ProductStatus.Cancelled) {
+                order.productStatus = order_entity_1.ProductStatus.Cancelled;
+                order.payment_status = order_entity_1.PaymentStatus.Canceled;
+                await this.ordersRepository.save(order);
+                await this.notificationsService.sendEmail(order.user.email, 'Order Cancelled Due to Insufficient Stock', `Your order #${order.id} has been cancelled because we do not have enough stock to fulfill it. Please contact us for alternatives or a refund.`);
+            }
+        }
+        return { status: 'done' };
     }
 };
 exports.OrdersService = OrdersService;

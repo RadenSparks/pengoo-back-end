@@ -51,4 +51,7 @@ export declare class OrdersService {
         data: RefundRequest;
         estimatedProcessingTime: string;
     }>;
+    cancelOversoldOrders(): Promise<{
+        status: string;
+    }>;
 }
