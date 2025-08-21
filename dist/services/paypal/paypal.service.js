@@ -28,10 +28,8 @@ let PaypalService = class PaypalService {
         this.invoicesService = invoicesService;
         const clientId = this.configService.get('PAYPAL_CLIENT_ID');
         const clientSecret = this.configService.get('PAYPAL_CLIENT_SECRET');
-        const isLive = this.configService.get('PAYPAL_API_BASE')?.includes('live') ?? false;
-        if (!clientId || !clientSecret) {
-            throw new Error('PayPal credentials are not set in environment variables');
-        }
+        const apiBase = this.configService.get('PAYPAL_API_BASE');
+        const isLive = apiBase?.includes('paypal.com') && !apiBase?.includes('sandbox');
         this.environment = isLive
             ? new paypal.core.LiveEnvironment(clientId, clientSecret)
             : new paypal.core.SandboxEnvironment(clientId, clientSecret);
