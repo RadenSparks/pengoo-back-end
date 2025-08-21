@@ -52,8 +52,8 @@ let PaypalService = class PaypalService {
                 },
             ],
             application_context: {
-                return_url: `https://pengoo.store/checkout/paypal-success?orderId=${orderId}`,
-                cancel_url: `https://pengoo.store/checkout/paypal-cancel?orderId=${orderId}`,
+                return_url: `https://pengoo.store/checkout/paypal-success?order_id=${orderId}`,
+                cancel_url: `https://pengoo.store/checkout/paypal-cancel?order_id=${orderId}`,
             },
         });
         try {
