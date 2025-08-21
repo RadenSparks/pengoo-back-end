@@ -16,16 +16,19 @@ const config_1 = require("@nestjs/config");
 const invoice_service_1 = require("../invoices/invoice.service");
 const order_entity_1 = require("../../orders/order.entity");
 const paypal = require("@paypal/checkout-server-sdk");
+const notifications_service_1 = require("../../notifications/notifications.service");
 let PaypalService = class PaypalService {
     ordersService;
     configService;
     invoicesService;
+    notificationsService;
     environment;
     client;
-    constructor(ordersService, configService, invoicesService) {
+    constructor(ordersService, configService, invoicesService, notificationsService) {
         this.ordersService = ordersService;
         this.configService = configService;
         this.invoicesService = invoicesService;
+        this.notificationsService = notificationsService;
         const clientId = this.configService.get('PAYPAL_CLIENT_ID');
         const clientSecret = this.configService.get('PAYPAL_CLIENT_SECRET');
         const apiBase = this.configService.get('PAYPAL_API_BASE');
@@ -78,6 +81,7 @@ let PaypalService = class PaypalService {
                 order.payment_status = order_entity_1.PaymentStatus.Paid;
                 await this.ordersService.save(order);
                 await this.invoicesService.generateInvoice(order.id);
+                await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
             }
             return response.result;
         }
@@ -120,6 +124,7 @@ exports.PaypalService = PaypalService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [orders_service_1.OrdersService,
         config_1.ConfigService,
-        invoice_service_1.InvoicesService])
+        invoice_service_1.InvoicesService,
+        notifications_service_1.NotificationsService])
 ], PaypalService);
 //# sourceMappingURL=paypal.service.js.map

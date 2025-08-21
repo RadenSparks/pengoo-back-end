@@ -77,6 +77,9 @@ let OrdersController = class OrdersController {
     async createRefundRequest(body, files) {
         return await this.ordersService.createRefundRequest(body, files);
     }
+    async cancelOversoldOrders() {
+        return await this.ordersService.cancelOversoldOrders();
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -206,6 +209,12 @@ __decorate([
     __metadata("design:paramtypes", [create_orders_dto_1.CreateRefundRequestDto, Array]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "createRefundRequest", null);
+__decorate([
+    (0, common_1.Post)('cancel-oversold'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "cancelOversoldOrders", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])

@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { InvoicesService } from '../invoices/invoice.service';
 import { PaymentStatus } from 'src/orders/order.entity';
 import * as paypal from '@paypal/checkout-server-sdk';
+import { NotificationsService } from '../../notifications/notifications.service';
 
 @Injectable()
 export class PaypalService {
@@ -14,6 +15,7 @@ export class PaypalService {
     private ordersService: OrdersService,
     private configService: ConfigService,
     private invoicesService: InvoicesService,
+    private notificationsService: NotificationsService,
   ) {
     const clientId = this.configService.get<string>('PAYPAL_CLIENT_ID');
     const clientSecret = this.configService.get<string>('PAYPAL_CLIENT_SECRET');
@@ -72,7 +74,10 @@ export class PaypalService {
       if (order) {
         order.payment_status = PaymentStatus.Paid;
         await this.ordersService.save(order);
+
+        // Send confirmation email only after payment is captured
         await this.invoicesService.generateInvoice(order.id);
+        await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
       }
       return response.result;
     } catch (err) {

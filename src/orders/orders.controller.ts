@@ -147,4 +147,9 @@ export class OrdersController {
     // - Audit and notification logging
     return await this.ordersService.createRefundRequest(body, files);
   }
+
+  @Post('cancel-oversold')
+  async cancelOversoldOrders() {
+    return await this.ordersService.cancelOversoldOrders();
+  }
 }

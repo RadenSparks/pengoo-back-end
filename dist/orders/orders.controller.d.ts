@@ -22,4 +22,7 @@ export declare class OrdersController {
         data: import("./refund-request.entity").RefundRequest;
         estimatedProcessingTime: string;
     }>;
+    cancelOversoldOrders(): Promise<{
+        status: string;
+    }>;
 }
