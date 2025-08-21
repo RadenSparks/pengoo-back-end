@@ -52,6 +52,7 @@ import { AppService } from './app.service';
 import { UploadFiles } from './orders/file.entity';
 import { RefundRequest } from './orders/refund-request.entity';
 import { Refund } from './orders/refund.entity';
+import { PaypalModule } from './services/paypal/paypal.module';
 
 
 
@@ -97,6 +98,7 @@ import { Refund } from './orders/refund.entity';
     RolesModule,
     CollectionsModule,
     CmsContentModule,
+    PaypalModule,
 
   ],
   providers: [
