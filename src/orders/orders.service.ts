@@ -125,7 +125,7 @@ export class OrdersService {
         coupon_id,
         coupon_code,
         payment_type,
-        phoneNumber,
+        phone_number: phoneNumber,
         total_price,
         shipping_address,
         payment_status: payment_status as PaymentStatus,
@@ -412,7 +412,7 @@ export class OrdersService {
     const order = await this.findById(id);
     if (!order) throw new NotFoundException('Order not found');
     order.shipping_address = newAddress;
-    order.phoneNumber = phoneNumber;
+    order.phone_number = phoneNumber;
     return this.ordersRepository.save(order);
   }
 }

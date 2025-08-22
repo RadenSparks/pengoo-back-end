@@ -32,7 +32,7 @@ export declare class Order {
     payment_status: PaymentStatus;
     productStatus: string;
     paypal_order_id: string | null;
-    phoneNumber: string;
+    phone_number: string;
     details: OrderDetail[];
     reviews: Review[];
     wishlistItems: Wishlist[];

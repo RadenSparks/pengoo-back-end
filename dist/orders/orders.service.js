@@ -115,7 +115,7 @@ let OrdersService = class OrdersService {
                 coupon_id,
                 coupon_code,
                 payment_type,
-                phoneNumber,
+                phone_number: phoneNumber,
                 total_price,
                 shipping_address,
                 payment_status: payment_status,
@@ -341,7 +341,7 @@ let OrdersService = class OrdersService {
         if (!order)
             throw new common_1.NotFoundException('Order not found');
         order.shipping_address = newAddress;
-        order.phoneNumber = phoneNumber;
+        order.phone_number = phoneNumber;
         return this.ordersRepository.save(order);
     }
 };

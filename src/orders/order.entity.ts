@@ -66,7 +66,7 @@ export class Order {
   paypal_order_id: string | null;
 
   @Column({ type: 'varchar', length: 20 })
-  phoneNumber: string;
+  phone_number: string;
 
   @OneToMany(() => OrderDetail, orderDetail => orderDetail.order, { cascade: true })
   details: OrderDetail[];
