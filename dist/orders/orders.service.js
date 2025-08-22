@@ -58,7 +58,7 @@ let OrdersService = class OrdersService {
     }
     async create(createOrderDto) {
         return await this.dataSource.transaction(async (manager) => {
-            const { userId, delivery_id, payment_type, shipping_address, payment_status, productStatus, details, couponCode, } = createOrderDto;
+            const { userId, delivery_id, payment_type, shipping_address, payment_status, productStatus, details, couponCode, phoneNumber } = createOrderDto;
             let total_price = createOrderDto.total_price;
             const userEntity = await this.usersService.findById(userId);
             if (!userEntity) {
@@ -115,6 +115,7 @@ let OrdersService = class OrdersService {
                 coupon_id,
                 coupon_code,
                 payment_type,
+                phoneNumber,
                 total_price,
                 shipping_address,
                 payment_status: payment_status,

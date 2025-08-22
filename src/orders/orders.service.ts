@@ -49,6 +49,7 @@ export class OrdersService {
         productStatus,
         details,
         couponCode,
+        phoneNumber
       } = createOrderDto;
 
       let total_price = createOrderDto.total_price;
@@ -124,6 +125,7 @@ export class OrdersService {
         coupon_id,
         coupon_code,
         payment_type,
+        phoneNumber,
         total_price,
         shipping_address,
         payment_status: payment_status as PaymentStatus,

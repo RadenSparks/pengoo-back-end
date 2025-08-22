@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Refund = void 0;
 const typeorm_1 = require("typeorm");
-const payment_types_1 = require("../services/payment/payment.types");
 const refund_request_entity_1 = require("./refund-request.entity");
 var RefundStatus;
 (function (RefundStatus) {
@@ -23,10 +22,6 @@ let Refund = class Refund {
     id;
     refundRequest;
     amount;
-    paymentMethod;
-    toAccountNumber;
-    toBin;
-    bank;
     transaction_id;
     status;
     created_at;
@@ -45,22 +40,6 @@ __decorate([
     (0, typeorm_1.Column)('decimal'),
     __metadata("design:type", Number)
 ], Refund.prototype, "amount", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
-    __metadata("design:type", String)
-], Refund.prototype, "paymentMethod", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
-    __metadata("design:type", String)
-], Refund.prototype, "toAccountNumber", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
-    __metadata("design:type", String)
-], Refund.prototype, "toBin", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
-    __metadata("design:type", String)
-], Refund.prototype, "bank", void 0);
 __decorate([
     (0, typeorm_1.Column)('varchar', { length: 255 }),
     __metadata("design:type", String)

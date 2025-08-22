@@ -61,6 +61,7 @@ __decorate([
 class CreateOrderDto {
     userId;
     delivery_id;
+    phoneNumber;
     payment_type;
     total_price;
     shipping_address;
@@ -80,6 +81,11 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], CreateOrderDto.prototype, "delivery_id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateOrderDto.prototype, "phoneNumber", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsEnum)(payment_types_1.PaymentMethod),

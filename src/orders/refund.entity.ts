@@ -27,14 +27,7 @@ export class Refund {
     @Column('decimal')
     amount: number;
 
-    @Column({ type: 'varchar', length: 255 })
-    paymentMethod: PaymentMethod;
-    @Column({ type: 'varchar', length: 255 })
-    toAccountNumber: string;
-    @Column({ type: 'varchar', length: 255 })
-    toBin: string;
-    @Column({ type: 'varchar', length: 255 })
-    bank: string;
+
 
     @Column('varchar', { length: 255 })
     transaction_id: string;
