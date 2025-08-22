@@ -406,4 +406,11 @@ export class OrdersService {
     }
     return { status: 'done' };
   }
+  async updateAddress(id: number, newAddress: string, phoneNumber: string): Promise<Order> {
+    const order = await this.findById(id);
+    if (!order) throw new NotFoundException('Order not found');
+    order.shipping_address = newAddress;
+    order.phoneNumber = phoneNumber;
+    return this.ordersRepository.save(order);
+  }
 }

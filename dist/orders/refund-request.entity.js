@@ -15,6 +15,7 @@ const user_entity_1 = require("../users/user.entity");
 const order_entity_1 = require("./order.entity");
 const file_entity_1 = require("./file.entity");
 const refund_entity_1 = require("./refund.entity");
+const payment_types_1 = require("../services/payment/payment.types");
 var RefundRequestStatus;
 (function (RefundRequestStatus) {
     RefundRequestStatus["PENDING"] = "PENDING";
@@ -33,6 +34,10 @@ let RefundRequest = class RefundRequest {
     status;
     created_at;
     updated_at;
+    paymentMethod;
+    toAccountNumber;
+    toBin;
+    bank;
 };
 exports.RefundRequest = RefundRequest;
 __decorate([
@@ -79,6 +84,22 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], RefundRequest.prototype, "updated_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    __metadata("design:type", String)
+], RefundRequest.prototype, "paymentMethod", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    __metadata("design:type", String)
+], RefundRequest.prototype, "toAccountNumber", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    __metadata("design:type", String)
+], RefundRequest.prototype, "toBin", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255 }),
+    __metadata("design:type", String)
+], RefundRequest.prototype, "bank", void 0);
 exports.RefundRequest = RefundRequest = __decorate([
     (0, typeorm_1.Entity)('refund_requests')
 ], RefundRequest);

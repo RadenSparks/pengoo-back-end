@@ -11,6 +11,7 @@ import { User } from 'src/users/user.entity';
 import { Order } from 'src/orders/order.entity';
 import { UploadFiles } from './file.entity';
 import { Refund } from './refund.entity';
+import { PaymentMethod } from 'src/services/payment/payment.types';
 export enum RefundRequestStatus {
     PENDING = 'PENDING',
     APPROVED = 'APPROVED',
@@ -50,4 +51,13 @@ export class RefundRequest {
 
     @UpdateDateColumn()
     updated_at: Date;
+
+    @Column({ type: 'varchar', length: 255 })
+    paymentMethod: PaymentMethod;
+    @Column({ type: 'varchar', length: 255 })
+    toAccountNumber: string;
+    @Column({ type: 'varchar', length: 255 })
+    toBin: string;
+    @Column({ type: 'varchar', length: 255 })
+    bank: string;
 }

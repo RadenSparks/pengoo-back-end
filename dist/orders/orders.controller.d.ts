@@ -25,4 +25,8 @@ export declare class OrdersController {
     cancelOversoldOrders(): Promise<{
         status: string;
     }>;
+    updateOrderAddress(id: string, body: {
+        shipping_address: string;
+        phone_number: string;
+    }): Promise<import("./order.entity").Order>;
 }

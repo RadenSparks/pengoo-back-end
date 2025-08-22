@@ -335,6 +335,14 @@ let OrdersService = class OrdersService {
         }
         return { status: 'done' };
     }
+    async updateAddress(id, newAddress, phoneNumber) {
+        const order = await this.findById(id);
+        if (!order)
+            throw new common_1.NotFoundException('Order not found');
+        order.shipping_address = newAddress;
+        order.phoneNumber = phoneNumber;
+        return this.ordersRepository.save(order);
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([

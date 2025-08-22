@@ -80,6 +80,13 @@ let OrdersController = class OrdersController {
     async cancelOversoldOrders() {
         return await this.ordersService.cancelOversoldOrders();
     }
+    updateOrderAddress(id, body) {
+        const parsedId = parseInt(id, 10);
+        if (isNaN(parsedId)) {
+            throw new common_1.BadRequestException('Order ID must be an integer');
+        }
+        return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -215,6 +222,15 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "cancelOversoldOrders", null);
+__decorate([
+    (0, common_1.Patch)(':id/address'),
+    (0, public_decorator_1.Public)(),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "updateOrderAddress", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])
