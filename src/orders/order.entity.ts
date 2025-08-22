@@ -65,6 +65,9 @@ export class Order {
   @Column({ type: 'varchar', nullable: true })
   paypal_order_id: string | null;
 
+  @Column({ type: 'varchar', length: 20, default: "0364484888" })
+  phone_number: string;
+
   @OneToMany(() => OrderDetail, orderDetail => orderDetail.order, { cascade: true })
   details: OrderDetail[];
 
@@ -94,6 +97,8 @@ export class OrderDetail {
 
   @Column('int')
   quantity: number;
+
+
 
   @Column('decimal')
   price: number; // price per unit at the time of order

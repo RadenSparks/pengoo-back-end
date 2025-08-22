@@ -49,6 +49,7 @@ export class OrdersService {
         productStatus,
         details,
         couponCode,
+        phoneNumber
       } = createOrderDto;
 
       let total_price = createOrderDto.total_price;
@@ -124,6 +125,7 @@ export class OrdersService {
         coupon_id,
         coupon_code,
         payment_type,
+        phone_number: phoneNumber,
         total_price,
         shipping_address,
         payment_status: payment_status as PaymentStatus,
@@ -405,5 +407,12 @@ export class OrdersService {
       }
     }
     return { status: 'done' };
+  }
+  async updateAddress(id: number, newAddress: string, phoneNumber: string): Promise<Order> {
+    const order = await this.findById(id);
+    if (!order) throw new NotFoundException('Order not found');
+    order.shipping_address = newAddress;
+    order.phone_number = phoneNumber;
+    return this.ordersRepository.save(order);
   }
 }

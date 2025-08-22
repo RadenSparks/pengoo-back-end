@@ -16,6 +16,7 @@ export declare class CreateRefundRequestDto {
 export declare class CreateOrderDto {
     userId: number;
     delivery_id: number;
+    phoneNumber: string;
     payment_type: PaymentMethod;
     total_price: number;
     shipping_address: string;

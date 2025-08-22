@@ -54,4 +54,5 @@ export declare class OrdersService {
     cancelOversoldOrders(): Promise<{
         status: string;
     }>;
+    updateAddress(id: number, newAddress: string, phoneNumber: string): Promise<Order>;
 }

@@ -152,4 +152,16 @@ export class OrdersController {
   async cancelOversoldOrders() {
     return await this.ordersService.cancelOversoldOrders();
   }
+  @Patch(':id/address')
+  @Public()
+  updateOrderAddress(
+    @Param('id') id: string,
+    @Body() body: { shipping_address: string, phone_number: string }
+  ) {
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('Order ID must be an integer');
+    }
+    return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
+  }
 }

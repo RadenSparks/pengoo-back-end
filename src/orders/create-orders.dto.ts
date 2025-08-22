@@ -45,6 +45,10 @@ export class CreateOrderDto {
   delivery_id: number;
 
   @IsNotEmpty()
+  @IsString()
+  phoneNumber: string;
+
+  @IsNotEmpty()
   @IsEnum(PaymentMethod)
   payment_type: PaymentMethod;
 

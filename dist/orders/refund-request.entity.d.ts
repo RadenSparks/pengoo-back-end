@@ -2,6 +2,7 @@ import { User } from 'src/users/user.entity';
 import { Order } from 'src/orders/order.entity';
 import { UploadFiles } from './file.entity';
 import { Refund } from './refund.entity';
+import { PaymentMethod } from 'src/services/payment/payment.types';
 export declare enum RefundRequestStatus {
     PENDING = "PENDING",
     APPROVED = "APPROVED",
@@ -19,4 +20,8 @@ export declare class RefundRequest {
     status: RefundRequestStatus;
     created_at: Date;
     updated_at: Date;
+    paymentMethod: PaymentMethod;
+    toAccountNumber: string;
+    toBin: string;
+    bank: string;
 }
