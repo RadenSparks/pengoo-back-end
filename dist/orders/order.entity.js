@@ -109,7 +109,7 @@ __decorate([
     __metadata("design:type", Object)
 ], Order.prototype, "paypal_order_id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 20 }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 20, default: "0364484888" }),
     __metadata("design:type", String)
 ], Order.prototype, "phone_number", void 0);
 __decorate([
