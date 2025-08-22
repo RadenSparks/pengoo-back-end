@@ -1,4 +1,4 @@
-import { Controller, Post, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Param, Body, UseGuards, Get } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { PaymentsService } from './payment.service';
 import { PaymentMethod } from './payment.types';
@@ -99,5 +99,10 @@ export class PaymentsController {
     @Body('userRole') userRole: string,
   ) {
     return this.paymentsService.markOrderAsPaid(orderId, userId, userRole);
+  }
+
+  @Get('types')
+  getPaymentTypes() {
+    return Object.values(PaymentMethod);
   }
 }
