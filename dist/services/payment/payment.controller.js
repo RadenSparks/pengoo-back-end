@@ -39,6 +39,9 @@ let PaymentsController = class PaymentsController {
     async markOrderAsPaid(orderId, userId, userRole) {
         return this.paymentsService.markOrderAsPaid(orderId, userId, userRole);
     }
+    getPaymentTypes() {
+        return Object.values(payment_types_1.PaymentMethod);
+    }
 };
 exports.PaymentsController = PaymentsController;
 __decorate([
@@ -133,6 +136,12 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number, String]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "markOrderAsPaid", null);
+__decorate([
+    (0, common_1.Get)('types'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], PaymentsController.prototype, "getPaymentTypes", null);
 exports.PaymentsController = PaymentsController = __decorate([
     (0, common_1.Controller)('payments'),
     __metadata("design:paramtypes", [payment_service_1.PaymentsService])

@@ -21,4 +21,5 @@ export declare class PaymentsController {
     markOrderAsPaid(orderId: number, userId: number, userRole: string): Promise<{
         message: string;
     }>;
+    getPaymentTypes(): PaymentMethod[];
 }
