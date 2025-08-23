@@ -65,7 +65,7 @@ let ProductsService = class ProductsService {
         this.cmsContentRepository = cmsContentRepository;
     }
     async create(createProductDto, mainImage, detailImages, features, featureImages) {
-        const category_ID = await this.categoriesService.findById(createProductDto.categoryId);
+        const category_ID = await this.categoriesService.findById(createProductDto.category_ID);
         const publisher_ID = await this.publishersService.findOne(createProductDto.publisherID);
         const newProduct = new product_entity_1.Product();
         const images = [];
@@ -271,7 +271,7 @@ let ProductsService = class ProductsService {
     async update(id, updateProductDto, mainImage, detailImages, features, featureImages, deleteImages) {
         const product = await this.productsRepository.findOne({
             where: { id },
-            relations: ['tags', 'category_ID', 'publisher_ID', 'images'],
+            relations: ['tags', 'categoryId', 'publisher_ID', 'images'],
         });
         if (!product) {
             throw new common_1.NotFoundException(`Product with ID ${id} not found`);

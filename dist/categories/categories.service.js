@@ -30,6 +30,9 @@ let CategoriesService = class CategoriesService {
         return this.categoriesRepository.find({ relations: ['products'] });
     }
     async findById(id) {
+        if (!id) {
+            throw new common_1.NotFoundException('Category id empty');
+        }
         const category = await this.categoriesRepository.findOne({
             where: { id },
             relations: ['products'],

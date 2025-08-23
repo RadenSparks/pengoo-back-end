@@ -16,7 +16,7 @@ export declare class CreateProductDto {
     detailImages?: any[];
     quantity_sold: number;
     quantity_stock: number;
-    categoryId: number;
+    category_ID: number;
     publisherID: number;
     status: string;
     tags?: string[] | string;

@@ -50,7 +50,7 @@ class CreateProductDto {
     detailImages;
     quantity_sold;
     quantity_stock;
-    categoryId;
+    category_ID;
     publisherID;
     status;
     tags;
@@ -134,7 +134,7 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], CreateProductDto.prototype, "categoryId", void 0);
+], CreateProductDto.prototype, "category_ID", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.IsNotEmpty)(),

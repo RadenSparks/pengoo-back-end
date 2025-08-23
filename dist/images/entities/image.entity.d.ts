@@ -6,4 +6,5 @@ export declare class Image {
     folder?: string;
     ord?: number;
     product?: Product;
+    deletedAt?: Date;
 }

@@ -55,7 +55,7 @@ export class ProductsService {
     features: FeatureDto[],
     featureImages: Express.Multer.File[],
   ): Promise<Product> {
-    const category_ID = await this.categoriesService.findById(createProductDto.categoryId);
+    const category_ID = await this.categoriesService.findById(createProductDto.category_ID);
     const publisher_ID = await this.publishersService.findOne(createProductDto.publisherID);
 
     const newProduct = new Product();
@@ -323,7 +323,7 @@ export class ProductsService {
   ): Promise<Product> {
     const product = await this.productsRepository.findOne({
       where: { id },
-      relations: ['tags', 'category_ID', 'publisher_ID', 'images'], // "featured" removed
+      relations: ['tags', 'categoryId', 'publisher_ID', 'images'], // "featured" removed
     });
 
     if (!product) {
