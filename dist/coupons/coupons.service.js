@@ -43,9 +43,11 @@ let CouponsService = class CouponsService {
             .where("user_coupon.userId = :userId", { userId })
             .andWhere("user_coupon.couponId = :voucherId", { voucherId })
             .getOne();
+        console.log(userId, coupon);
         if (!existing)
             throw new common_1.BadRequestException("User hasn't redeem a voucher");
         const now = new Date();
+        console.log(now);
         if (coupon.status !== coupon_entity_1.CouponStatus.Active)
             throw new common_1.BadRequestException('Coupon is not active');
         if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate))
@@ -140,6 +142,7 @@ let CouponsService = class CouponsService {
         return this.userCouponRepo.find({
             where: {
                 user: { id },
+                coupon: { status: coupon_entity_1.CouponStatus.Active },
             },
             relations: ['coupon'],
         });
