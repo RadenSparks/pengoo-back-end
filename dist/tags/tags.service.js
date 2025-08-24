@@ -30,6 +30,9 @@ let TagsService = class TagsService {
         return this.tagRepository.find();
     }
     async findOne(id) {
+        if (typeof id !== 'number' || isNaN(id)) {
+            throw new common_1.BadRequestException('Invalid tag id');
+        }
         const tag = await this.tagRepository.findOne({
             where: { id },
             relations: ['products'],
@@ -61,6 +64,16 @@ let TagsService = class TagsService {
     async findByType(type) {
         return this.tagRepository.find({
             where: { type },
+            relations: ['products'],
+        });
+    }
+    async findDeleted() {
+        const { IsNull, Not } = require('typeorm');
+        return this.tagRepository.find({
+            withDeleted: true,
+            where: {
+                deletedAt: Not(IsNull()),
+            },
             relations: ['products'],
         });
     }

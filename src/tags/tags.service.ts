@@ -1,7 +1,7 @@
 // src/tags/tags.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { Tag } from './entities/tag.entity';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
@@ -23,6 +23,9 @@ export class TagsService {
   }
 
   async findOne(id: number): Promise<Tag> {
+    if (typeof id !== 'number' || isNaN(id)) {
+      throw new BadRequestException('Invalid tag id');
+    }
     const tag = await this.tagRepository.findOne({
       where: { id },
       relations: ['products'],
@@ -56,6 +59,17 @@ export class TagsService {
   async findByType(type: string): Promise<Tag[]> {
     return this.tagRepository.find({
       where: { type },
+      relations: ['products'],
+    });
+  }
+
+  async findDeleted(): Promise<Tag[]> {
+    const { IsNull, Not } = require('typeorm');
+    return this.tagRepository.find({
+      withDeleted: true,
+      where: {
+        deletedAt: Not(IsNull()),
+      },
       relations: ['products'],
     });
   }
