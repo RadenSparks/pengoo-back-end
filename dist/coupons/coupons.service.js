@@ -44,8 +44,6 @@ let CouponsService = class CouponsService {
             .andWhere("user_coupon.couponId = :voucherId", { voucherId })
             .getOne();
         console.log(userId, coupon);
-        if (!existing)
-            throw new common_1.BadRequestException("User hasn't redeem a voucher");
         const now = new Date();
         console.log(now);
         if (coupon.status !== coupon_entity_1.CouponStatus.Active)

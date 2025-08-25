@@ -104,7 +104,8 @@ export class OrdersService {
           userId,
           details.map(d => d.productId)
         );
-        total_price = total_price - discount;
+        console.log(discount, total_price)
+        // total_price = total_price - discount;
         coupon_id = coupon.id;
         coupon_code = coupon.code;
         // coupon.usedCount += 1;

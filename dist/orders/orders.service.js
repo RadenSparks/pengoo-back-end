@@ -98,7 +98,7 @@ let OrdersService = class OrdersService {
             let coupon_code = null;
             if (couponCode) {
                 const { coupon, discount } = await this.couponsService.validateAndApply(couponCode, total_price, userId, details.map(d => d.productId));
-                total_price = total_price - discount;
+                console.log(discount, total_price);
                 coupon_id = coupon.id;
                 coupon_code = coupon.code;
             }
