@@ -42,6 +42,7 @@ let PaypalService = class PaypalService {
         const order = await this.ordersService.findById(orderId);
         if (!order)
             throw new common_1.NotFoundException('Order not found');
+        const usdAmount = convertVndToUsd(order.total_price);
         const request = new paypal.orders.OrdersCreateRequest();
         request.prefer('return=representation');
         request.requestBody({
@@ -50,7 +51,7 @@ let PaypalService = class PaypalService {
                 {
                     amount: {
                         currency_code: 'USD',
-                        value: order.total_price.toString(),
+                        value: usdAmount.toString(),
                     },
                 },
             ],
@@ -143,4 +144,7 @@ exports.PaypalService = PaypalService = __decorate([
         invoice_service_1.InvoicesService,
         notifications_service_1.NotificationsService])
 ], PaypalService);
+function convertVndToUsd(vnd, rate = 25000) {
+    return +(vnd / rate).toFixed(2);
+}
 //# sourceMappingURL=paypal.service.js.map

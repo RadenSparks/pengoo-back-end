@@ -33,6 +33,9 @@ export class PaypalService {
     const order = await this.ordersService.findById(orderId);
     if (!order) throw new NotFoundException('Order not found');
 
+    // Convert VND to USD for PayPal
+    const usdAmount = convertVndToUsd(order.total_price);
+
     const request = new paypal.orders.OrdersCreateRequest();
     request.prefer('return=representation');
     request.requestBody({
@@ -41,7 +44,7 @@ export class PaypalService {
         {
           amount: {
             currency_code: 'USD',
-            value: order.total_price.toString(),
+            value: usdAmount.toString(),
           },
         },
       ],
@@ -128,4 +131,8 @@ export class PaypalService {
       throw new InternalServerErrorException('Failed to refund PayPal payment');
     }
   }
+}
+
+function convertVndToUsd(vnd: number, rate = 25000): number {
+  return +(vnd / rate).toFixed(2);
 }
