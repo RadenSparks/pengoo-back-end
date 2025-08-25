@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException, Put, UseGuards, Req } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
@@ -76,6 +76,11 @@ export class OrdersController {
   @Public()
   findAllOrders() {
     return this.ordersService.findAll();
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('get-order-by-userId')
+  findByUserId(@Req() req) {
+    return this.ordersService.findByUserId(req.user.id);
   }
 
   @Get('/delivery')

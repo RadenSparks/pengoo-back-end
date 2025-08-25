@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Res, Req } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Order, OrderDetail, PaymentStatus, ProductStatus } from './order.entity'; // Import PaymentStatus and ProductStatus
@@ -105,7 +105,6 @@ export class OrdersService {
           details.map(d => d.productId)
         );
         console.log(discount, total_price)
-        // total_price = total_price - discount;
         coupon_id = coupon.id;
         coupon_code = coupon.code;
         // coupon.usedCount += 1;
@@ -134,6 +133,7 @@ export class OrdersService {
         details: orderDetails,
         order_code, // always integer
       });
+      console.log(total_price)
       const savedOrder = await manager.save(order);
       savedOrder.checkout_url = checkout_url ?? null
       await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
@@ -164,6 +164,13 @@ export class OrdersService {
 
   async findById(orderId: number): Promise<Order | null> {
     return this.ordersRepository.findOne({ where: { id: orderId } });
+  }
+  async findByUserId(id): Promise<Order[] | null> {
+    return this.ordersRepository.find({
+      where: { user: { id } },
+      relations: ['user', 'details', 'details.product', 'delivery', 'details.product.images'],
+      order: { id: 'DESC' }
+    });
   }
   async findByOrderCode(order_code: number): Promise<Order | null> {
     return this.ordersRepository.findOne({ where: { order_code } });

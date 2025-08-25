@@ -35,6 +35,7 @@ export declare class OrdersService {
     }>;
     findAll(): Promise<Order[]>;
     findById(orderId: number): Promise<Order | null>;
+    findByUserId(id: any): Promise<Order[] | null>;
     findByOrderCode(order_code: number): Promise<Order | null>;
     markOrderAsPaidByCode(orderCode: number): Promise<Order>;
     handleOrderCancellation(orderCode: number): Promise<Order | NotFoundException>;

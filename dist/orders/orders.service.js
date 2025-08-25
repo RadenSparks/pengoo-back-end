@@ -123,6 +123,7 @@ let OrdersService = class OrdersService {
                 details: orderDetails,
                 order_code,
             });
+            console.log(total_price);
             const savedOrder = await manager.save(order);
             savedOrder.checkout_url = checkout_url ?? null;
             await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
@@ -151,6 +152,13 @@ let OrdersService = class OrdersService {
     }
     async findById(orderId) {
         return this.ordersRepository.findOne({ where: { id: orderId } });
+    }
+    async findByUserId(id) {
+        return this.ordersRepository.find({
+            where: { user: { id } },
+            relations: ['user', 'details', 'details.product', 'delivery', 'details.product.images'],
+            order: { id: 'DESC' }
+        });
     }
     async findByOrderCode(order_code) {
         return this.ordersRepository.findOne({ where: { order_code } });
