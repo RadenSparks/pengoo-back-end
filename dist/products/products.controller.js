@@ -38,10 +38,10 @@ let ProductsController = class ProductsController {
         }
         return this.productsService.create(createProductDto, mainImage, detailImages, features, featureImages);
     }
-    async findAll(name, categoryId, tags, minPrice, maxPrice, publisherId, status, sort, page, limit) {
+    async findAll(name, category_ID, tags, minPrice, maxPrice, publisherId, status, sort, page, limit) {
         const filter = {
             name,
-            categoryId,
+            category_ID,
             tags: tags ? tags.split(',') : undefined,
             minPrice: minPrice ? Number(minPrice) : undefined,
             maxPrice: maxPrice ? Number(maxPrice) : undefined,
@@ -137,7 +137,7 @@ __decorate([
                     meta_description: "Meta description for SEO.",
                     quantity_sold: 0,
                     quantity_stock: 100,
-                    categoryId: 1,
+                    category_ID: 1,
                     publisherID: 1,
                     status: "active",
                     tags: ["electronics", "gadget"]

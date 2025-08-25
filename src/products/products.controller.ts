@@ -43,7 +43,7 @@ export class ProductsController {
           meta_description: "Meta description for SEO.",
           quantity_sold: 0,
           quantity_stock: 100,
-          categoryId: 1,
+          category_ID: 1,
           publisherID: 1,
           status: "active",
           tags: ["electronics", "gadget"]
@@ -84,7 +84,7 @@ export class ProductsController {
   @Public()
   async findAll(
     @Query('name') name?: string,
-    @Query('category') categoryId?: number,
+    @Query('category') category_ID?: number,
     @Query('tags') tags?: string,
     @Query('minPrice') minPrice?: number,
     @Query('maxPrice') maxPrice?: number,
@@ -96,7 +96,7 @@ export class ProductsController {
   ) {
     const filter = {
       name,
-      categoryId,
+      category_ID,
       tags: tags ? tags.split(',') : undefined,
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,

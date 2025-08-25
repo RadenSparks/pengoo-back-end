@@ -12,7 +12,7 @@ import { CmsContentService } from '../cms-content/cms-content.service';
 import { CmsContent } from '../cms-content/cms-content.entity';
 export declare class FilterProductDto {
     name?: string;
-    categoryId?: number;
+    category_ID?: number;
     tags?: string[];
     minPrice?: number;
     maxPrice?: number;

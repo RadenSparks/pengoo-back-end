@@ -32,7 +32,7 @@ const cms_content_service_1 = require("../cms-content/cms-content.service");
 const cms_content_entity_1 = require("../cms-content/cms-content.entity");
 class FilterProductDto {
     name;
-    categoryId;
+    category_ID;
     tags;
     minPrice;
     maxPrice;
@@ -146,8 +146,8 @@ let ProductsService = class ProductsService {
         if (filter.name) {
             query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
         }
-        if (filter.categoryId) {
-            query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+        if (filter.category_ID) {
+            query.andWhere('category.id = :category_ID', { category_ID: filter.category_ID });
         }
         if (filter.tags && filter.tags.length > 0) {
             query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
@@ -193,8 +193,8 @@ let ProductsService = class ProductsService {
         if (filter.name) {
             query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
         }
-        if (filter.categoryId) {
-            query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+        if (filter.category_ID) {
+            query.andWhere('category.id = :category_ID', { category_ID: filter.category_ID });
         }
         if (filter.tags && filter.tags.length > 0) {
             query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
@@ -271,7 +271,7 @@ let ProductsService = class ProductsService {
     async update(id, updateProductDto, mainImage, detailImages, features, featureImages, deleteImages) {
         const product = await this.productsRepository.findOne({
             where: { id },
-            relations: ['tags', 'categoryId', 'publisher_ID', 'images'],
+            relations: ['tags', 'category_ID', 'publisher_ID', 'images'],
         });
         if (!product) {
             throw new common_1.NotFoundException(`Product with ID ${id} not found`);

@@ -17,7 +17,7 @@ import { CmsContent } from '../cms-content/cms-content.entity'; // <-- Add this 
 
 export class FilterProductDto {
   name?: string;
-  categoryId?: number;
+  category_ID?: number;
   tags?: string[];
   minPrice?: number;
   maxPrice?: number;
@@ -173,8 +173,8 @@ export class ProductsService {
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
     }
-    if (filter.categoryId) {
-      query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+    if (filter.category_ID) {
+      query.andWhere('category.id = :category_ID', { category_ID: filter.category_ID });
     }
     if (filter.tags && filter.tags.length > 0) {
       query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
@@ -228,8 +228,8 @@ export class ProductsService {
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
     }
-    if (filter.categoryId) {
-      query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+    if (filter.category_ID) {
+      query.andWhere('category.id = :category_ID', { category_ID: filter.category_ID });
     }
     if (filter.tags && filter.tags.length > 0) {
       query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
@@ -323,7 +323,7 @@ export class ProductsService {
   ): Promise<Product> {
     const product = await this.productsRepository.findOne({
       where: { id },
-      relations: ['tags', 'categoryId', 'publisher_ID', 'images'], // "featured" removed
+      relations: ['tags', 'category_ID', 'publisher_ID', 'images'], // Use "category_ID"
     });
 
     if (!product) {
