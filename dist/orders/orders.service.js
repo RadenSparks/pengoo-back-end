@@ -125,7 +125,9 @@ let OrdersService = class OrdersService {
             });
             const savedOrder = await manager.save(order);
             savedOrder.checkout_url = checkout_url ?? null;
-            await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
+            if (order.user && order.user.email) {
+                await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+            }
             return savedOrder;
         });
     }
@@ -192,7 +194,10 @@ let OrdersService = class OrdersService {
         return this.deliveryRepository.find();
     }
     async findByPaypalOrderId(paypalOrderId) {
-        return this.ordersRepository.findOne({ where: { paypal_order_id: paypalOrderId } });
+        return this.ordersRepository.findOne({
+            where: { paypal_order_id: paypalOrderId },
+            relations: ['user'],
+        });
     }
     async save(order) {
         return this.ordersRepository.save(order);
