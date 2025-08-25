@@ -78,10 +78,12 @@ let PaypalService = class PaypalService {
             const response = await this.client.execute(request);
             const order = await this.ordersService.findByPaypalOrderId(paypalOrderId);
             if (order) {
-                order.payment_status = order_entity_1.PaymentStatus.Paid;
-                await this.ordersService.save(order);
-                await this.invoicesService.generateInvoice(order.id);
-                await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+                if (order.payment_status !== order_entity_1.PaymentStatus.Paid) {
+                    order.payment_status = order_entity_1.PaymentStatus.Paid;
+                    await this.ordersService.save(order);
+                    await this.invoicesService.generateInvoice(order.id);
+                    await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+                }
             }
             return response.result;
         }

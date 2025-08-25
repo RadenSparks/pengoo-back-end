@@ -78,7 +78,7 @@ let PaymentsService = class PaymentsService {
             throw new common_1.BadRequestException('Order not found');
         await this.assertCanAct(userId, order, userRole);
         if (order.payment_status === order_entity_1.PaymentStatus.Paid) {
-            throw new common_1.BadRequestException('Order is already paid.');
+            return { message: 'Order is already paid.' };
         }
         if (order.productStatus === 'cancelled') {
             throw new common_1.BadRequestException('Cannot capture payment for a cancelled order.');

@@ -73,12 +73,15 @@ export class PaypalService {
       const response = await this.client.execute(request);
       const order = await this.ordersService.findByPaypalOrderId(paypalOrderId);
       if (order) {
-        order.payment_status = PaymentStatus.Paid;
-        await this.ordersService.save(order);
+        if (order.payment_status !== PaymentStatus.Paid) {
+          order.payment_status = PaymentStatus.Paid;
+          await this.ordersService.save(order);
 
-        // Send confirmation email only after payment is captured
-        await this.invoicesService.generateInvoice(order.id);
-        await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+          // Send confirmation email only after payment is captured
+          await this.invoicesService.generateInvoice(order.id);
+          await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+        }
+        // If already paid, just return success
       }
       return response.result;
     } catch (err) {
