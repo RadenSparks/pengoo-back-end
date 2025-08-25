@@ -46,7 +46,6 @@ export class PaypalService {
         },
       ],
       application_context: {
-        // Use localhost for testing
         return_url: `http://localhost:3001/checkout/paypal-success?order_id=${orderId}`,
         cancel_url: `http://localhost:3001/checkout/paypal-cancel?order_id=${orderId}`,
       },
@@ -55,12 +54,15 @@ export class PaypalService {
     try {
       const response = await this.client.execute(request);
       const paypalOrderId = response.result.id;
+      console.log(`[PayPal] Created PayPal order: ${paypalOrderId} for order ${order.id}`);
       order.paypal_order_id = paypalOrderId;
       await this.ordersService.save(order);
+      console.log(`[PayPal] Saved PayPal order ID ${paypalOrderId} to order ${order.id}`);
 
       const approvalUrl = response.result.links.find((link) => link.rel === 'approve')?.href;
       return { paypalOrderId, approvalUrl };
     } catch (err) {
+      console.error('[PayPal] Failed to create PayPal order:', err?.message, err?.response?.data || err);
       throw new InternalServerErrorException('Failed to create PayPal order');
     }
   }
@@ -71,20 +73,27 @@ export class PaypalService {
 
     try {
       const response = await this.client.execute(request);
+      console.log(`[PayPal] Capture response for ${paypalOrderId}:`, JSON.stringify(response.result, null, 2));
       const order = await this.ordersService.findByPaypalOrderId(paypalOrderId);
+      console.log(`[PayPal] Lookup order by PayPal order ID ${paypalOrderId}:`, order ? `Found order ${order.id}` : 'Not found');
       if (order) {
         if (order.payment_status !== PaymentStatus.Paid) {
           order.payment_status = PaymentStatus.Paid;
           await this.ordersService.save(order);
+          console.log(`[PayPal] Marked order ${order.id} as paid.`);
 
-          // Send confirmation email only after payment is captured
           await this.invoicesService.generateInvoice(order.id);
           await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+          console.log(`[PayPal] Sent invoice and confirmation for order ${order.id}.`);
+        } else {
+          console.log(`[PayPal] Order ${order.id} already marked as paid.`);
         }
-        // If already paid, just return success
+      } else {
+        console.warn(`[PayPal] No order found for PayPal order ID ${paypalOrderId}.`);
       }
       return response.result;
     } catch (err) {
+      console.error('[PayPal] Failed to capture PayPal order:', err?.message, err?.response?.data || err);
       throw new InternalServerErrorException('Failed to capture PayPal order');
     }
   }
