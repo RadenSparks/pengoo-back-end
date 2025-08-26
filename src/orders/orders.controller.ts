@@ -10,6 +10,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Role } from 'src/roles/role.entity';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { RefundRequest } from './refund-request.entity';
 
 @Controller('orders')
 export class OrdersController {
@@ -163,5 +164,12 @@ export class OrdersController {
       throw new BadRequestException('Order ID must be an integer');
     }
     return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
+  }
+
+  @Get('refund-requests')
+  @Public()
+  async getRefundRequests() {
+    // Giả sử bạn có repository cho RefundRequest
+    return await this.ordersService.getRefundRequests();
   }
 }

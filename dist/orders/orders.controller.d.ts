@@ -1,6 +1,7 @@
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { CreateOrderDto, CreateRefundRequestDto } from './create-orders.dto';
+import { RefundRequest } from './refund-request.entity';
 export declare class OrdersController {
     private readonly ordersService;
     constructor(ordersService: OrdersService);
@@ -19,7 +20,7 @@ export declare class OrdersController {
     createRefundRequest(body: CreateRefundRequestDto, files: Express.Multer.File[]): Promise<{
         status: number;
         message: string;
-        data: import("./refund-request.entity").RefundRequest;
+        data: RefundRequest;
         estimatedProcessingTime: string;
     }>;
     cancelOversoldOrders(): Promise<{
@@ -29,4 +30,5 @@ export declare class OrdersController {
         shipping_address: string;
         phone_number: string;
     }): Promise<import("./order.entity").Order>;
+    getRefundRequests(): Promise<RefundRequest[]>;
 }

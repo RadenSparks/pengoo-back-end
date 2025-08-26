@@ -87,6 +87,9 @@ let OrdersController = class OrdersController {
         }
         return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
     }
+    async getRefundRequests() {
+        return await this.ordersService.getRefundRequests();
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -231,6 +234,13 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "updateOrderAddress", null);
+__decorate([
+    (0, common_1.Get)('refund-requests'),
+    (0, public_decorator_1.Public)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "getRefundRequests", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])

@@ -349,6 +349,12 @@ let OrdersService = class OrdersService {
         order.phone_number = phoneNumber;
         return this.ordersRepository.save(order);
     }
+    async getRefundRequests() {
+        return this.dataSource.getRepository(refund_request_entity_1.RefundRequest).find({
+            relations: ['user', 'order'],
+            order: { created_at: 'DESC' },
+        });
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([

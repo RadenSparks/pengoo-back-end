@@ -55,4 +55,5 @@ export declare class OrdersService {
         status: string;
     }>;
     updateAddress(id: number, newAddress: string, phoneNumber: string): Promise<Order>;
+    getRefundRequests(): Promise<RefundRequest[]>;
 }

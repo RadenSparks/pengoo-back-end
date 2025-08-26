@@ -420,4 +420,11 @@ export class OrdersService {
     order.phone_number = phoneNumber;
     return this.ordersRepository.save(order);
   }
+
+  async getRefundRequests(): Promise<RefundRequest[]> {
+    return this.dataSource.getRepository(RefundRequest).find({
+      relations: ['user', 'order'],
+      order: { created_at: 'DESC' },
+    });
+  }
 }
