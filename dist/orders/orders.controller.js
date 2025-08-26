@@ -92,7 +92,7 @@ let OrdersController = class OrdersController {
             return await this.ordersService.getRefundRequests();
         }
         catch (err) {
-            console.error('Error fetching refund requests:', err);
+            console.error('Error fetching refund requests:', err?.message, err?.stack);
             throw new common_1.BadRequestException('Could not fetch refund requests');
         }
     }
