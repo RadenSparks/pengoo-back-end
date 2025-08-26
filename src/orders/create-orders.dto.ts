@@ -29,13 +29,13 @@ export class CreateRefundRequestDto {
 
   @IsNotEmpty()
   uploadFiles: {
-    type: string;
+    type: string; // 'image' | 'video'
     url: string;
   }[];
 
   @IsNotEmpty()
-  @IsString()
-  paymentMethod: string;
+  @IsEnum(PaymentMethod)
+  paymentMethod: PaymentMethod;
 
   @IsNotEmpty()
   @IsString()

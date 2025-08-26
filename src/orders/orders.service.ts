@@ -307,6 +307,10 @@ export class OrdersService {
         amount: order.total_price,
         times: (order.refundRequests?.length ?? 0) + 1,
         status: RefundRequestStatus.PENDING,
+        paymentMethod: data.paymentMethod, // <-- Store payment method
+        toAccountNumber: data.toAccountNumber,
+        toBin: data.toBin,
+        bank: data.bank,
       });
       await manager.save(refundRequest);
 

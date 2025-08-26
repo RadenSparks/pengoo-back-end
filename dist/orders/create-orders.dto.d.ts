@@ -12,7 +12,7 @@ export declare class CreateRefundRequestDto {
         type: string;
         url: string;
     }[];
-    paymentMethod: string;
+    paymentMethod: PaymentMethod;
     toAccountNumber: string;
     toBin: string;
     bank: string;

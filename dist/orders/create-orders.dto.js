@@ -64,7 +64,7 @@ __decorate([
 ], CreateRefundRequestDto.prototype, "uploadFiles", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsEnum)(payment_types_1.PaymentMethod),
     __metadata("design:type", String)
 ], CreateRefundRequestDto.prototype, "paymentMethod", void 0);
 __decorate([
