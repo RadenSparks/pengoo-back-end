@@ -88,7 +88,13 @@ let OrdersController = class OrdersController {
         return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
     }
     async getRefundRequests() {
-        return await this.ordersService.getRefundRequests();
+        try {
+            return await this.ordersService.getRefundRequests();
+        }
+        catch (err) {
+            console.error('Error fetching refund requests:', err);
+            throw new common_1.BadRequestException('Could not fetch refund requests');
+        }
     }
 };
 exports.OrdersController = OrdersController;

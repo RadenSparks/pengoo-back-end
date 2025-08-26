@@ -169,7 +169,11 @@ export class OrdersController {
   @Get('refund-requests')
   @Public()
   async getRefundRequests() {
-    // Giả sử bạn có repository cho RefundRequest
-    return await this.ordersService.getRefundRequests();
+    try {
+      return await this.ordersService.getRefundRequests();
+    } catch (err) {
+      console.error('Error fetching refund requests:', err);
+      throw new BadRequestException('Could not fetch refund requests');
+    }
   }
 }
