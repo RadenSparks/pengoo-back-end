@@ -284,8 +284,15 @@ export class OrdersService {
       }
 
       // 4. Validate reason and evidence
-      if (!data.reason || data.reason.trim().length < 10) {
-        throw new BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters).');
+      const dropdownReasons = ['defective', 'missing', 'wrong'];
+      if (
+        !data.reason ||
+        (
+          !dropdownReasons.includes(data.reason) &&
+          data.reason.trim().length < 10
+        )
+      ) {
+        throw new BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters for custom reasons).');
       }
       if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
         throw new BadRequestException('Please upload at least one evidence file.');
