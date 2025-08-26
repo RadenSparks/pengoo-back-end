@@ -29,9 +29,25 @@ export class CreateRefundRequestDto {
 
   @IsNotEmpty()
   uploadFiles: {
-    type: string; // 'image' | 'video'
+    type: string;
     url: string;
   }[];
+
+  @IsNotEmpty()
+  @IsString()
+  paymentMethod: string;
+
+  @IsNotEmpty()
+  @IsString()
+  toAccountNumber: string;
+
+  @IsNotEmpty()
+  @IsString()
+  toBin: string;
+
+  @IsNotEmpty()
+  @IsString()
+  bank: string;
 }
 
 export class CreateOrderDto {
