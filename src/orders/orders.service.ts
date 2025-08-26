@@ -434,4 +434,22 @@ export class OrdersService {
       order: { created_at: 'DESC' },
     });
   }
+
+  async updateRefundRequestStatus(id: number, status: string) {
+    const refundRequestRepo = this.dataSource.getRepository(RefundRequest);
+    const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+    if (!refundRequest) throw new NotFoundException('Refund request not found');
+    refundRequest.status = status as RefundRequestStatus;
+    await refundRequestRepo.save(refundRequest);
+    return { status: 200, message: 'Refund request status updated', data: refundRequest };
+  }
+
+  async processRefundRequest(id: number) {
+    const refundRequestRepo = this.dataSource.getRepository(RefundRequest);
+    const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+    if (!refundRequest) throw new NotFoundException('Refund request not found');
+    refundRequest.status = RefundRequestStatus.REFUNDED; // <-- Use REFUNDED
+    await refundRequestRepo.save(refundRequest);
+    return { status: 200, message: 'Refund request marked as refunded', data: refundRequest };
+  }
 }

@@ -21,6 +21,7 @@ var RefundRequestStatus;
     RefundRequestStatus["PENDING"] = "PENDING";
     RefundRequestStatus["APPROVED"] = "APPROVED";
     RefundRequestStatus["REJECTED"] = "REJECTED";
+    RefundRequestStatus["REFUNDED"] = "REFUNDED";
 })(RefundRequestStatus || (exports.RefundRequestStatus = RefundRequestStatus = {}));
 let RefundRequest = class RefundRequest {
     id;

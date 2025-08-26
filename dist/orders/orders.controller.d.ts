@@ -31,4 +31,16 @@ export declare class OrdersController {
         shipping_address: string;
         phone_number: string;
     }): Promise<import("./order.entity").Order>;
+    updateRefundRequestStatus(id: string, body: {
+        status: string;
+    }): Promise<{
+        status: number;
+        message: string;
+        data: RefundRequest;
+    }>;
+    processRefundRequest(id: string): Promise<{
+        status: number;
+        message: string;
+        data: RefundRequest;
+    }>;
 }

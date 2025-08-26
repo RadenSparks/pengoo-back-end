@@ -167,4 +167,30 @@ export class OrdersController {
     }
     return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
   }
+
+  @Patch('refund-requests/:id/status')
+  @UseGuards(JwtAuthGuard)
+  async updateRefundRequestStatus(
+    @Param('id') id: string,
+    @Body() body: { status: string }
+  ) {
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('RefundRequest ID must be an integer');
+    }
+    // You need to implement this method in OrdersService
+    return await this.ordersService.updateRefundRequestStatus(parsedId, body.status);
+  }
+
+  @Patch('refund-requests/:id/process-refund')
+  @UseGuards(JwtAuthGuard)
+  async processRefundRequest(
+    @Param('id') id: string
+  ) {
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('RefundRequest ID must be an integer');
+    }
+    return await this.ordersService.processRefundRequest(parsedId);
+  }
 }

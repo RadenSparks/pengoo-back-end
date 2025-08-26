@@ -94,6 +94,20 @@ let OrdersController = class OrdersController {
         }
         return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
     }
+    async updateRefundRequestStatus(id, body) {
+        const parsedId = parseInt(id, 10);
+        if (isNaN(parsedId)) {
+            throw new common_1.BadRequestException('RefundRequest ID must be an integer');
+        }
+        return await this.ordersService.updateRefundRequestStatus(parsedId, body.status);
+    }
+    async processRefundRequest(id) {
+        const parsedId = parseInt(id, 10);
+        if (isNaN(parsedId)) {
+            throw new common_1.BadRequestException('RefundRequest ID must be an integer');
+        }
+        return await this.ordersService.processRefundRequest(parsedId);
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -243,6 +257,23 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "updateOrderAddress", null);
+__decorate([
+    (0, common_1.Patch)('refund-requests/:id/status'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "updateRefundRequestStatus", null);
+__decorate([
+    (0, common_1.Patch)('refund-requests/:id/process-refund'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "processRefundRequest", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])

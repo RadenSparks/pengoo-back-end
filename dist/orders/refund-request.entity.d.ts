@@ -6,7 +6,8 @@ import { PaymentMethod } from 'src/services/payment/payment.types';
 export declare enum RefundRequestStatus {
     PENDING = "PENDING",
     APPROVED = "APPROVED",
-    REJECTED = "REJECTED"
+    REJECTED = "REJECTED",
+    REFUNDED = "REFUNDED"
 }
 export declare class RefundRequest {
     id: number;

@@ -16,6 +16,7 @@ export enum RefundRequestStatus {
     PENDING = 'PENDING',
     APPROVED = 'APPROVED',
     REJECTED = 'REJECTED',
+    REFUNDED = "REFUNDED", // <-- Change this line
 }
 @Entity('refund_requests')
 export class RefundRequest {

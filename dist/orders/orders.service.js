@@ -362,6 +362,24 @@ let OrdersService = class OrdersService {
             order: { created_at: 'DESC' },
         });
     }
+    async updateRefundRequestStatus(id, status) {
+        const refundRequestRepo = this.dataSource.getRepository(refund_request_entity_1.RefundRequest);
+        const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+        if (!refundRequest)
+            throw new common_1.NotFoundException('Refund request not found');
+        refundRequest.status = status;
+        await refundRequestRepo.save(refundRequest);
+        return { status: 200, message: 'Refund request status updated', data: refundRequest };
+    }
+    async processRefundRequest(id) {
+        const refundRequestRepo = this.dataSource.getRepository(refund_request_entity_1.RefundRequest);
+        const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+        if (!refundRequest)
+            throw new common_1.NotFoundException('Refund request not found');
+        refundRequest.status = refund_request_entity_1.RefundRequestStatus.REFUNDED;
+        await refundRequestRepo.save(refundRequest);
+        return { status: 200, message: 'Refund request marked as refunded', data: refundRequest };
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([
