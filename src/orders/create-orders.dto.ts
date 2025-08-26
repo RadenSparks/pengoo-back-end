@@ -29,10 +29,9 @@ export class CreateRefundRequestDto {
 
   @IsNotEmpty()
   uploadFiles: {
-    type: string;
+    type: string; // 'image' | 'video'
     url: string;
   }[];
-
 }
 
 export class CreateOrderDto {

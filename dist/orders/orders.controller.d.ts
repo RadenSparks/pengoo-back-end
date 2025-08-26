@@ -9,6 +9,7 @@ export declare class OrdersController {
     updateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto): Promise<import("./order.entity").Order>;
     findAllOrders(): Promise<import("./order.entity").Order[]>;
     getDelivery(): Promise<import("../delivery/delivery.entity").Delivery[]>;
+    getRefundRequests(): Promise<RefundRequest[]>;
     findOrderById(id: string): Promise<import("./order.entity").Order | null>;
     findOrderByOrderCode(order_code: string): Promise<import("./order.entity").Order | null>;
     handleOrderSuccess(query: any): Promise<import("./order.entity").Order>;
@@ -17,7 +18,7 @@ export declare class OrdersController {
     restore(id: number): Promise<{
         message: string;
     }>;
-    createRefundRequest(body: CreateRefundRequestDto, files: Express.Multer.File[]): Promise<{
+    createRefundRequest(body: CreateRefundRequestDto): Promise<{
         status: number;
         message: string;
         data: RefundRequest;
@@ -30,5 +31,4 @@ export declare class OrdersController {
         shipping_address: string;
         phone_number: string;
     }): Promise<import("./order.entity").Order>;
-    getRefundRequests(): Promise<RefundRequest[]>;
 }

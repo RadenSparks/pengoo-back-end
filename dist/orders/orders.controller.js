@@ -20,8 +20,6 @@ const update_orders_status_dto_1 = require("./update-orders-status.dto");
 const create_orders_dto_1 = require("./create-orders.dto");
 const public_decorator_1 = require("../auth/public.decorator");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
-const platform_express_1 = require("@nestjs/platform-express");
-const common_2 = require("@nestjs/common");
 let OrdersController = class OrdersController {
     ordersService;
     constructor(ordersService) {
@@ -42,6 +40,15 @@ let OrdersController = class OrdersController {
     }
     getDelivery() {
         return this.ordersService.getDelivery();
+    }
+    async getRefundRequests() {
+        try {
+            return await this.ordersService.getRefundRequests();
+        }
+        catch (err) {
+            console.error('Error fetching refund requests:', err?.message, err?.stack);
+            throw new common_1.BadRequestException('Could not fetch refund requests');
+        }
     }
     findOrderById(id) {
         const parsedId = parseInt(id, 10);
@@ -74,8 +81,8 @@ let OrdersController = class OrdersController {
         await this.ordersService.restore(id);
         return { message: 'Order restored successfully.' };
     }
-    async createRefundRequest(body, files) {
-        return await this.ordersService.createRefundRequest(body, files);
+    async createRefundRequest(body) {
+        return await this.ordersService.createRefundRequest(body);
     }
     async cancelOversoldOrders() {
         return await this.ordersService.cancelOversoldOrders();
@@ -86,15 +93,6 @@ let OrdersController = class OrdersController {
             throw new common_1.BadRequestException('Order ID must be an integer');
         }
         return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
-    }
-    async getRefundRequests() {
-        try {
-            return await this.ordersService.getRefundRequests();
-        }
-        catch (err) {
-            console.error('Error fetching refund requests:', err?.message, err?.stack);
-            throw new common_1.BadRequestException('Could not fetch refund requests');
-        }
     }
 };
 exports.OrdersController = OrdersController;
@@ -171,6 +169,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "getDelivery", null);
 __decorate([
+    (0, common_1.Get)('refund-requests'),
+    (0, public_decorator_1.Public)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "getRefundRequests", null);
+__decorate([
     (0, common_1.Get)(':id'),
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('id')),
@@ -218,11 +223,9 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('refund-request'),
-    (0, common_2.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files')),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_2.UploadedFiles)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_orders_dto_1.CreateRefundRequestDto, Array]),
+    __metadata("design:paramtypes", [create_orders_dto_1.CreateRefundRequestDto]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "createRefundRequest", null);
 __decorate([
@@ -240,13 +243,6 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "updateOrderAddress", null);
-__decorate([
-    (0, common_1.Get)('refund-requests'),
-    (0, public_decorator_1.Public)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], OrdersController.prototype, "getRefundRequests", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])

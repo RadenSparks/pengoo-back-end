@@ -85,6 +85,17 @@ export class OrdersController {
     return this.ordersService.getDelivery();
   }
 
+  @Get('refund-requests')
+  @Public()
+  async getRefundRequests() {
+    try {
+      return await this.ordersService.getRefundRequests();
+    } catch (err) {
+      console.error('Error fetching refund requests:', err?.message, err?.stack);
+      throw new BadRequestException('Could not fetch refund requests');
+    }
+  }
+
   @Get(':id')
   @Public()
   findOrderById(@Param('id') id: string) {
@@ -134,19 +145,10 @@ export class OrdersController {
   // Updated refund request endpoint with improved logic
   @UseGuards(JwtAuthGuard)
   @Post('refund-request')
-  @UseInterceptors(FilesInterceptor('files'))
   async createRefundRequest(
     @Body() body: CreateRefundRequestDto,
-    @UploadedFiles() files: Express.Multer.File[],
   ) {
-    // The service now handles:
-    // - Only delivered orders
-    // - Refund window (14 days)
-    // - Max 3 requests, only one pending
-    // - Reason length and evidence required
-    // - Duplicate refund prevention
-    // - Audit and notification logging
-    return await this.ordersService.createRefundRequest(body, files);
+    return await this.ordersService.createRefundRequest(body);
   }
 
   @Post('cancel-oversold')
@@ -164,16 +166,5 @@ export class OrdersController {
       throw new BadRequestException('Order ID must be an integer');
     }
     return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
-  }
-
-  @Get('refund-requests')
-  @Public()
-  async getRefundRequests() {
-    try {
-      return await this.ordersService.getRefundRequests();
-    } catch (err) {
-      console.error('Error fetching refund requests:', err?.message, err?.stack);
-      throw new BadRequestException('Could not fetch refund requests');
-    }
   }
 }

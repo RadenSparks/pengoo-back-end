@@ -45,7 +45,7 @@ export declare class OrdersService {
     findByPaypalOrderId(paypalOrderId: string): Promise<Order | null>;
     save(order: Order): Promise<Order>;
     completeOrder(orderId: number): Promise<void>;
-    createRefundRequest(data: CreateRefundRequestDto, files: Express.Multer.File[]): Promise<{
+    createRefundRequest(data: CreateRefundRequestDto): Promise<{
         status: number;
         message: string;
         data: RefundRequest;

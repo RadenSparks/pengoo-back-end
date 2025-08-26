@@ -226,7 +226,7 @@ let OrdersService = class OrdersService {
             await manager.save(order);
         });
     }
-    async createRefundRequest(data, files) {
+    async createRefundRequest(data) {
         const refundRequest = await this.dataSource.transaction(async (manager) => {
             const order = await manager.findOne(order_entity_1.Order, {
                 where: { id: data.order_id },
@@ -271,15 +271,15 @@ let OrdersService = class OrdersService {
                 status: refund_request_entity_1.RefundRequestStatus.PENDING,
             });
             await manager.save(refundRequest);
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const uploadResult = await this.cloudinaryService.uploadImage(file, 'refund', { userId: data.user_id });
-                const upload = manager.create(file_entity_1.UploadFiles, {
-                    type: file.mimetype,
-                    url: uploadResult.secure_url,
-                    refundRequest,
-                });
-                await manager.save(upload);
+            if (Array.isArray(data.uploadFiles)) {
+                for (const file of data.uploadFiles) {
+                    const uploadFile = manager.create(file_entity_1.UploadFiles, {
+                        refundRequest,
+                        type: file.type,
+                        url: file.url,
+                    });
+                    await manager.save(uploadFile);
+                }
             }
             const adminUsers = await manager.find('User', { where: { role: 'admin', status: true } });
             const adminEmails = adminUsers
@@ -351,7 +351,7 @@ let OrdersService = class OrdersService {
     }
     async getRefundRequests() {
         return this.dataSource.getRepository(refund_request_entity_1.RefundRequest).find({
-            relations: ['user', 'order'],
+            relations: ['user', 'order', 'uploadFiles'],
             order: { created_at: 'DESC' },
         });
     }

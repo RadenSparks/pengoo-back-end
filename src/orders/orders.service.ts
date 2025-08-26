@@ -249,7 +249,7 @@ export class OrdersService {
       // ...send invoice, etc...
     });
   }
-  async createRefundRequest(data: CreateRefundRequestDto, files: Express.Multer.File[]) {
+  async createRefundRequest(data: CreateRefundRequestDto) {
     const refundRequest = await this.dataSource.transaction(async manager => {
       const order = await manager.findOne(Order, {
         where: { id: data.order_id },
@@ -299,7 +299,7 @@ export class OrdersService {
         throw new BadRequestException('This order has already been refunded.');
       }
 
-      // 7. Create refund request with status tracking
+      // 7. Create refund request
       const refundRequest = manager.create(RefundRequest, {
         order,
         reason: data.reason,
@@ -310,20 +310,16 @@ export class OrdersService {
       });
       await manager.save(refundRequest);
 
-      // 8. Save upload files with new naming
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const uploadResult = await this.cloudinaryService.uploadImage(
-          file, // Express.Multer.File
-          'refund', // purpose: 'refund'
-          { userId: data.user_id } // options: only userId for refund, remove orderId and createdAt if not used in your service
-        );
-        const upload = manager.create(UploadFiles, {
-          type: file.mimetype,
-          url: uploadResult.secure_url,
-          refundRequest,
-        });
-        await manager.save(upload);
+      // 8. Save evidence URLs
+      if (Array.isArray(data.uploadFiles)) {
+        for (const file of data.uploadFiles) {
+          const uploadFile = manager.create(UploadFiles, {
+            refundRequest,
+            type: file.type,
+            url: file.url,
+          });
+          await manager.save(uploadFile);
+        }
       }
 
       // 9. Select admin emails from users table
@@ -423,7 +419,7 @@ export class OrdersService {
 
   async getRefundRequests(): Promise<RefundRequest[]> {
     return this.dataSource.getRepository(RefundRequest).find({
-      relations: ['user', 'order'],
+      relations: ['user', 'order', 'uploadFiles'], // <-- 'uploadFiles' must be here!
       order: { created_at: 'DESC' },
     });
   }
