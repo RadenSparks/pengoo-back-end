@@ -138,6 +138,19 @@ export class OrdersService {
       if (order.user && order.user.email) {
         await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
       }
+
+      // After order is created, update product quantities
+      for (const detail of createOrderDto.details) {
+        const product = await manager.findOne(Product, { where: { id: detail.productId } });
+        if (!product) throw new NotFoundException(`Product ${detail.productId} not found`);
+        if (product.quantity_stock < detail.quantity) {
+          throw new BadRequestException(`Not enough stock for product ${product.product_name}`);
+        }
+        product.quantity_sold += detail.quantity;
+        product.quantity_stock -= detail.quantity;
+        await manager.save(product);
+      }
+
       return savedOrder;
     });
   }

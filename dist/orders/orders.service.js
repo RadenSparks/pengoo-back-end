@@ -128,6 +128,17 @@ let OrdersService = class OrdersService {
             if (order.user && order.user.email) {
                 await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
             }
+            for (const detail of createOrderDto.details) {
+                const product = await manager.findOne(product_entity_1.Product, { where: { id: detail.productId } });
+                if (!product)
+                    throw new common_1.NotFoundException(`Product ${detail.productId} not found`);
+                if (product.quantity_stock < detail.quantity) {
+                    throw new common_1.BadRequestException(`Not enough stock for product ${product.product_name}`);
+                }
+                product.quantity_sold += detail.quantity;
+                product.quantity_stock -= detail.quantity;
+                await manager.save(product);
+            }
             return savedOrder;
         });
     }
