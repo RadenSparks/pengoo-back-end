@@ -61,6 +61,33 @@ let ProductsController = class ProductsController {
         }));
         return result;
     }
+    async findAllWithDeleted(page, limit, search, name) {
+        const [data, total] = await this.productsService.findAllWithDeleted({
+            relations: [
+                'category_ID',
+                'publisher_ID',
+                'tags',
+                'images',
+                'collection',
+            ],
+            withDeleted: true,
+            where: name ? { product_name: (0, typeorm_1.In)([name]) } : {},
+            skip: ((page || 1) - 1) * (limit || 50),
+            take: limit || 50,
+        });
+        const mappedData = data.map(p => ({
+            ...p,
+            publisherID: p.publisher_ID
+                ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+                : null,
+        }));
+        return {
+            data: mappedData,
+            total,
+            page: page || 1,
+            limit: limit || 50,
+        };
+    }
     async findById(id) {
         const product = await this.productsService.findById(id);
         return {
@@ -114,33 +141,6 @@ let ProductsController = class ProductsController {
     async restore(id) {
         await this.productsService.restore(id);
         return { message: 'Product restored successfully.' };
-    }
-    async findAllWithDeleted(page, limit, search, name) {
-        const [data, total] = await this.productsService.findAllWithDeleted({
-            relations: [
-                'category_ID',
-                'publisher_ID',
-                'tags',
-                'images',
-                'collection',
-            ],
-            withDeleted: true,
-            where: name ? { product_name: (0, typeorm_1.In)([name]) } : {},
-            skip: ((page || 1) - 1) * (limit || 50),
-            take: limit || 50,
-        });
-        const mappedData = data.map(p => ({
-            ...p,
-            publisherID: p.publisher_ID
-                ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
-                : null,
-        }));
-        return {
-            data: mappedData,
-            total,
-            page: page || 1,
-            limit: limit || 50,
-        };
     }
 };
 exports.ProductsController = ProductsController;
@@ -200,6 +200,16 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.Get)('all'),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('search')),
+    __param(3, (0, common_1.Query)('name')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String, String]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "findAllWithDeleted", null);
+__decorate([
     (0, common_1.Get)(':id'),
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('id')),
@@ -257,16 +267,6 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "restore", null);
-__decorate([
-    (0, common_1.Get)('all'),
-    __param(0, (0, common_1.Query)('page')),
-    __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Query)('search')),
-    __param(3, (0, common_1.Query)('name')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, String]),
-    __metadata("design:returntype", Promise)
-], ProductsController.prototype, "findAllWithDeleted", null);
 exports.ProductsController = ProductsController = __decorate([
     (0, common_1.Controller)('products'),
     __metadata("design:paramtypes", [products_service_1.ProductsService])

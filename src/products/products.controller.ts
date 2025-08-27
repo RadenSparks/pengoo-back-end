@@ -120,6 +120,44 @@ export class ProductsController {
     return result;
   }
 
+  @Get('all')
+  async findAllWithDeleted(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('name') name?: string,
+  ) {
+    // Use withDeleted: true to include soft-deleted products
+    const [data, total] = await this.productsService.findAllWithDeleted({
+      relations: [
+        'category_ID',
+        'publisher_ID',
+        'tags',
+        'images',
+        'collection',
+      ],
+      withDeleted: true,
+      where: name ? { product_name: In([name]) } : {},
+      skip: ((page || 1) - 1) * (limit || 50),
+      take: limit || 50,
+    });
+
+    // Map publisher_ID to publisherID for each product
+    const mappedData = data.map(p => ({
+      ...p,
+      publisherID: p.publisher_ID
+        ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+        : null,
+    }));
+
+    return {
+      data: mappedData,
+      total,
+      page: page || 1,
+      limit: limit || 50,
+    };
+  }
+
   @Get(':id')
   @Public()
   async findById(@Param('id') id: number) {
@@ -209,43 +247,5 @@ export class ProductsController {
   async restore(@Param('id') id: number) {
     await this.productsService.restore(id);
     return { message: 'Product restored successfully.' };
-  }
-
-  @Get('all')
-  async findAllWithDeleted(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('search') search?: string,
-    @Query('name') name?: string,
-  ) {
-    // Use withDeleted: true to include soft-deleted products
-    const [data, total] = await this.productsService.findAllWithDeleted({
-      relations: [
-        'category_ID',
-        'publisher_ID',
-        'tags',
-        'images',
-        'collection',
-      ],
-      withDeleted: true,
-      where: name ? { product_name: In([name]) } : {},
-      skip: ((page || 1) - 1) * (limit || 50),
-      take: limit || 50,
-    });
-
-    // Map publisher_ID to publisherID for each product
-    const mappedData = data.map(p => ({
-      ...p,
-      publisherID: p.publisher_ID
-        ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
-        : null,
-    }));
-
-    return {
-      data: mappedData,
-      total,
-      page: page || 1,
-      limit: limit || 50,
-    };
   }
 }
