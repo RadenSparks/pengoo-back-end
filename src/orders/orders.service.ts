@@ -17,6 +17,7 @@ import { RefundRequest, RefundRequestStatus } from './refund-request.entity'; //
 import { UploadFiles } from './file.entity';
 import { ConfigService } from '@nestjs/config'; // Add this import
 import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
+import { PaymentMethod } from 'src/services/payment/payment.types';
 
 @Injectable()
 export class OrdersService {
@@ -252,7 +253,7 @@ export class OrdersService {
       // ...send invoice, etc...
     });
   }
-  async createRefundRequest(data: CreateRefundRequestDto, files: Express.Multer.File[]) {
+  async createRefundRequest(data: CreateRefundRequestDto) {
     const refundRequest = await this.dataSource.transaction(async manager => {
       const order = await manager.findOne(Order, {
         where: { id: data.order_id },
@@ -290,9 +291,9 @@ export class OrdersService {
       if (!data.reason || data.reason.trim().length < 10) {
         throw new BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters).');
       }
-      if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
-        throw new BadRequestException('Please upload at least one evidence file.');
-      }
+      // if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
+      //   throw new BadRequestException('Please upload at least one evidence file.');
+      // }
 
       // 5. Allow partial refund (optional: here, full refund)
       let refundAmount = order.total_price;
@@ -308,27 +309,38 @@ export class OrdersService {
         reason: data.reason,
         user: { id: data.user_id },
         amount: order.total_price,
+        toAccountNumber: data.toAccountNumber,
+        toBin: data.toBin,
+        bank: data.bank,
+        paymentMethod: order.payment_type as PaymentMethod,
         times: (order.refundRequests?.length ?? 0) + 1,
         status: RefundRequestStatus.PENDING,
       });
       await manager.save(refundRequest);
 
       // 8. Save upload files with new naming
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const uploadResult = await this.cloudinaryService.uploadImage(
-          file, // Express.Multer.File
-          'refund', // purpose: 'refund'
-          { userId: data.user_id } // options: only userId for refund, remove orderId and createdAt if not used in your service
-        );
+      // for (let i = 0; i < files.length; i++) {
+      //   const file = files[i];
+      //   const uploadResult = await this.cloudinaryService.uploadImage(
+      //     file, // Express.Multer.File
+      //     'refund', // purpose: 'refund'
+      //     { userId: data.user_id } // options: only userId for refund, remove orderId and createdAt if not used in your service
+      //   );
+      //   const upload = manager.create(UploadFiles, {
+      //     type: file.mimetype,
+      //     url: uploadResult.secure_url,
+      //     refundRequest,
+      //   });
+      //   await manager.save(upload);
+      // }
+      for (const file of data.uploadFiles) {
         const upload = manager.create(UploadFiles, {
-          type: file.mimetype,
-          url: uploadResult.secure_url,
+          type: file.type,
+          url: file.url,
           refundRequest,
         });
         await manager.save(upload);
       }
-
       // 9. Select admin emails from users table
       const adminUsers = await manager.find('User', { where: { role: 'admin', status: true } });
       const adminEmails = adminUsers
@@ -349,15 +361,15 @@ export class OrdersService {
         <b>Amount:</b> ${refundRequest.amount}<br>
         <b>Time:</b> ${new Date().toLocaleString()}<br>
       `;
-      for (const email of adminEmails) {
-        await this.notificationsService.sendEmail(
-          email,
-          subject,
-          `A new refund request has been created for order #${order.id}.`,
-          undefined,
-          message
-        );
-      }
+      // for (const email of adminEmails) {
+      //   await this.notificationsService.sendEmail(
+      //     email,
+      //     subject,
+      //     `A new refund request has been created for order #${order.id}.`,
+      //     undefined,
+      //     message
+      //   );
+      // }
 
       // 10. Audit trail (log action)
       const auditLog = `

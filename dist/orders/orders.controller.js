@@ -20,8 +20,6 @@ const update_orders_status_dto_1 = require("./update-orders-status.dto");
 const create_orders_dto_1 = require("./create-orders.dto");
 const public_decorator_1 = require("../auth/public.decorator");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
-const platform_express_1 = require("@nestjs/platform-express");
-const common_2 = require("@nestjs/common");
 let OrdersController = class OrdersController {
     ordersService;
     constructor(ordersService) {
@@ -77,8 +75,8 @@ let OrdersController = class OrdersController {
         await this.ordersService.restore(id);
         return { message: 'Order restored successfully.' };
     }
-    async createRefundRequest(body, files) {
-        return await this.ordersService.createRefundRequest(body, files);
+    createRefundRequest(body) {
+        return this.ordersService.createRefundRequest(body);
     }
     async cancelOversoldOrders() {
         return await this.ordersService.cancelOversoldOrders();
@@ -218,14 +216,11 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "restore", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('refund-request'),
-    (0, common_2.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files')),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_2.UploadedFiles)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_orders_dto_1.CreateRefundRequestDto, Array]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:paramtypes", [create_orders_dto_1.CreateRefundRequestDto]),
+    __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "createRefundRequest", null);
 __decorate([
     (0, common_1.Post)('cancel-oversold'),

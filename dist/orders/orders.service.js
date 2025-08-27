@@ -229,7 +229,7 @@ let OrdersService = class OrdersService {
             await manager.save(order);
         });
     }
-    async createRefundRequest(data, files) {
+    async createRefundRequest(data) {
         const refundRequest = await this.dataSource.transaction(async (manager) => {
             const order = await manager.findOne(order_entity_1.Order, {
                 where: { id: data.order_id },
@@ -258,9 +258,6 @@ let OrdersService = class OrdersService {
             if (!data.reason || data.reason.trim().length < 10) {
                 throw new common_1.BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters).');
             }
-            if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
-                throw new common_1.BadRequestException('Please upload at least one evidence file.');
-            }
             let refundAmount = order.total_price;
             if (order.payment_status === order_entity_1.PaymentStatus.Refunded) {
                 throw new common_1.BadRequestException('This order has already been refunded.');
@@ -270,16 +267,18 @@ let OrdersService = class OrdersService {
                 reason: data.reason,
                 user: { id: data.user_id },
                 amount: order.total_price,
+                toAccountNumber: data.toAccountNumber,
+                toBin: data.toBin,
+                bank: data.bank,
+                paymentMethod: order.payment_type,
                 times: (order.refundRequests?.length ?? 0) + 1,
                 status: refund_request_entity_1.RefundRequestStatus.PENDING,
             });
             await manager.save(refundRequest);
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const uploadResult = await this.cloudinaryService.uploadImage(file, 'refund', { userId: data.user_id });
+            for (const file of data.uploadFiles) {
                 const upload = manager.create(file_entity_1.UploadFiles, {
-                    type: file.mimetype,
-                    url: uploadResult.secure_url,
+                    type: file.type,
+                    url: file.url,
                     refundRequest,
                 });
                 await manager.save(upload);
@@ -300,9 +299,6 @@ let OrdersService = class OrdersService {
         <b>Amount:</b> ${refundRequest.amount}<br>
         <b>Time:</b> ${new Date().toLocaleString()}<br>
       `;
-            for (const email of adminEmails) {
-                await this.notificationsService.sendEmail(email, subject, `A new refund request has been created for order #${order.id}.`, undefined, message);
-            }
             const auditLog = `
         [AUDIT] Refund request created for order ${order.id} by user ${data.user_id}<br>
         <b>Order ID:</b> ${order.id}<br>

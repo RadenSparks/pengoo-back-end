@@ -136,22 +136,12 @@ export class OrdersController {
   }
 
   // Updated refund request endpoint with improved logic
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post('refund-request')
-  @UseInterceptors(FilesInterceptor('files'))
-  async createRefundRequest(
-    @Body() body: CreateRefundRequestDto,
-    @UploadedFiles() files: Express.Multer.File[],
-  ) {
-    // The service now handles:
-    // - Only delivered orders
-    // - Refund window (14 days)
-    // - Max 3 requests, only one pending
-    // - Reason length and evidence required
-    // - Duplicate refund prevention
-    // - Audit and notification logging
-    return await this.ordersService.createRefundRequest(body, files);
+  createRefundRequest(@Body() body: CreateRefundRequestDto) {
+    return this.ordersService.createRefundRequest(body);
   }
+
 
   @Post('cancel-oversold')
   async cancelOversoldOrders() {
