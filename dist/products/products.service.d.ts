@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Repository, FindManyOptions } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
 import { UpdateProductDto } from './update-product.dto';
@@ -50,6 +50,7 @@ export declare class ProductsService {
     createCmsContentForProduct(id: number): Promise<Product>;
     restore(id: number): Promise<void>;
     save(product: Product): Promise<Product>;
+    findAllWithDeleted(options: FindManyOptions<Product>): Promise<[Product[], number]>;
 }
 export declare function isBaseGame(product: Product): boolean;
 export declare function isExpansion(product: Product): boolean;

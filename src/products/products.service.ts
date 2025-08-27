@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Repository, FindManyOptions } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
 import { UpdateProductDto } from './update-product.dto';
@@ -223,7 +223,8 @@ export class ProductsService {
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
       .leftJoinAndSelect('product.tags', 'tags')
       .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.collection', 'collection');
+      .leftJoinAndSelect('product.collection', 'collection')
+      .where('product.deletedAt IS NULL'); // <-- Exclude soft-deleted products
 
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
@@ -493,6 +494,13 @@ export class ProductsService {
 
   async save(product: Product): Promise<Product> {
     return this.productsRepository.save(product);
+  }
+
+  async findAllWithDeleted(options: FindManyOptions<Product>): Promise<[Product[], number]> {
+    const [data, total] = await this.productsRepository.findAndCount({
+      ...options,
+    });
+    return [data, total];
   }
 }
 

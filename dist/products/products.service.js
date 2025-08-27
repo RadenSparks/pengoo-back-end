@@ -190,7 +190,8 @@ let ProductsService = class ProductsService {
             .leftJoinAndSelect('product.publisher_ID', 'publisher')
             .leftJoinAndSelect('product.tags', 'tags')
             .leftJoinAndSelect('product.images', 'images')
-            .leftJoinAndSelect('product.collection', 'collection');
+            .leftJoinAndSelect('product.collection', 'collection')
+            .where('product.deletedAt IS NULL');
         if (filter.name) {
             query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
         }
@@ -412,6 +413,12 @@ let ProductsService = class ProductsService {
     }
     async save(product) {
         return this.productsRepository.save(product);
+    }
+    async findAllWithDeleted(options) {
+        const [data, total] = await this.productsRepository.findAndCount({
+            ...options,
+        });
+        return [data, total];
     }
 };
 exports.ProductsService = ProductsService;

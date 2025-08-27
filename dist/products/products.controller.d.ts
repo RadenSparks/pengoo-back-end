@@ -74,4 +74,37 @@ export declare class ProductsController {
     restore(id: number): Promise<{
         message: string;
     }>;
+    findAllWithDeleted(page?: number, limit?: number, search?: string, name?: string): Promise<{
+        data: {
+            publisherID: {
+                id: number;
+                name: string;
+            } | null;
+            id: number;
+            product_name: string;
+            description: string;
+            product_price: number;
+            slug: string;
+            status: string;
+            discount: number;
+            meta_title: string;
+            meta_description: string;
+            quantity_sold: number;
+            quantity_stock: number;
+            category_ID: import("../categories/category.entity").Category;
+            publisher_ID: import("../publishers/entities/publisher.entity").Publisher;
+            tags: import("../tags/entities/tag.entity").Tag[];
+            reviews: import("../reviews/review.entity").Review[];
+            wishlists: import("../wishlist/wishlist.entity").Wishlist[];
+            images: import("../images/entities/image.entity").Image[];
+            collection: import("../collections/collection.entity").Collection | null;
+            created_at: Date;
+            updated_at: Date;
+            cmsContent: import("../cms-content/cms-content.entity").CmsContent;
+            deletedAt?: Date;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
 }
