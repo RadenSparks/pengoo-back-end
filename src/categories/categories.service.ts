@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository, IsNull } from 'typeorm';
+import { Repository, IsNull, Not } from 'typeorm';
 import { Category } from './category.entity';
 import { CreateCategoryDto } from './create-category.dto';
 import { UpdateCategoryDto } from './update-category.dto';
@@ -62,7 +62,7 @@ export class CategoriesService {
         return this.categoriesRepository.find({
             withDeleted: true,
             where: {
-                deletedAt: IsNull(),
+                deletedAt: Not(IsNull()), // Lấy các danh mục có deletedAt khác null
             },
             relations: ['products'],
         });

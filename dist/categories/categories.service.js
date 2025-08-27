@@ -60,7 +60,7 @@ let CategoriesService = class CategoriesService {
         return this.categoriesRepository.find({
             withDeleted: true,
             where: {
-                deletedAt: (0, typeorm_1.IsNull)(),
+                deletedAt: (0, typeorm_1.Not)((0, typeorm_1.IsNull)()),
             },
             relations: ['products'],
         });
