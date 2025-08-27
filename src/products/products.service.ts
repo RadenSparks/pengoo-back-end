@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { Product } from './product.entity';
+import { Product } from './entities/product.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
 import { UpdateProductDto } from './update-product.dto';
 import { CategoriesService } from '../categories/categories.service';
@@ -279,11 +279,21 @@ export class ProductsService {
         'publisher_ID',
         'tags',
         'images',
-        'cmsContent', // 'featured' removed
+        'cmsContent',
       ],
+      withDeleted: true, // <-- include deleted relations
     });
     if (!product) {
       throw new NotFoundException('Product not found');
+    }
+    // Manually fetch deleted category and tags if needed
+    if (product.category_ID?.id) {
+      product.category_ID = await this.categoriesService.findById(product.category_ID.id);
+    }
+    if (product.tags?.length) {
+      product.tags = await Promise.all(product.tags.map(async tag => {
+        return await this.tagsService.findOne(tag.id);
+      }));
     }
     return product;
   }
@@ -480,6 +490,10 @@ export class ProductsService {
   async restore(id: number): Promise<void> {
     await this.productsRepository.restore(id);
   }
+
+  async save(product: Product): Promise<Product> {
+    return this.productsRepository.save(product);
+  }
 }
 
 // Helper to check if a product is a base game
@@ -503,4 +517,11 @@ export function findExpansionsForBaseGame(products: Product[], baseSlug: string)
   return products.filter(
     p => isExpansion(p) && p.slug.startsWith(baseSlug + "-")
   );
+}
+
+// Check stock before processing an order
+export function checkStockBeforeOrder(product: Product, detail: { quantity: number }): void {
+  if (product.quantity_stock < detail.quantity) {
+    throw new BadRequestException(`Not enough stock for product ${product.product_name}`);
+  }
 }

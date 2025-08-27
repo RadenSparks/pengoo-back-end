@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 import { Category } from '../categories/category.entity';
-import { Product } from '../products/product.entity';
+import { Product } from '../products/entities/product.entity';
 import { User } from '../users/user.entity';
 import { DataSourceOptions } from 'typeorm';
 import { Order, OrderDetail } from '../orders/order.entity';

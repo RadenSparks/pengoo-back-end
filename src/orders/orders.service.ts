@@ -12,7 +12,7 @@ import { CouponsService } from '../coupons/coupons.service'; // <-- Add this imp
 import { PayosService } from '../services/payos/payos.service';
 import { CouponStatus } from 'src/coupons/coupon.entity';
 import { InvoicesService } from '../services/invoices/invoice.service'; // Add this import
-import { Product } from 'src/products/product.entity';
+import { Product } from 'src/products/entities/product.entity';
 import { RefundRequest, RefundRequestStatus } from './refund-request.entity'; // For status tracking
 import { UploadFiles } from './file.entity';
 import { ConfigService } from '@nestjs/config'; // Add this import
@@ -228,20 +228,14 @@ export class OrdersService {
       if (!order) throw new NotFoundException('Order not found');
 
       for (const detail of order.details) {
-        // Lock the product row for update
-        const product = await manager
-          .createQueryBuilder(Product, 'product')
-          .setLock('pessimistic_write')
-          .where('product.id = :id', { id: detail.product.id })
-          .getOne();
-
-        if (!product) throw new NotFoundException('Product not found');
-        if (product.quantity_stock < detail.quantity) {
-          throw new BadRequestException(`Not enough stock for ${product.product_name}`);
+        // Use detail.product.id instead of detail.productId
+        const product = await this.productsService.findById(detail.product.id);
+        if (product) {
+          product.quantity_sold += detail.quantity;
+          product.quantity_stock -= detail.quantity;
+          // Save using a public method, not productsRepository directly
+          await this.productsService.save(product);
         }
-        product.quantity_stock -= detail.quantity;
-        product.quantity_sold += detail.quantity;
-        await manager.save(product);
       }
 
       order.payment_status = PaymentStatus.Paid;

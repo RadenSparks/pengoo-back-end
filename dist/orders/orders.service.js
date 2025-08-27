@@ -24,7 +24,7 @@ const delivery_entity_1 = require("../delivery/delivery.entity");
 const coupons_service_1 = require("../coupons/coupons.service");
 const payos_service_1 = require("../services/payos/payos.service");
 const invoice_service_1 = require("../services/invoices/invoice.service");
-const product_entity_1 = require("../products/product.entity");
+const product_entity_1 = require("../products/entities/product.entity");
 const refund_request_entity_1 = require("./refund-request.entity");
 const file_entity_1 = require("./file.entity");
 const config_1 = require("@nestjs/config");
@@ -208,19 +208,12 @@ let OrdersService = class OrdersService {
             if (!order)
                 throw new common_1.NotFoundException('Order not found');
             for (const detail of order.details) {
-                const product = await manager
-                    .createQueryBuilder(product_entity_1.Product, 'product')
-                    .setLock('pessimistic_write')
-                    .where('product.id = :id', { id: detail.product.id })
-                    .getOne();
-                if (!product)
-                    throw new common_1.NotFoundException('Product not found');
-                if (product.quantity_stock < detail.quantity) {
-                    throw new common_1.BadRequestException(`Not enough stock for ${product.product_name}`);
+                const product = await this.productsService.findById(detail.product.id);
+                if (product) {
+                    product.quantity_sold += detail.quantity;
+                    product.quantity_stock -= detail.quantity;
+                    await this.productsService.save(product);
                 }
-                product.quantity_stock -= detail.quantity;
-                product.quantity_sold += detail.quantity;
-                await manager.save(product);
             }
             order.payment_status = order_entity_1.PaymentStatus.Paid;
             await manager.save(order);

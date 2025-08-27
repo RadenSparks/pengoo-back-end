@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Image } from '../images/entities/image.entity';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
-import { Product } from '../products/product.entity';
+import { Product } from '../products/entities/product.entity';
 import { v2 as cloudinary } from 'cloudinary';
 
 @Injectable()

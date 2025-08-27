@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { Collection } from './collection.entity';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
-import { Product } from '../products/product.entity';
+import { Product } from '../products/entities/product.entity';
 export declare class CollectionsService {
     private collectionsRepo;
     private productsRepo;

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
 import { Category } from '../categories/category.entity';
-import { Product } from './product.entity';
+import { Product } from './entities/product.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriesService } from '../categories/categories.service';
 import { CloudinaryModule } from '../services/cloudinary/cloudinary.module';

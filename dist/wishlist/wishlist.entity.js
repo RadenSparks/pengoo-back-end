@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Wishlist = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../users/user.entity");
-const product_entity_1 = require("../products/product.entity");
+const product_entity_1 = require("../products/entities/product.entity");
 const order_entity_1 = require("../orders/order.entity");
 let Wishlist = class Wishlist {
     id;

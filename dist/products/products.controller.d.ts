@@ -4,9 +4,9 @@ import { UpdateProductDto } from './update-product.dto';
 export declare class ProductsController {
     private readonly productsService;
     constructor(productsService: ProductsService);
-    create(createProductDto: CreateProductDto, files: Express.Multer.File[]): Promise<import("./product.entity").Product>;
+    create(createProductDto: CreateProductDto, files: Express.Multer.File[]): Promise<import("./entities/product.entity").Product>;
     findAll(name?: string, category_ID?: number, tags?: string, minPrice?: number, maxPrice?: number, publisherId?: number, status?: string, sort?: string, page?: number, limit?: number): Promise<{
-        data: import("./product.entity").Product[];
+        data: import("./entities/product.entity").Product[];
         total: number;
         page: number;
         limit: number;
@@ -39,7 +39,7 @@ export declare class ProductsController {
         cmsContent: import("../cms-content/cms-content.entity").CmsContent;
         deletedAt?: Date;
     }>;
-    findBySlug(slug: string): Promise<import("./product.entity").Product>;
+    findBySlug(slug: string): Promise<import("./entities/product.entity").Product>;
     update(id: number, updateProductDto: UpdateProductDto, files: Express.Multer.File[]): Promise<{
         publisherID: {
             id: number;

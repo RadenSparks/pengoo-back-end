@@ -1,12 +1,12 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, ManyToMany, JoinTable, OneToOne, DeleteDateColumn } from 'typeorm';
-import { Category } from '../categories/category.entity';
-import { Review } from '../reviews/review.entity';
-import { Wishlist } from '../wishlist/wishlist.entity';
-import { Publisher } from '../publishers/entities/publisher.entity';
-import { Tag } from '../tags/entities/tag.entity';
-import { Image } from '../images/entities/image.entity';
-import { Collection } from '../collections/collection.entity';
-import { CmsContent } from '../cms-content/cms-content.entity';
+import { Category } from '../../categories/category.entity';
+import { Review } from '../../reviews/review.entity';
+import { Wishlist } from '../../wishlist/wishlist.entity';
+import { Publisher } from '../../publishers/entities/publisher.entity';
+import { Tag } from '../../tags/entities/tag.entity';
+import { Image } from '../../images/entities/image.entity';
+import { Collection } from '../../collections/collection.entity';
+import { CmsContent } from '../../cms-content/cms-content.entity';
 
 @Entity('product')
 export class Product {

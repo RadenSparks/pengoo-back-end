@@ -4,7 +4,7 @@ import { WishlistController } from './wishlist.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Wishlist } from './wishlist.entity';
 import { User } from '../users/user.entity';
-import { Product } from '../products/product.entity';
+import { Product } from '../products/entities/product.entity';
 import { Category } from '../categories/category.entity';
 import { CloudinaryModule } from '../services/cloudinary/cloudinary.module';
 import { UsersModule } from '../users/users.module';

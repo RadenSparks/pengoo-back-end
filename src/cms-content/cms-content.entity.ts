@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
-import { Product } from '../products/product.entity';
+import { Product } from '../products/entities/product.entity';
 
 @Entity()
 export class CmsContent {

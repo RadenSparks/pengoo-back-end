@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, JoinColumn, DeleteDateColumn } from 'typeorm';
 import { User } from '../users/user.entity';
-import { Product } from '../products/product.entity';
+import { Product } from '../products/entities/product.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';

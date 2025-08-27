@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const cms_content_entity_1 = require("./cms-content.entity");
-const product_entity_1 = require("../products/product.entity");
+const product_entity_1 = require("../products/entities/product.entity");
 let CmsContentService = class CmsContentService {
     cmsContentRepo;
     productRepo;
