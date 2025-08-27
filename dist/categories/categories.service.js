@@ -56,6 +56,15 @@ let CategoriesService = class CategoriesService {
     async restore(id) {
         await this.categoriesRepository.restore(id);
     }
+    async findAllDeleted() {
+        return this.categoriesRepository.find({
+            withDeleted: true,
+            where: {
+                deletedAt: (0, typeorm_1.IsNull)(),
+            },
+            relations: ['products'],
+        });
+    }
 };
 exports.CategoriesService = CategoriesService;
 exports.CategoriesService = CategoriesService = __decorate([

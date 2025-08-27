@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Category } from './category.entity';
 import { CreateCategoryDto } from './create-category.dto';
 import { UpdateCategoryDto } from './update-category.dto';
@@ -56,6 +56,16 @@ export class CategoriesService {
 
     async restore(id: number): Promise<void> {
       await this.categoriesRepository.restore(id);
+    }
+
+    async findAllDeleted(): Promise<Category[]> {
+        return this.categoriesRepository.find({
+            withDeleted: true,
+            where: {
+                deletedAt: IsNull(),
+            },
+            relations: ['products'],
+        });
     }
 }
 

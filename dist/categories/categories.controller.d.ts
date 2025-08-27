@@ -5,7 +5,7 @@ export declare class CategoriesController {
     private readonly categoriesService;
     constructor(categoriesService: CategoriesService);
     createCategory(createCategoryDto: CreateCategoryDto): Promise<import("./category.entity").Category>;
-    findAllCategories(): Promise<import("./category.entity").Category[]>;
+    findAllCategories(deleted?: string): Promise<import("./category.entity").Category[]>;
     findCategoryById(id: number): Promise<import("./category.entity").Category>;
     updateCategory(id: number, updateCategoryDto: UpdateCategoryDto): Promise<import("./category.entity").Category>;
     removeCategory(id: number): Promise<void>;
