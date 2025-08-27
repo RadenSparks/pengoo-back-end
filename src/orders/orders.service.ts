@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Res, Req } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Order, OrderDetail, PaymentStatus, ProductStatus } from './order.entity'; // Import PaymentStatus and ProductStatus
@@ -17,6 +17,7 @@ import { RefundRequest, RefundRequestStatus } from './refund-request.entity'; //
 import { UploadFiles } from './file.entity';
 import { ConfigService } from '@nestjs/config'; // Add this import
 import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
+import { PaymentMethod } from 'src/services/payment/payment.types';
 
 @Injectable()
 export class OrdersService {
@@ -104,7 +105,7 @@ export class OrdersService {
           userId,
           details.map(d => d.productId)
         );
-        total_price = total_price - discount;
+        console.log(discount, total_price)
         coupon_id = coupon.id;
         coupon_code = coupon.code;
         // coupon.usedCount += 1;
@@ -133,6 +134,7 @@ export class OrdersService {
         details: orderDetails,
         order_code, // always integer
       });
+      console.log(total_price)
       const savedOrder = await manager.save(order);
       savedOrder.checkout_url = checkout_url ?? null
       if (order.user && order.user.email) {
@@ -178,6 +180,13 @@ export class OrdersService {
 
   async findById(orderId: number): Promise<Order | null> {
     return this.ordersRepository.findOne({ where: { id: orderId } });
+  }
+  async findByUserId(id): Promise<Order[] | null> {
+    return this.ordersRepository.find({
+      where: { user: { id } },
+      relations: ['user', 'details', 'details.product', 'delivery', 'details.product.images'],
+      order: { id: 'DESC' }
+    });
   }
   async findByOrderCode(order_code: number): Promise<Order | null> {
     return this.ordersRepository.findOne({ where: { order_code } });
@@ -301,9 +310,9 @@ export class OrdersService {
       ) {
         throw new BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters for custom reasons).');
       }
-      if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
-        throw new BadRequestException('Please upload at least one evidence file.');
-      }
+      // if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
+      //   throw new BadRequestException('Please upload at least one evidence file.');
+      // }
 
       // 5. Allow partial refund (optional: here, full refund)
       let refundAmount = order.total_price;
@@ -319,6 +328,10 @@ export class OrdersService {
         reason: data.reason,
         user: { id: data.user_id },
         amount: order.total_price,
+        toAccountNumber: data.toAccountNumber,
+        toBin: data.toBin,
+        bank: data.bank,
+        paymentMethod: order.payment_type as PaymentMethod,
         times: (order.refundRequests?.length ?? 0) + 1,
         status: RefundRequestStatus.PENDING,
         paymentMethod: data.paymentMethod, // <-- Store payment method
@@ -327,7 +340,6 @@ export class OrdersService {
         bank: data.bank,
       });
       await manager.save(refundRequest);
-
       // 8. Save evidence URLs
       if (Array.isArray(data.uploadFiles)) {
         for (const file of data.uploadFiles) {
@@ -339,7 +351,6 @@ export class OrdersService {
           await manager.save(uploadFile);
         }
       }
-
       // 9. Select admin emails from users table
       const adminUsers = await manager.find('User', { where: { role: 'admin', status: true } });
       const adminEmails = adminUsers
@@ -360,15 +371,15 @@ export class OrdersService {
         <b>Amount:</b> ${refundRequest.amount}<br>
         <b>Time:</b> ${new Date().toLocaleString()}<br>
       `;
-      for (const email of adminEmails) {
-        await this.notificationsService.sendEmail(
-          email,
-          subject,
-          `A new refund request has been created for order #${order.id}.`,
-          undefined,
-          message
-        );
-      }
+      // for (const email of adminEmails) {
+      //   await this.notificationsService.sendEmail(
+      //     email,
+      //     subject,
+      //     `A new refund request has been created for order #${order.id}.`,
+      //     undefined,
+      //     message
+      //   );
+      // }
 
       // 10. Audit trail (log action)
       const auditLog = `

@@ -98,7 +98,7 @@ let OrdersService = class OrdersService {
             let coupon_code = null;
             if (couponCode) {
                 const { coupon, discount } = await this.couponsService.validateAndApply(couponCode, total_price, userId, details.map(d => d.productId));
-                total_price = total_price - discount;
+                console.log(discount, total_price);
                 coupon_id = coupon.id;
                 coupon_code = coupon.code;
             }
@@ -123,6 +123,7 @@ let OrdersService = class OrdersService {
                 details: orderDetails,
                 order_code,
             });
+            console.log(total_price);
             const savedOrder = await manager.save(order);
             savedOrder.checkout_url = checkout_url ?? null;
             if (order.user && order.user.email) {
@@ -164,6 +165,13 @@ let OrdersService = class OrdersService {
     }
     async findById(orderId) {
         return this.ordersRepository.findOne({ where: { id: orderId } });
+    }
+    async findByUserId(id) {
+        return this.ordersRepository.find({
+            where: { user: { id } },
+            relations: ['user', 'details', 'details.product', 'delivery', 'details.product.images'],
+            order: { id: 'DESC' }
+        });
     }
     async findByOrderCode(order_code) {
         return this.ordersRepository.findOne({ where: { order_code } });
@@ -262,9 +270,6 @@ let OrdersService = class OrdersService {
                     data.reason.trim().length < 10)) {
                 throw new common_1.BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters for custom reasons).');
             }
-            if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
-                throw new common_1.BadRequestException('Please upload at least one evidence file.');
-            }
             let refundAmount = order.total_price;
             if (order.payment_status === order_entity_1.PaymentStatus.Refunded) {
                 throw new common_1.BadRequestException('This order has already been refunded.');
@@ -274,6 +279,10 @@ let OrdersService = class OrdersService {
                 reason: data.reason,
                 user: { id: data.user_id },
                 amount: order.total_price,
+                toAccountNumber: data.toAccountNumber,
+                toBin: data.toBin,
+                bank: data.bank,
+                paymentMethod: order.payment_type,
                 times: (order.refundRequests?.length ?? 0) + 1,
                 status: refund_request_entity_1.RefundRequestStatus.PENDING,
                 paymentMethod: data.paymentMethod,
@@ -308,9 +317,6 @@ let OrdersService = class OrdersService {
         <b>Amount:</b> ${refundRequest.amount}<br>
         <b>Time:</b> ${new Date().toLocaleString()}<br>
       `;
-            for (const email of adminEmails) {
-                await this.notificationsService.sendEmail(email, subject, `A new refund request has been created for order #${order.id}.`, undefined, message);
-            }
             const auditLog = `
         [AUDIT] Refund request created for order ${order.id} by user ${data.user_id}<br>
         <b>Order ID:</b> ${order.id}<br>

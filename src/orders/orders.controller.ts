@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res, BadRequestException, Put, UseGuards, Req } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
@@ -78,6 +78,11 @@ export class OrdersController {
   findAllOrders() {
     return this.ordersService.findAll();
   }
+  @UseGuards(JwtAuthGuard)
+  @Get('get-order-by-userId')
+  findByUserId(@Req() req) {
+    return this.ordersService.findByUserId(req.user.id);
+  }
 
   @Get('/delivery')
   @Public()
@@ -143,13 +148,14 @@ export class OrdersController {
   }
 
   // Updated refund request endpoint with improved logic
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post('refund-request')
   async createRefundRequest(
     @Body() body: CreateRefundRequestDto,
   ) {
     return await this.ordersService.createRefundRequest(body);
   }
+
 
   @Post('cancel-oversold')
   async cancelOversoldOrders() {

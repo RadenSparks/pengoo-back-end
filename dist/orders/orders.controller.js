@@ -38,6 +38,9 @@ let OrdersController = class OrdersController {
     findAllOrders() {
         return this.ordersService.findAll();
     }
+    findByUserId(req) {
+        return this.ordersService.findByUserId(req.user.id);
+    }
     getDelivery() {
         return this.ordersService.getDelivery();
     }
@@ -176,6 +179,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "findAllOrders", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('get-order-by-userId'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "findByUserId", null);
+__decorate([
     (0, common_1.Get)('/delivery'),
     (0, public_decorator_1.Public)(),
     __metadata("design:type", Function),
@@ -235,7 +246,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "restore", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('refund-request'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
