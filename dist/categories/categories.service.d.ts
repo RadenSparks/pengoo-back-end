@@ -11,4 +11,5 @@ export declare class CategoriesService {
     update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category>;
     remove(id: number): Promise<void>;
     restore(id: number): Promise<void>;
+    findAllDeleted(): Promise<Category[]>;
 }

@@ -4,7 +4,7 @@ import { Repository, In } from 'typeorm';
 import { Collection } from './collection.entity';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
-import { Product } from '../products/product.entity';
+import { Product } from '../products/entities/product.entity';
 import { isBaseGame, isExpansion, getBaseSlug, findExpansionsForBaseGame } from '../products/products.service';
 
 @Injectable()

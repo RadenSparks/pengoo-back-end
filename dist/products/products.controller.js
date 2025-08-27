@@ -20,6 +20,7 @@ const update_product_dto_1 = require("./update-product.dto");
 const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
 const public_decorator_1 = require("../auth/public.decorator");
+const typeorm_1 = require("typeorm");
 let ProductsController = class ProductsController {
     productsService;
     constructor(productsService) {
@@ -38,10 +39,10 @@ let ProductsController = class ProductsController {
         }
         return this.productsService.create(createProductDto, mainImage, detailImages, features, featureImages);
     }
-    async findAll(name, categoryId, tags, minPrice, maxPrice, publisherId, status, sort, page, limit) {
+    async findAll(name, category_ID, tags, minPrice, maxPrice, publisherId, status, sort, page, limit) {
         const filter = {
             name,
-            categoryId,
+            category_ID,
             tags: tags ? tags.split(',') : undefined,
             minPrice: minPrice ? Number(minPrice) : undefined,
             maxPrice: maxPrice ? Number(maxPrice) : undefined,
@@ -59,6 +60,33 @@ let ProductsController = class ProductsController {
                 : null,
         }));
         return result;
+    }
+    async findAllWithDeleted(page, limit, search, name) {
+        const [data, total] = await this.productsService.findAllWithDeleted({
+            relations: [
+                'category_ID',
+                'publisher_ID',
+                'tags',
+                'images',
+                'collection',
+            ],
+            withDeleted: true,
+            where: name ? { product_name: (0, typeorm_1.In)([name]) } : {},
+            skip: ((page || 1) - 1) * (limit || 50),
+            take: limit || 50,
+        });
+        const mappedData = data.map(p => ({
+            ...p,
+            publisherID: p.publisher_ID
+                ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+                : null,
+        }));
+        return {
+            data: mappedData,
+            total,
+            page: page || 1,
+            limit: limit || 50,
+        };
     }
     async findById(id) {
         const product = await this.productsService.findById(id);
@@ -137,7 +165,7 @@ __decorate([
                     meta_description: "Meta description for SEO.",
                     quantity_sold: 0,
                     quantity_stock: 100,
-                    categoryId: 1,
+                    category_ID: 1,
                     publisherID: 1,
                     status: "active",
                     tags: ["electronics", "gadget"]
@@ -171,6 +199,16 @@ __decorate([
     __metadata("design:paramtypes", [String, Number, String, Number, Number, Number, String, String, Number, Number]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('all'),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('search')),
+    __param(3, (0, common_1.Query)('name')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String, String]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "findAllWithDeleted", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, public_decorator_1.Public)(),

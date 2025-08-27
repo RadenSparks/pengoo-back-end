@@ -32,8 +32,15 @@ let TagsController = class TagsController {
         }
         return this.tagsService.findAll();
     }
-    findOne(id) {
-        return this.tagsService.findOne(+id);
+    findDeleted() {
+        return this.tagsService.findDeleted();
+    }
+    async getTag(id) {
+        const tagId = Number(id);
+        if (isNaN(tagId)) {
+            throw new common_1.BadRequestException('Invalid tag id');
+        }
+        return this.tagsService.findOne(tagId);
     }
     update(id, dto) {
         return this.tagsService.update(+id, dto);
@@ -64,13 +71,20 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TagsController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.Get)('deleted'),
+    (0, public_decorator_1.Public)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], TagsController.prototype, "findDeleted", null);
+__decorate([
     (0, common_1.Get)(':id'),
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], TagsController.prototype, "findOne", null);
+    __metadata("design:returntype", Promise)
+], TagsController.prototype, "getTag", null);
 __decorate([
     (0, common_1.Put)(':id'),
     (0, public_decorator_1.Public)(),

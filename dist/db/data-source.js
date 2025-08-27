@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = require("dotenv");
 const category_entity_1 = require("../categories/category.entity");
-const product_entity_1 = require("../products/product.entity");
+const product_entity_1 = require("../products/entities/product.entity");
 const user_entity_1 = require("../users/user.entity");
 const order_entity_1 = require("../orders/order.entity");
 const review_entity_1 = require("../reviews/review.entity");

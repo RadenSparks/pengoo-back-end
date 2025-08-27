@@ -24,7 +24,7 @@ const delivery_entity_1 = require("../delivery/delivery.entity");
 const coupons_service_1 = require("../coupons/coupons.service");
 const payos_service_1 = require("../services/payos/payos.service");
 const invoice_service_1 = require("../services/invoices/invoice.service");
-const product_entity_1 = require("../products/product.entity");
+const product_entity_1 = require("../products/entities/product.entity");
 const refund_request_entity_1 = require("./refund-request.entity");
 const file_entity_1 = require("./file.entity");
 const config_1 = require("@nestjs/config");
@@ -126,7 +126,20 @@ let OrdersService = class OrdersService {
             console.log(total_price);
             const savedOrder = await manager.save(order);
             savedOrder.checkout_url = checkout_url ?? null;
-            await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
+            if (order.user && order.user.email) {
+                await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+            }
+            for (const detail of createOrderDto.details) {
+                const product = await manager.findOne(product_entity_1.Product, { where: { id: detail.productId } });
+                if (!product)
+                    throw new common_1.NotFoundException(`Product ${detail.productId} not found`);
+                if (product.quantity_stock < detail.quantity) {
+                    throw new common_1.BadRequestException(`Not enough stock for product ${product.product_name}`);
+                }
+                product.quantity_sold += detail.quantity;
+                product.quantity_stock -= detail.quantity;
+                await manager.save(product);
+            }
             return savedOrder;
         });
     }
@@ -200,7 +213,10 @@ let OrdersService = class OrdersService {
         return this.deliveryRepository.find();
     }
     async findByPaypalOrderId(paypalOrderId) {
-        return this.ordersRepository.findOne({ where: { paypal_order_id: paypalOrderId } });
+        return this.ordersRepository.findOne({
+            where: { paypal_order_id: paypalOrderId },
+            relations: ['user'],
+        });
     }
     async save(order) {
         return this.ordersRepository.save(order);
@@ -211,19 +227,12 @@ let OrdersService = class OrdersService {
             if (!order)
                 throw new common_1.NotFoundException('Order not found');
             for (const detail of order.details) {
-                const product = await manager
-                    .createQueryBuilder(product_entity_1.Product, 'product')
-                    .setLock('pessimistic_write')
-                    .where('product.id = :id', { id: detail.product.id })
-                    .getOne();
-                if (!product)
-                    throw new common_1.NotFoundException('Product not found');
-                if (product.quantity_stock < detail.quantity) {
-                    throw new common_1.BadRequestException(`Not enough stock for ${product.product_name}`);
+                const product = await this.productsService.findById(detail.product.id);
+                if (product) {
+                    product.quantity_sold += detail.quantity;
+                    product.quantity_stock -= detail.quantity;
+                    await this.productsService.save(product);
                 }
-                product.quantity_stock -= detail.quantity;
-                product.quantity_sold += detail.quantity;
-                await manager.save(product);
             }
             order.payment_status = order_entity_1.PaymentStatus.Paid;
             await manager.save(order);
@@ -255,8 +264,11 @@ let OrdersService = class OrdersService {
             if (previousRequests.length >= 3) {
                 throw new common_1.BadRequestException('You have reached the maximum number of refund requests for this order.');
             }
-            if (!data.reason || data.reason.trim().length < 10) {
-                throw new common_1.BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters).');
+            const dropdownReasons = ['defective', 'missing', 'wrong'];
+            if (!data.reason ||
+                (!dropdownReasons.includes(data.reason) &&
+                    data.reason.trim().length < 10)) {
+                throw new common_1.BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters for custom reasons).');
             }
             let refundAmount = order.total_price;
             if (order.payment_status === order_entity_1.PaymentStatus.Refunded) {
@@ -273,15 +285,21 @@ let OrdersService = class OrdersService {
                 paymentMethod: order.payment_type,
                 times: (order.refundRequests?.length ?? 0) + 1,
                 status: refund_request_entity_1.RefundRequestStatus.PENDING,
+                paymentMethod: data.paymentMethod,
+                toAccountNumber: data.toAccountNumber,
+                toBin: data.toBin,
+                bank: data.bank,
             });
             await manager.save(refundRequest);
-            for (const file of data.uploadFiles) {
-                const upload = manager.create(file_entity_1.UploadFiles, {
-                    type: file.type,
-                    url: file.url,
-                    refundRequest,
-                });
-                await manager.save(upload);
+            if (Array.isArray(data.uploadFiles)) {
+                for (const file of data.uploadFiles) {
+                    const uploadFile = manager.create(file_entity_1.UploadFiles, {
+                        refundRequest,
+                        type: file.type,
+                        url: file.url,
+                    });
+                    await manager.save(uploadFile);
+                }
             }
             const adminUsers = await manager.find('User', { where: { role: 'admin', status: true } });
             const adminEmails = adminUsers
@@ -347,6 +365,30 @@ let OrdersService = class OrdersService {
         order.shipping_address = newAddress;
         order.phone_number = phoneNumber;
         return this.ordersRepository.save(order);
+    }
+    async getRefundRequests() {
+        return this.dataSource.getRepository(refund_request_entity_1.RefundRequest).find({
+            relations: ['user', 'order', 'uploadFiles'],
+            order: { created_at: 'DESC' },
+        });
+    }
+    async updateRefundRequestStatus(id, status) {
+        const refundRequestRepo = this.dataSource.getRepository(refund_request_entity_1.RefundRequest);
+        const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+        if (!refundRequest)
+            throw new common_1.NotFoundException('Refund request not found');
+        refundRequest.status = status;
+        await refundRequestRepo.save(refundRequest);
+        return { status: 200, message: 'Refund request status updated', data: refundRequest };
+    }
+    async processRefundRequest(id) {
+        const refundRequestRepo = this.dataSource.getRepository(refund_request_entity_1.RefundRequest);
+        const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+        if (!refundRequest)
+            throw new common_1.NotFoundException('Refund request not found');
+        refundRequest.status = refund_request_entity_1.RefundRequestStatus.REFUNDED;
+        await refundRequestRepo.save(refundRequest);
+        return { status: 200, message: 'Refund request marked as refunded', data: refundRequest };
     }
 };
 exports.OrdersService = OrdersService;

@@ -17,10 +17,11 @@ exports.isBaseGame = isBaseGame;
 exports.isExpansion = isExpansion;
 exports.getBaseSlug = getBaseSlug;
 exports.findExpansionsForBaseGame = findExpansionsForBaseGame;
+exports.checkStockBeforeOrder = checkStockBeforeOrder;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const product_entity_1 = require("./product.entity");
+const product_entity_1 = require("./entities/product.entity");
 const categories_service_1 = require("../categories/categories.service");
 const cloudinary_service_1 = require("../services/cloudinary/cloudinary.service");
 const tag_entity_1 = require("../tags/entities/tag.entity");
@@ -32,7 +33,7 @@ const cms_content_service_1 = require("../cms-content/cms-content.service");
 const cms_content_entity_1 = require("../cms-content/cms-content.entity");
 class FilterProductDto {
     name;
-    categoryId;
+    category_ID;
     tags;
     minPrice;
     maxPrice;
@@ -65,7 +66,7 @@ let ProductsService = class ProductsService {
         this.cmsContentRepository = cmsContentRepository;
     }
     async create(createProductDto, mainImage, detailImages, features, featureImages) {
-        const category_ID = await this.categoriesService.findById(createProductDto.categoryId);
+        const category_ID = await this.categoriesService.findById(createProductDto.category_ID);
         const publisher_ID = await this.publishersService.findOne(createProductDto.publisherID);
         const newProduct = new product_entity_1.Product();
         const images = [];
@@ -146,8 +147,8 @@ let ProductsService = class ProductsService {
         if (filter.name) {
             query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
         }
-        if (filter.categoryId) {
-            query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+        if (filter.category_ID) {
+            query.andWhere('category.id = :category_ID', { category_ID: filter.category_ID });
         }
         if (filter.tags && filter.tags.length > 0) {
             query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
@@ -189,12 +190,13 @@ let ProductsService = class ProductsService {
             .leftJoinAndSelect('product.publisher_ID', 'publisher')
             .leftJoinAndSelect('product.tags', 'tags')
             .leftJoinAndSelect('product.images', 'images')
-            .leftJoinAndSelect('product.collection', 'collection');
+            .leftJoinAndSelect('product.collection', 'collection')
+            .where('product.deletedAt IS NULL');
         if (filter.name) {
             query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
         }
-        if (filter.categoryId) {
-            query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+        if (filter.category_ID) {
+            query.andWhere('category.id = :category_ID', { category_ID: filter.category_ID });
         }
         if (filter.tags && filter.tags.length > 0) {
             query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
@@ -240,9 +242,18 @@ let ProductsService = class ProductsService {
                 'images',
                 'cmsContent',
             ],
+            withDeleted: true,
         });
         if (!product) {
             throw new common_1.NotFoundException('Product not found');
+        }
+        if (product.category_ID?.id) {
+            product.category_ID = await this.categoriesService.findById(product.category_ID.id);
+        }
+        if (product.tags?.length) {
+            product.tags = await Promise.all(product.tags.map(async (tag) => {
+                return await this.tagsService.findOne(tag.id);
+            }));
         }
         return product;
     }
@@ -400,6 +411,15 @@ let ProductsService = class ProductsService {
     async restore(id) {
         await this.productsRepository.restore(id);
     }
+    async save(product) {
+        return this.productsRepository.save(product);
+    }
+    async findAllWithDeleted(options) {
+        const [data, total] = await this.productsRepository.findAndCount({
+            ...options,
+        });
+        return [data, total];
+    }
 };
 exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = __decorate([
@@ -430,5 +450,10 @@ function getBaseSlug(slug) {
 }
 function findExpansionsForBaseGame(products, baseSlug) {
     return products.filter(p => isExpansion(p) && p.slug.startsWith(baseSlug + "-"));
+}
+function checkStockBeforeOrder(product, detail) {
+    if (product.quantity_stock < detail.quantity) {
+        throw new common_1.BadRequestException(`Not enough stock for product ${product.product_name}`);
+    }
 }
 //# sourceMappingURL=products.service.js.map

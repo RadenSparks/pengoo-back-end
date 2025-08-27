@@ -66,7 +66,7 @@ export class PaymentsService {
     await this.assertCanAct(userId, order, userRole);
 
     if (order.payment_status === PaymentStatus.Paid) {
-      throw new BadRequestException('Order is already paid.');
+      return { message: 'Order is already paid.' }; // <-- 200 OK
     }
     if (order.productStatus === 'cancelled') {
       throw new BadRequestException('Cannot capture payment for a cancelled order.');

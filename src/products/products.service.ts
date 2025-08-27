@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
-import { Product } from './product.entity';
+import { In, Repository, FindManyOptions } from 'typeorm';
+import { Product } from './entities/product.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
 import { UpdateProductDto } from './update-product.dto';
 import { CategoriesService } from '../categories/categories.service';
@@ -17,7 +17,7 @@ import { CmsContent } from '../cms-content/cms-content.entity'; // <-- Add this 
 
 export class FilterProductDto {
   name?: string;
-  categoryId?: number;
+  category_ID?: number;
   tags?: string[];
   minPrice?: number;
   maxPrice?: number;
@@ -55,7 +55,7 @@ export class ProductsService {
     features: FeatureDto[],
     featureImages: Express.Multer.File[],
   ): Promise<Product> {
-    const category_ID = await this.categoriesService.findById(createProductDto.categoryId);
+    const category_ID = await this.categoriesService.findById(createProductDto.category_ID);
     const publisher_ID = await this.publishersService.findOne(createProductDto.publisherID);
 
     const newProduct = new Product();
@@ -173,8 +173,8 @@ export class ProductsService {
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
     }
-    if (filter.categoryId) {
-      query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+    if (filter.category_ID) {
+      query.andWhere('category.id = :category_ID', { category_ID: filter.category_ID });
     }
     if (filter.tags && filter.tags.length > 0) {
       query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
@@ -223,13 +223,14 @@ export class ProductsService {
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
       .leftJoinAndSelect('product.tags', 'tags')
       .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.collection', 'collection');
+      .leftJoinAndSelect('product.collection', 'collection')
+      .where('product.deletedAt IS NULL'); // <-- Exclude soft-deleted products
 
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
     }
-    if (filter.categoryId) {
-      query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+    if (filter.category_ID) {
+      query.andWhere('category.id = :category_ID', { category_ID: filter.category_ID });
     }
     if (filter.tags && filter.tags.length > 0) {
       query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
@@ -279,11 +280,21 @@ export class ProductsService {
         'publisher_ID',
         'tags',
         'images',
-        'cmsContent', // 'featured' removed
+        'cmsContent',
       ],
+      withDeleted: true, // <-- include deleted relations
     });
     if (!product) {
       throw new NotFoundException('Product not found');
+    }
+    // Manually fetch deleted category and tags if needed
+    if (product.category_ID?.id) {
+      product.category_ID = await this.categoriesService.findById(product.category_ID.id);
+    }
+    if (product.tags?.length) {
+      product.tags = await Promise.all(product.tags.map(async tag => {
+        return await this.tagsService.findOne(tag.id);
+      }));
     }
     return product;
   }
@@ -323,7 +334,7 @@ export class ProductsService {
   ): Promise<Product> {
     const product = await this.productsRepository.findOne({
       where: { id },
-      relations: ['tags', 'category_ID', 'publisher_ID', 'images'], // "featured" removed
+      relations: ['tags', 'category_ID', 'publisher_ID', 'images'], // Use "category_ID"
     });
 
     if (!product) {
@@ -480,6 +491,17 @@ export class ProductsService {
   async restore(id: number): Promise<void> {
     await this.productsRepository.restore(id);
   }
+
+  async save(product: Product): Promise<Product> {
+    return this.productsRepository.save(product);
+  }
+
+  async findAllWithDeleted(options: FindManyOptions<Product>): Promise<[Product[], number]> {
+    const [data, total] = await this.productsRepository.findAndCount({
+      ...options,
+    });
+    return [data, total];
+  }
 }
 
 // Helper to check if a product is a base game
@@ -503,4 +525,11 @@ export function findExpansionsForBaseGame(products: Product[], baseSlug: string)
   return products.filter(
     p => isExpansion(p) && p.slug.startsWith(baseSlug + "-")
   );
+}
+
+// Check stock before processing an order
+export function checkStockBeforeOrder(product: Product, detail: { quantity: number }): void {
+  if (product.quantity_stock < detail.quantity) {
+    throw new BadRequestException(`Not enough stock for product ${product.product_name}`);
+  }
 }

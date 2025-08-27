@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, IsNull, Not } from 'typeorm';
 import { Category } from './category.entity';
 import { CreateCategoryDto } from './create-category.dto';
 import { UpdateCategoryDto } from './update-category.dto';
@@ -25,6 +25,9 @@ export class CategoriesService {
     }
 
     async findById(id: number): Promise<Category> {
+        if (!id) {
+            throw new NotFoundException('Category id empty');
+        }
         const category = await this.categoriesRepository.findOne({
             where: { id },
             relations: ['products'],
@@ -53,6 +56,16 @@ export class CategoriesService {
 
     async restore(id: number): Promise<void> {
       await this.categoriesRepository.restore(id);
+    }
+
+    async findAllDeleted(): Promise<Category[]> {
+        return this.categoriesRepository.find({
+            withDeleted: true,
+            where: {
+                deletedAt: Not(IsNull()), // Lấy các danh mục có deletedAt khác null
+            },
+            relations: ['products'],
+        });
     }
 }
 

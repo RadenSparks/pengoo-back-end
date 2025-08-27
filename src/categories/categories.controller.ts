@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { UpdateCategoryDto } from './update-category.dto';
 import { CreateCategoryDto } from './create-category.dto';
 import { CategoriesService } from './categories.service';
@@ -16,7 +16,10 @@ export class CategoriesController {
 
     @Get()
     @Public()
-    findAllCategories() {
+    findAllCategories(@Query('deleted') deleted?: string) {
+        if (deleted === 'true') {
+            return this.categoriesService.findAllDeleted();
+        }
         return this.categoriesService.findAll();
     }
 

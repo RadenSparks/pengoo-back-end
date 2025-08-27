@@ -1,5 +1,5 @@
-import { Repository } from 'typeorm';
-import { Product } from './product.entity';
+import { Repository, FindManyOptions } from 'typeorm';
+import { Product } from './entities/product.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
 import { UpdateProductDto } from './update-product.dto';
 import { CategoriesService } from '../categories/categories.service';
@@ -12,7 +12,7 @@ import { CmsContentService } from '../cms-content/cms-content.service';
 import { CmsContent } from '../cms-content/cms-content.entity';
 export declare class FilterProductDto {
     name?: string;
-    categoryId?: number;
+    category_ID?: number;
     tags?: string[];
     minPrice?: number;
     maxPrice?: number;
@@ -49,8 +49,13 @@ export declare class ProductsService {
     updateCmsContent(id: number, data: Partial<CmsContent>): Promise<CmsContent | null>;
     createCmsContentForProduct(id: number): Promise<Product>;
     restore(id: number): Promise<void>;
+    save(product: Product): Promise<Product>;
+    findAllWithDeleted(options: FindManyOptions<Product>): Promise<[Product[], number]>;
 }
 export declare function isBaseGame(product: Product): boolean;
 export declare function isExpansion(product: Product): boolean;
 export declare function getBaseSlug(slug: string): string;
 export declare function findExpansionsForBaseGame(products: Product[], baseSlug: string): Product[];
+export declare function checkStockBeforeOrder(product: Product, detail: {
+    quantity: number;
+}): void;

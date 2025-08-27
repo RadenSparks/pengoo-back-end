@@ -44,6 +44,15 @@ let OrdersController = class OrdersController {
     getDelivery() {
         return this.ordersService.getDelivery();
     }
+    async getRefundRequests() {
+        try {
+            return await this.ordersService.getRefundRequests();
+        }
+        catch (err) {
+            console.error('Error fetching refund requests:', err?.message, err?.stack);
+            throw new common_1.BadRequestException('Could not fetch refund requests');
+        }
+    }
     findOrderById(id) {
         const parsedId = parseInt(id, 10);
         if (isNaN(parsedId)) {
@@ -75,8 +84,8 @@ let OrdersController = class OrdersController {
         await this.ordersService.restore(id);
         return { message: 'Order restored successfully.' };
     }
-    createRefundRequest(body) {
-        return this.ordersService.createRefundRequest(body);
+    async createRefundRequest(body) {
+        return await this.ordersService.createRefundRequest(body);
     }
     async cancelOversoldOrders() {
         return await this.ordersService.cancelOversoldOrders();
@@ -87,6 +96,20 @@ let OrdersController = class OrdersController {
             throw new common_1.BadRequestException('Order ID must be an integer');
         }
         return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
+    }
+    async updateRefundRequestStatus(id, body) {
+        const parsedId = parseInt(id, 10);
+        if (isNaN(parsedId)) {
+            throw new common_1.BadRequestException('RefundRequest ID must be an integer');
+        }
+        return await this.ordersService.updateRefundRequestStatus(parsedId, body.status);
+    }
+    async processRefundRequest(id) {
+        const parsedId = parseInt(id, 10);
+        if (isNaN(parsedId)) {
+            throw new common_1.BadRequestException('RefundRequest ID must be an integer');
+        }
+        return await this.ordersService.processRefundRequest(parsedId);
     }
 };
 exports.OrdersController = OrdersController;
@@ -171,6 +194,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "getDelivery", null);
 __decorate([
+    (0, common_1.Get)('refund-requests'),
+    (0, public_decorator_1.Public)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "getRefundRequests", null);
+__decorate([
     (0, common_1.Get)(':id'),
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('id')),
@@ -220,7 +250,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_orders_dto_1.CreateRefundRequestDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "createRefundRequest", null);
 __decorate([
     (0, common_1.Post)('cancel-oversold'),
@@ -237,6 +267,23 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "updateOrderAddress", null);
+__decorate([
+    (0, common_1.Patch)('refund-requests/:id/status'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "updateRefundRequestStatus", null);
+__decorate([
+    (0, common_1.Patch)('refund-requests/:id/process-refund'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "processRefundRequest", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])

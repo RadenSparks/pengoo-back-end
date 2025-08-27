@@ -82,7 +82,7 @@ export class CreateProductDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  categoryId: number;
+  category_ID: number;
 
   @ApiProperty()
   @IsNotEmpty()

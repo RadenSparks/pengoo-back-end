@@ -11,14 +11,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Product = void 0;
 const typeorm_1 = require("typeorm");
-const category_entity_1 = require("../categories/category.entity");
-const review_entity_1 = require("../reviews/review.entity");
-const wishlist_entity_1 = require("../wishlist/wishlist.entity");
-const publisher_entity_1 = require("../publishers/entities/publisher.entity");
-const tag_entity_1 = require("../tags/entities/tag.entity");
-const image_entity_1 = require("../images/entities/image.entity");
-const collection_entity_1 = require("../collections/collection.entity");
-const cms_content_entity_1 = require("../cms-content/cms-content.entity");
+const category_entity_1 = require("../../categories/category.entity");
+const review_entity_1 = require("../../reviews/review.entity");
+const wishlist_entity_1 = require("../../wishlist/wishlist.entity");
+const publisher_entity_1 = require("../../publishers/entities/publisher.entity");
+const tag_entity_1 = require("../../tags/entities/tag.entity");
+const image_entity_1 = require("../../images/entities/image.entity");
+const collection_entity_1 = require("../../collections/collection.entity");
+const cms_content_entity_1 = require("../../cms-content/cms-content.entity");
 let Product = class Product {
     id;
     product_name;

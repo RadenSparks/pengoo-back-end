@@ -4,7 +4,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { User } from './users/user.entity';
-import { Product } from './products/product.entity';
+import { Product } from './products/entities/product.entity';
 import { Category } from './categories/category.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order, OrderDetail } from './orders/order.entity';

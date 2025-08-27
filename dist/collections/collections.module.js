@@ -12,7 +12,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const collections_controller_1 = require("./collections.controller");
 const collections_service_1 = require("./collections.service");
 const collection_entity_1 = require("./collection.entity");
-const product_entity_1 = require("../products/product.entity");
+const product_entity_1 = require("../products/entities/product.entity");
 let CollectionsModule = class CollectionsModule {
 };
 exports.CollectionsModule = CollectionsModule;

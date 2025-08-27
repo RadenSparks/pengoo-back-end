@@ -16,6 +16,7 @@ export enum RefundRequestStatus {
     PENDING = 'PENDING',
     APPROVED = 'APPROVED',
     REJECTED = 'REJECTED',
+    REFUNDED = "REFUNDED", // <-- Change this line
 }
 @Entity('refund_requests')
 export class RefundRequest {
@@ -52,7 +53,7 @@ export class RefundRequest {
     @UpdateDateColumn()
     updated_at: Date;
 
-    @Column({ type: 'varchar', length: 255 })
+    @Column({ type: 'varchar', length: 255, default: 'cod' })
     paymentMethod: PaymentMethod;
     @Column({ type: 'varchar', length: 255 })
     toAccountNumber: string;

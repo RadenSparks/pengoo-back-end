@@ -10,6 +10,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Role } from 'src/roles/role.entity';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { RefundRequest } from './refund-request.entity';
 
 @Controller('orders')
 export class OrdersController {
@@ -89,6 +90,17 @@ export class OrdersController {
     return this.ordersService.getDelivery();
   }
 
+  @Get('refund-requests')
+  @Public()
+  async getRefundRequests() {
+    try {
+      return await this.ordersService.getRefundRequests();
+    } catch (err) {
+      console.error('Error fetching refund requests:', err?.message, err?.stack);
+      throw new BadRequestException('Could not fetch refund requests');
+    }
+  }
+
   @Get(':id')
   @Public()
   findOrderById(@Param('id') id: string) {
@@ -138,8 +150,10 @@ export class OrdersController {
   // Updated refund request endpoint with improved logic
   // @UseGuards(JwtAuthGuard)
   @Post('refund-request')
-  createRefundRequest(@Body() body: CreateRefundRequestDto) {
-    return this.ordersService.createRefundRequest(body);
+  async createRefundRequest(
+    @Body() body: CreateRefundRequestDto,
+  ) {
+    return await this.ordersService.createRefundRequest(body);
   }
 
 
@@ -158,5 +172,31 @@ export class OrdersController {
       throw new BadRequestException('Order ID must be an integer');
     }
     return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
+  }
+
+  @Patch('refund-requests/:id/status')
+  @UseGuards(JwtAuthGuard)
+  async updateRefundRequestStatus(
+    @Param('id') id: string,
+    @Body() body: { status: string }
+  ) {
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('RefundRequest ID must be an integer');
+    }
+    // You need to implement this method in OrdersService
+    return await this.ordersService.updateRefundRequestStatus(parsedId, body.status);
+  }
+
+  @Patch('refund-requests/:id/process-refund')
+  @UseGuards(JwtAuthGuard)
+  async processRefundRequest(
+    @Param('id') id: string
+  ) {
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+      throw new BadRequestException('RefundRequest ID must be an integer');
+    }
+    return await this.ordersService.processRefundRequest(parsedId);
   }
 }

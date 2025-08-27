@@ -6,7 +6,8 @@ export declare class TagsController {
     constructor(tagsService: TagsService);
     create(dto: CreateTagDto): Promise<import("./entities/tag.entity").Tag>;
     findAll(type?: string): Promise<import("./entities/tag.entity").Tag[]>;
-    findOne(id: string): Promise<import("./entities/tag.entity").Tag>;
+    findDeleted(): Promise<import("./entities/tag.entity").Tag[]>;
+    getTag(id: string): Promise<import("./entities/tag.entity").Tag>;
     update(id: string, dto: UpdateTagDto): Promise<import("./entities/tag.entity").Tag>;
     remove(id: string): Promise<void>;
     restore(id: number): Promise<{

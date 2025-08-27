@@ -1,4 +1,4 @@
-import { Product } from '../../products/product.entity';
+import { Product } from '../../products/entities/product.entity';
 export declare class Image {
     id: number;
     url: string;
@@ -6,4 +6,5 @@ export declare class Image {
     folder?: string;
     ord?: number;
     product?: Product;
+    deletedAt?: Date;
 }

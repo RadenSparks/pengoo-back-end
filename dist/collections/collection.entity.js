@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Collection = void 0;
 const class_transformer_1 = require("class-transformer");
-const product_entity_1 = require("../products/product.entity");
+const product_entity_1 = require("../products/entities/product.entity");
 const typeorm_1 = require("typeorm");
 let Collection = class Collection {
     id;

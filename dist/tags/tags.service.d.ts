@@ -13,4 +13,5 @@ export declare class TagsService {
     remove(id: number): Promise<void>;
     restore(id: number): Promise<void>;
     findByType(type: string): Promise<Tag[]>;
+    findDeleted(): Promise<Tag[]>;
 }

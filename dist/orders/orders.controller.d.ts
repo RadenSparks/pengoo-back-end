@@ -1,6 +1,7 @@
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { CreateOrderDto, CreateRefundRequestDto } from './create-orders.dto';
+import { RefundRequest } from './refund-request.entity';
 export declare class OrdersController {
     private readonly ordersService;
     constructor(ordersService: OrdersService);
@@ -9,6 +10,7 @@ export declare class OrdersController {
     findAllOrders(): Promise<import("./order.entity").Order[]>;
     findByUserId(req: any): Promise<import("./order.entity").Order[] | null>;
     getDelivery(): Promise<import("../delivery/delivery.entity").Delivery[]>;
+    getRefundRequests(): Promise<RefundRequest[]>;
     findOrderById(id: string): Promise<import("./order.entity").Order | null>;
     findOrderByOrderCode(order_code: string): Promise<import("./order.entity").Order | null>;
     handleOrderSuccess(query: any): Promise<import("./order.entity").Order>;
@@ -20,7 +22,7 @@ export declare class OrdersController {
     createRefundRequest(body: CreateRefundRequestDto): Promise<{
         status: number;
         message: string;
-        data: import("./refund-request.entity").RefundRequest;
+        data: RefundRequest;
         estimatedProcessingTime: string;
     }>;
     cancelOversoldOrders(): Promise<{
@@ -30,4 +32,16 @@ export declare class OrdersController {
         shipping_address: string;
         phone_number: string;
     }): Promise<import("./order.entity").Order>;
+    updateRefundRequestStatus(id: string, body: {
+        status: string;
+    }): Promise<{
+        status: number;
+        message: string;
+        data: RefundRequest;
+    }>;
+    processRefundRequest(id: string): Promise<{
+        status: number;
+        message: string;
+        data: RefundRequest;
+    }>;
 }

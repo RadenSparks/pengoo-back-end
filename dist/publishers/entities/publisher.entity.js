@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Publisher = void 0;
-const product_entity_1 = require("../../products/product.entity");
+const product_entity_1 = require("../../products/entities/product.entity");
 const typeorm_1 = require("typeorm");
 let Publisher = class Publisher {
     id;

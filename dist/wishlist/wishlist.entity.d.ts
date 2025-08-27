@@ -1,5 +1,5 @@
 import { User } from '../users/user.entity';
-import { Product } from '../products/product.entity';
+import { Product } from '../products/entities/product.entity';
 import { Order } from '../orders/order.entity';
 export declare class Wishlist {
     id: number;

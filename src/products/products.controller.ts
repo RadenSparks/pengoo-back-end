@@ -18,6 +18,7 @@ import { UpdateProductDto } from './update-product.dto';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator'; // adjust path if needed
+import { In } from 'typeorm';
 
 @Controller('products')
 export class ProductsController {
@@ -43,7 +44,7 @@ export class ProductsController {
           meta_description: "Meta description for SEO.",
           quantity_sold: 0,
           quantity_stock: 100,
-          categoryId: 1,
+          category_ID: 1,
           publisherID: 1,
           status: "active",
           tags: ["electronics", "gadget"]
@@ -84,7 +85,7 @@ export class ProductsController {
   @Public()
   async findAll(
     @Query('name') name?: string,
-    @Query('category') categoryId?: number,
+    @Query('category') category_ID?: number,
     @Query('tags') tags?: string,
     @Query('minPrice') minPrice?: number,
     @Query('maxPrice') maxPrice?: number,
@@ -96,7 +97,7 @@ export class ProductsController {
   ) {
     const filter = {
       name,
-      categoryId,
+      category_ID,
       tags: tags ? tags.split(',') : undefined,
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
@@ -117,6 +118,44 @@ export class ProductsController {
       // ...other fields
     }));
     return result;
+  }
+
+  @Get('all')
+  async findAllWithDeleted(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('name') name?: string,
+  ) {
+    // Use withDeleted: true to include soft-deleted products
+    const [data, total] = await this.productsService.findAllWithDeleted({
+      relations: [
+        'category_ID',
+        'publisher_ID',
+        'tags',
+        'images',
+        'collection',
+      ],
+      withDeleted: true,
+      where: name ? { product_name: In([name]) } : {},
+      skip: ((page || 1) - 1) * (limit || 50),
+      take: limit || 50,
+    });
+
+    // Map publisher_ID to publisherID for each product
+    const mappedData = data.map(p => ({
+      ...p,
+      publisherID: p.publisher_ID
+        ? { id: p.publisher_ID.id, name: p.publisher_ID.name }
+        : null,
+    }));
+
+    return {
+      data: mappedData,
+      total,
+      page: page || 1,
+      limit: limit || 50,
+    };
   }
 
   @Get(':id')

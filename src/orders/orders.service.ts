@@ -12,7 +12,7 @@ import { CouponsService } from '../coupons/coupons.service'; // <-- Add this imp
 import { PayosService } from '../services/payos/payos.service';
 import { CouponStatus } from 'src/coupons/coupon.entity';
 import { InvoicesService } from '../services/invoices/invoice.service'; // Add this import
-import { Product } from 'src/products/product.entity';
+import { Product } from 'src/products/entities/product.entity';
 import { RefundRequest, RefundRequestStatus } from './refund-request.entity'; // For status tracking
 import { UploadFiles } from './file.entity';
 import { ConfigService } from '@nestjs/config'; // Add this import
@@ -137,7 +137,22 @@ export class OrdersService {
       console.log(total_price)
       const savedOrder = await manager.save(order);
       savedOrder.checkout_url = checkout_url ?? null
-      await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
+      if (order.user && order.user.email) {
+        await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+      }
+
+      // After order is created, update product quantities
+      for (const detail of createOrderDto.details) {
+        const product = await manager.findOne(Product, { where: { id: detail.productId } });
+        if (!product) throw new NotFoundException(`Product ${detail.productId} not found`);
+        if (product.quantity_stock < detail.quantity) {
+          throw new BadRequestException(`Not enough stock for product ${product.product_name}`);
+        }
+        product.quantity_sold += detail.quantity;
+        product.quantity_stock -= detail.quantity;
+        await manager.save(product);
+      }
+
       return savedOrder;
     });
   }
@@ -219,7 +234,10 @@ export class OrdersService {
     return this.deliveryRepository.find();
   }
   async findByPaypalOrderId(paypalOrderId: string): Promise<Order | null> {
-    return this.ordersRepository.findOne({ where: { paypal_order_id: paypalOrderId } });
+    return this.ordersRepository.findOne({
+      where: { paypal_order_id: paypalOrderId },
+      relations: ['user'], // <-- Ensure 'user' is loaded!
+    });
   }
 
   async save(order: Order): Promise<Order> {
@@ -232,20 +250,14 @@ export class OrdersService {
       if (!order) throw new NotFoundException('Order not found');
 
       for (const detail of order.details) {
-        // Lock the product row for update
-        const product = await manager
-          .createQueryBuilder(Product, 'product')
-          .setLock('pessimistic_write')
-          .where('product.id = :id', { id: detail.product.id })
-          .getOne();
-
-        if (!product) throw new NotFoundException('Product not found');
-        if (product.quantity_stock < detail.quantity) {
-          throw new BadRequestException(`Not enough stock for ${product.product_name}`);
+        // Use detail.product.id instead of detail.productId
+        const product = await this.productsService.findById(detail.product.id);
+        if (product) {
+          product.quantity_sold += detail.quantity;
+          product.quantity_stock -= detail.quantity;
+          // Save using a public method, not productsRepository directly
+          await this.productsService.save(product);
         }
-        product.quantity_stock -= detail.quantity;
-        product.quantity_sold += detail.quantity;
-        await manager.save(product);
       }
 
       order.payment_status = PaymentStatus.Paid;
@@ -288,8 +300,15 @@ export class OrdersService {
       }
 
       // 4. Validate reason and evidence
-      if (!data.reason || data.reason.trim().length < 10) {
-        throw new BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters).');
+      const dropdownReasons = ['defective', 'missing', 'wrong'];
+      if (
+        !data.reason ||
+        (
+          !dropdownReasons.includes(data.reason) &&
+          data.reason.trim().length < 10
+        )
+      ) {
+        throw new BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters for custom reasons).');
       }
       // if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
       //   throw new BadRequestException('Please upload at least one evidence file.');
@@ -303,7 +322,7 @@ export class OrdersService {
         throw new BadRequestException('This order has already been refunded.');
       }
 
-      // 7. Create refund request with status tracking
+      // 7. Create refund request
       const refundRequest = manager.create(RefundRequest, {
         order,
         reason: data.reason,
@@ -315,31 +334,22 @@ export class OrdersService {
         paymentMethod: order.payment_type as PaymentMethod,
         times: (order.refundRequests?.length ?? 0) + 1,
         status: RefundRequestStatus.PENDING,
+        paymentMethod: data.paymentMethod, // <-- Store payment method
+        toAccountNumber: data.toAccountNumber,
+        toBin: data.toBin,
+        bank: data.bank,
       });
       await manager.save(refundRequest);
-
-      // 8. Save upload files with new naming
-      // for (let i = 0; i < files.length; i++) {
-      //   const file = files[i];
-      //   const uploadResult = await this.cloudinaryService.uploadImage(
-      //     file, // Express.Multer.File
-      //     'refund', // purpose: 'refund'
-      //     { userId: data.user_id } // options: only userId for refund, remove orderId and createdAt if not used in your service
-      //   );
-      //   const upload = manager.create(UploadFiles, {
-      //     type: file.mimetype,
-      //     url: uploadResult.secure_url,
-      //     refundRequest,
-      //   });
-      //   await manager.save(upload);
-      // }
-      for (const file of data.uploadFiles) {
-        const upload = manager.create(UploadFiles, {
-          type: file.type,
-          url: file.url,
-          refundRequest,
-        });
-        await manager.save(upload);
+      // 8. Save evidence URLs
+      if (Array.isArray(data.uploadFiles)) {
+        for (const file of data.uploadFiles) {
+          const uploadFile = manager.create(UploadFiles, {
+            refundRequest,
+            type: file.type,
+            url: file.url,
+          });
+          await manager.save(uploadFile);
+        }
       }
       // 9. Select admin emails from users table
       const adminUsers = await manager.find('User', { where: { role: 'admin', status: true } });
@@ -434,5 +444,30 @@ export class OrdersService {
     order.shipping_address = newAddress;
     order.phone_number = phoneNumber;
     return this.ordersRepository.save(order);
+  }
+
+  async getRefundRequests(): Promise<RefundRequest[]> {
+    return this.dataSource.getRepository(RefundRequest).find({
+      relations: ['user', 'order', 'uploadFiles'], // <-- 'uploadFiles' must be here!
+      order: { created_at: 'DESC' },
+    });
+  }
+
+  async updateRefundRequestStatus(id: number, status: string) {
+    const refundRequestRepo = this.dataSource.getRepository(RefundRequest);
+    const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+    if (!refundRequest) throw new NotFoundException('Refund request not found');
+    refundRequest.status = status as RefundRequestStatus;
+    await refundRequestRepo.save(refundRequest);
+    return { status: 200, message: 'Refund request status updated', data: refundRequest };
+  }
+
+  async processRefundRequest(id: number) {
+    const refundRequestRepo = this.dataSource.getRepository(RefundRequest);
+    const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+    if (!refundRequest) throw new NotFoundException('Refund request not found');
+    refundRequest.status = RefundRequestStatus.REFUNDED; // <-- Use REFUNDED
+    await refundRequestRepo.save(refundRequest);
+    return { status: 200, message: 'Refund request marked as refunded', data: refundRequest };
   }
 }

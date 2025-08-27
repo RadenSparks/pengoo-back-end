@@ -42,6 +42,7 @@ let PaypalService = class PaypalService {
         const order = await this.ordersService.findById(orderId);
         if (!order)
             throw new common_1.NotFoundException('Order not found');
+        const usdAmount = convertVndToUsd(order.total_price);
         const request = new paypal.orders.OrdersCreateRequest();
         request.prefer('return=representation');
         request.requestBody({
@@ -50,24 +51,27 @@ let PaypalService = class PaypalService {
                 {
                     amount: {
                         currency_code: 'USD',
-                        value: order.total_price.toString(),
+                        value: usdAmount.toString(),
                     },
                 },
             ],
             application_context: {
-                return_url: `https://pengoo.store/checkout/paypal-success?order_id=${orderId}`,
-                cancel_url: `https://pengoo.store/checkout/paypal-cancel?order_id=${orderId}`,
+                return_url: `http://localhost:3001/checkout/paypal-success?order_id=${orderId}`,
+                cancel_url: `http://localhost:3001/checkout/paypal-cancel?order_id=${orderId}`,
             },
         });
         try {
             const response = await this.client.execute(request);
             const paypalOrderId = response.result.id;
+            console.log(`[PayPal] Created PayPal order: ${paypalOrderId} for order ${order.id}`);
             order.paypal_order_id = paypalOrderId;
             await this.ordersService.save(order);
+            console.log(`[PayPal] Saved PayPal order ID ${paypalOrderId} to order ${order.id}`);
             const approvalUrl = response.result.links.find((link) => link.rel === 'approve')?.href;
             return { paypalOrderId, approvalUrl };
         }
         catch (err) {
+            console.error('[PayPal] Failed to create PayPal order:', err?.message, err?.response?.data || err);
             throw new common_1.InternalServerErrorException('Failed to create PayPal order');
         }
     }
@@ -76,16 +80,29 @@ let PaypalService = class PaypalService {
         request.requestBody({});
         try {
             const response = await this.client.execute(request);
+            console.log(`[PayPal] Capture response for ${paypalOrderId}:`, JSON.stringify(response.result, null, 2));
             const order = await this.ordersService.findByPaypalOrderId(paypalOrderId);
+            console.log(`[PayPal] Lookup order by PayPal order ID ${paypalOrderId}:`, order ? `Found order ${order.id}` : 'Not found');
             if (order) {
-                order.payment_status = order_entity_1.PaymentStatus.Paid;
-                await this.ordersService.save(order);
-                await this.invoicesService.generateInvoice(order.id);
-                await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+                if (order.payment_status !== order_entity_1.PaymentStatus.Paid) {
+                    order.payment_status = order_entity_1.PaymentStatus.Paid;
+                    await this.ordersService.save(order);
+                    console.log(`[PayPal] Marked order ${order.id} as paid.`);
+                    await this.invoicesService.generateInvoice(order.id);
+                    await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+                    console.log(`[PayPal] Sent invoice and confirmation for order ${order.id}.`);
+                }
+                else {
+                    console.log(`[PayPal] Order ${order.id} already marked as paid.`);
+                }
+            }
+            else {
+                console.warn(`[PayPal] No order found for PayPal order ID ${paypalOrderId}.`);
             }
             return response.result;
         }
         catch (err) {
+            console.error('[PayPal] Failed to capture PayPal order:', err?.message, err?.response?.data || err);
             throw new common_1.InternalServerErrorException('Failed to capture PayPal order');
         }
     }
@@ -127,4 +144,7 @@ exports.PaypalService = PaypalService = __decorate([
         invoice_service_1.InvoicesService,
         notifications_service_1.NotificationsService])
 ], PaypalService);
+function convertVndToUsd(vnd, rate = 25000) {
+    return +(vnd / rate).toFixed(2);
+}
 //# sourceMappingURL=paypal.service.js.map

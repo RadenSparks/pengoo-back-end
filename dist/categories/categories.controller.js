@@ -26,7 +26,10 @@ let CategoriesController = class CategoriesController {
     createCategory(createCategoryDto) {
         return this.categoriesService.create(createCategoryDto);
     }
-    findAllCategories() {
+    findAllCategories(deleted) {
+        if (deleted === 'true') {
+            return this.categoriesService.findAllDeleted();
+        }
         return this.categoriesService.findAll();
     }
     findCategoryById(id) {
@@ -55,8 +58,9 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, public_decorator_1.Public)(),
+    __param(0, (0, common_1.Query)('deleted')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "findAllCategories", null);
 __decorate([

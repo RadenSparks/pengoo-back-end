@@ -5,7 +5,7 @@ import { Order, OrderDetail } from './order.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/user.entity';
-import { Product } from '../products/product.entity';
+import { Product } from '../products/entities/product.entity';
 import { Category } from '../categories/category.entity';
 import { CategoriesService } from '../categories/categories.service';
 import { PublishersModule } from '../publishers/publishers.module';

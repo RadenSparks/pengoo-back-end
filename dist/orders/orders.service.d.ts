@@ -56,4 +56,15 @@ export declare class OrdersService {
         status: string;
     }>;
     updateAddress(id: number, newAddress: string, phoneNumber: string): Promise<Order>;
+    getRefundRequests(): Promise<RefundRequest[]>;
+    updateRefundRequestStatus(id: number, status: string): Promise<{
+        status: number;
+        message: string;
+        data: RefundRequest;
+    }>;
+    processRefundRequest(id: number): Promise<{
+        status: number;
+        message: string;
+        data: RefundRequest;
+    }>;
 }
