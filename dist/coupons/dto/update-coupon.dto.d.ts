@@ -10,6 +10,7 @@ export declare class UpdateCouponDto {
     status?: CouponStatus;
     productIds?: number[];
     userIds?: number[];
+    collectionId?: number;
 }
 export declare class UpdateCouponStatusDto {
     status: CouponStatus;

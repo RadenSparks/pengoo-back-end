@@ -9,6 +9,7 @@ class UpdateCollectionDto {
     hasSpecialCoupon;
     baseDiscountPercent;
     incrementPerExpansion;
+    specialCouponId;
 }
 exports.UpdateCollectionDto = UpdateCollectionDto;
 //# sourceMappingURL=update-collection.dto.js.map

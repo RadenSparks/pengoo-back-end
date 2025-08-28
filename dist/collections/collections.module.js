@@ -9,18 +9,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CollectionsModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const collections_controller_1 = require("./collections.controller");
 const collections_service_1 = require("./collections.service");
+const collections_controller_1 = require("./collections.controller");
 const collection_entity_1 = require("./collection.entity");
 const product_entity_1 = require("../products/entities/product.entity");
+const coupons_module_1 = require("../coupons/coupons.module");
 let CollectionsModule = class CollectionsModule {
 };
 exports.CollectionsModule = CollectionsModule;
 exports.CollectionsModule = CollectionsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([collection_entity_1.Collection, product_entity_1.Product])],
-        controllers: [collections_controller_1.CollectionsController],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([collection_entity_1.Collection, product_entity_1.Product]),
+            coupons_module_1.CouponsModule,
+        ],
         providers: [collections_service_1.CollectionsService],
+        controllers: [collections_controller_1.CollectionsController],
         exports: [collections_service_1.CollectionsService],
     })
 ], CollectionsModule);

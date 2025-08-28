@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Coupon = exports.CouponStatus = void 0;
 const typeorm_1 = require("typeorm");
 const user_coupon_entity_1 = require("./user-coupon.entity");
+const collection_entity_1 = require("../collections/collection.entity");
 var CouponStatus;
 (function (CouponStatus) {
     CouponStatus["Active"] = "active";
@@ -33,6 +34,8 @@ let Coupon = class Coupon {
     userCoupons;
     milestonePoints;
     deletedAt;
+    collection;
+    collectionId;
 };
 exports.Coupon = Coupon;
 __decorate([
@@ -91,6 +94,14 @@ __decorate([
     (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
     __metadata("design:type", Date)
 ], Coupon.prototype, "deletedAt", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => collection_entity_1.Collection, { nullable: true, onDelete: 'SET NULL' }),
+    __metadata("design:type", collection_entity_1.Collection)
+], Coupon.prototype, "collection", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    __metadata("design:type", Object)
+], Coupon.prototype, "collectionId", void 0);
 exports.Coupon = Coupon = __decorate([
     (0, typeorm_1.Entity)()
 ], Coupon);

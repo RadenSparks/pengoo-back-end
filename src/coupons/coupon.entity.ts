@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, DeleteDateColumn, ManyToOne } from 'typeorm';
 import { UserCoupon } from './user-coupon.entity';
+import { Collection } from '../collections/collection.entity';
 
 export enum CouponStatus {
   Active = 'active',
@@ -52,4 +53,10 @@ export class Coupon {
 
   @DeleteDateColumn({ nullable: true })
   deletedAt?: Date;
+
+  @ManyToOne(() => Collection, { nullable: true, onDelete: 'SET NULL' })
+  collection: Collection;
+
+  @Column({ type: 'int', nullable: true })
+  collectionId: number | null;
 }

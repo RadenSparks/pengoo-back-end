@@ -28,6 +28,9 @@ export class CreateCouponDto {
   status: CouponStatus;
 
   @IsOptional()
+  collectionId?: number;
+
+  @IsOptional()
   @IsArray()
   productIds?: number[];
 

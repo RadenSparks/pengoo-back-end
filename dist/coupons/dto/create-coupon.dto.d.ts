@@ -8,6 +8,7 @@ export declare class CreateCouponDto {
     usageLimit: number;
     discountPercent: number;
     status: CouponStatus;
+    collectionId?: number;
     productIds?: number[];
     userIds?: number[];
 }

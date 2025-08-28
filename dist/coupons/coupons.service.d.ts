@@ -26,9 +26,12 @@ export declare class CouponsService {
     }>;
     findActiveCoupon(): Promise<Coupon | undefined>;
     getAll(): Promise<Coupon[] | undefined>;
+    getAllWithCollections(): Promise<Coupon[]>;
     getNextAvailableCoupon(userId: number, userPoints: number): Promise<Coupon | null>;
     getMilestoneCoupons(): Promise<Coupon[]>;
     update(id: number, dto: UpdateCouponDto): Promise<Coupon>;
+    assignCouponToCollection(couponId: number, collectionId: number | null): Promise<Coupon>;
+    unassignCouponsFromCollection(collectionId: number): Promise<void>;
     updateStatus(id: number, status: CouponStatus): Promise<Coupon>;
     delete(id: number): Promise<Coupon>;
     checkVoucherByUserPoint(user: User, voucherCode: string): Promise<UserCoupon[]>;
@@ -40,4 +43,5 @@ export declare class CouponsService {
     restore(id: number): Promise<{
         restored: boolean;
     }>;
+    updateCouponCollectionId(couponId: number, collectionId: number | null): Promise<void>;
 }

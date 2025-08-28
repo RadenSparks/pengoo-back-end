@@ -1,5 +1,6 @@
 import { Exclude } from 'class-transformer';
 import { Product } from '../products/entities/product.entity';
+import { Coupon } from '../coupons/coupon.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
@@ -7,7 +8,9 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
-    DeleteDateColumn
+    DeleteDateColumn,
+    OneToOne,
+    JoinColumn
 } from 'typeorm';
 
 @Entity()
@@ -48,5 +51,12 @@ export class Collection {
     @Exclude()
     @OneToMany(() => Product, (product) => product.collection)
     products: Product[];
+
+    @OneToOne(() => Coupon, { nullable: true })
+    @JoinColumn()
+    specialCoupon?: Coupon;
+
+    @Column({ type: 'integer', nullable: true })
+    specialCouponId?: number;
 }
 

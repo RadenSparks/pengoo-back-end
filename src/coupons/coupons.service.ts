@@ -24,11 +24,14 @@ export class CouponsService {
   ) { }
 
   async create(dto: CreateCouponDto): Promise<Coupon> {
-    const coupon = this.couponsRepo.create({
-      ...dto,
-      status: dto.status
-    });
-
+    const coupon = this.couponsRepo.create(dto);
+    if (dto.collectionId) {
+      const collection = await this.collectionsRepo.findOne({ where: { id: dto.collectionId } });
+      if (!collection) {
+        throw new NotFoundException('Collection not found');
+      }
+      coupon.collection = collection;
+    }
     return this.couponsRepo.save(coupon);
   }
 
@@ -93,7 +96,7 @@ export class CouponsService {
           userCoupons: [],
           milestonePoints: null,
           deletedAt: undefined,
-        } as Coupon,
+        } as unknown as Coupon,
         discount,
       };
     }
@@ -155,7 +158,9 @@ export class CouponsService {
     const coupon = await this.couponsRepo.find()
     return coupon ?? undefined;
   }
-
+  async getAllWithCollections() {
+    return this.couponsRepo.find({ relations: ['collection'] });
+  }
 
   async getNextAvailableCoupon(userId: number, userPoints: number): Promise<Coupon | null> {
     // Find the next coupon with milestonePoints > userPoints, ordered by milestonePoints ASC
@@ -180,10 +185,52 @@ export class CouponsService {
     });
     if (!coupon) throw new NotFoundException('Không tìm thấy phiếu giảm giá');
 
+    // If collectionId is being changed, ensure exclusivity
+    if (dto.collectionId !== undefined) {
+      if (dto.collectionId) {
+        // Unassign any other coupon from this collection
+        await this.couponsRepo.update(
+          { collectionId: dto.collectionId },
+          { collectionId: null }
+        );
+        coupon.collectionId = dto.collectionId;
+      } else {
+        coupon.collectionId = null;
+      }
+    }
+
     Object.assign(coupon, dto);
 
-
     return this.couponsRepo.save(coupon);
+  }
+
+  // --- Assign a coupon to a collection, ensuring exclusivity ---
+  async assignCouponToCollection(couponId: number, collectionId: number | null) {
+    // Unassign this coupon from any collection if collectionId is null
+    const coupon = await this.couponsRepo.findOne({ where: { id: couponId } });
+    if (!coupon) throw new NotFoundException('Coupon not found');
+
+    if (collectionId) {
+      // Unassign any other coupon currently assigned to this collection
+      await this.couponsRepo.update(
+        { collectionId },
+        { collectionId: null }
+      );
+      // Assign this coupon to the collection
+      coupon.collectionId = collectionId;
+    } else {
+      // Unassign from any collection
+      coupon.collectionId = null;
+    }
+    return this.couponsRepo.save(coupon);
+  }
+
+  // --- Unassign all coupons from a collection (e.g. when collection is deleted or unlinked) ---
+  async unassignCouponsFromCollection(collectionId: number) {
+    await this.couponsRepo.update(
+      { collectionId },
+      { collectionId: null }
+    );
   }
 
   async updateStatus(id: number, status: CouponStatus): Promise<Coupon> {
@@ -245,5 +292,9 @@ export class CouponsService {
   async restore(id: number) {
     await this.couponsRepo.restore(id);
     return { restored: true };
+  }
+
+  async updateCouponCollectionId(couponId: number, collectionId: number | null) {
+    await this.couponsRepo.update(couponId, { collectionId });
   }
 }
