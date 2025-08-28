@@ -7,6 +7,7 @@ export declare class PostsService {
     private postsRepository;
     private cataloguesRepository;
     constructor(postsRepository: Repository<Post>, cataloguesRepository: Repository<PostCatalogue>);
+    private adjustOrdersOnCreateOrUpdate;
     create(dto: CreatePostDto): Promise<Post>;
     findAll(): Promise<Post[]>;
     findOne(id: number): Promise<Post>;

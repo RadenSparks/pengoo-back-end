@@ -31,6 +31,28 @@ let PostsService = class PostsService {
         this.postsRepository = postsRepository;
         this.cataloguesRepository = cataloguesRepository;
     }
+    async adjustOrdersOnCreateOrUpdate(catalogueId, newOrder, postIdToSkip) {
+        const posts = await this.postsRepository.find({
+            where: { catalogue: { id: catalogueId } },
+            order: { order: "ASC" },
+        });
+        const filteredPosts = postIdToSkip
+            ? posts.filter(p => p.id !== postIdToSkip)
+            : posts;
+        filteredPosts.splice(newOrder - 1, 0, null);
+        let order = 1;
+        for (const post of filteredPosts) {
+            if (!post) {
+                order++;
+                continue;
+            }
+            if (post.order !== order) {
+                post.order = order;
+                await this.postsRepository.save(post);
+            }
+            order++;
+        }
+    }
     async create(dto) {
         const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
         if (!catalogue) {
@@ -39,6 +61,7 @@ let PostsService = class PostsService {
         if (dto.canonical) {
             dto.canonical = sanitizeCanonical(dto.canonical);
         }
+        await this.adjustOrdersOnCreateOrUpdate(dto.catalogueId, dto.order ?? 1);
         const post = this.postsRepository.create({
             ...dto,
             catalogue,
@@ -65,6 +88,9 @@ let PostsService = class PostsService {
         if (dto.canonical) {
             dto.canonical = sanitizeCanonical(dto.canonical);
         }
+        const catalogueId = dto.catalogueId ?? post.catalogue.id;
+        const newOrder = dto.order ?? post.order ?? 1;
+        await this.adjustOrdersOnCreateOrUpdate(catalogueId, newOrder, id);
         Object.assign(post, dto);
         return this.postsRepository.save(post);
     }

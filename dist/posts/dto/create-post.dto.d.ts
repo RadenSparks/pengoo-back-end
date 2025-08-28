@@ -7,7 +7,7 @@ export declare class CreatePostDto {
     meta_keyword?: string;
     meta_title?: string;
     image?: string;
-    order?: number;
+    order: number;
     publish?: boolean;
     catalogueId: number;
     textColor?: string;

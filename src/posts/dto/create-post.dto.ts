@@ -30,9 +30,8 @@ export class CreatePostDto {
   @IsString()
   image?: string;
 
-  @IsOptional()
   @IsNumber()
-  order?: number;
+  order: number; // <-- Now required
 
   @IsOptional()
   @IsBoolean()

@@ -120,6 +120,7 @@ __decorate([
                 value: {
                     name: 'Updated Title',
                     content: 'Updated content...',
+                    order: 2,
                 },
             },
         },

@@ -22,6 +22,44 @@ export class PostsService {
     private cataloguesRepository: Repository<PostCatalogue>,
   ) {}
 
+  /**
+   * Shift orders of posts in the same catalogue to ensure unique, gapless order values.
+   * If updating, skip the current post.
+   */
+  private async adjustOrdersOnCreateOrUpdate(
+    catalogueId: number,
+    newOrder: number,
+    postIdToSkip?: number
+  ) {
+    // Get all posts in the catalogue, sorted by order
+    const posts = await this.postsRepository.find({
+      where: { catalogue: { id: catalogueId } },
+      order: { order: "ASC" },
+    });
+
+    // Remove the post being updated (if any)
+    const filteredPosts = postIdToSkip
+      ? posts.filter(p => p.id !== postIdToSkip)
+      : posts;
+
+    // Insert a placeholder for the new/updated post at the desired order
+    filteredPosts.splice(newOrder - 1, 0, null as any);
+
+    // Reassign orders
+    let order = 1;
+    for (const post of filteredPosts) {
+      if (!post) {
+        order++;
+        continue;
+      }
+      if (post.order !== order) {
+        post.order = order;
+        await this.postsRepository.save(post);
+      }
+      order++;
+    }
+  }
+
   async create(dto: CreatePostDto): Promise<Post> {
     const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
     if (!catalogue) {
@@ -31,6 +69,8 @@ export class PostsService {
     if (dto.canonical) {
       dto.canonical = sanitizeCanonical(dto.canonical);
     }
+    // Adjust orders before creating
+    await this.adjustOrdersOnCreateOrUpdate(dto.catalogueId, dto.order ?? 1);
     const post = this.postsRepository.create({
       ...dto,
       catalogue,
@@ -59,6 +99,10 @@ export class PostsService {
     if (dto.canonical) {
       dto.canonical = sanitizeCanonical(dto.canonical);
     }
+    // Adjust orders before updating
+    const catalogueId = dto.catalogueId ?? post.catalogue.id;
+    const newOrder = dto.order ?? post.order ?? 1;
+    await this.adjustOrdersOnCreateOrUpdate(catalogueId, newOrder, id);
     Object.assign(post, dto);
     return this.postsRepository.save(post);
   }

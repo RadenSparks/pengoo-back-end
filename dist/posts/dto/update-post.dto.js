@@ -14,12 +14,18 @@ const mapped_types_1 = require("@nestjs/mapped-types");
 const create_post_dto_1 = require("./create-post.dto");
 const class_validator_1 = require("class-validator");
 class UpdatePostDto extends (0, mapped_types_1.PartialType)(create_post_dto_1.CreatePostDto) {
+    order;
     textColor;
     bgColor;
     fontFamily;
     fontSize;
 }
 exports.UpdatePostDto = UpdatePostDto;
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], UpdatePostDto.prototype, "order", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),

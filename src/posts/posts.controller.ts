@@ -27,7 +27,7 @@ export class PostsController {
           meta_keyword: 'boardgame, tips',
           meta_title: 'How to Choose the Best Board Game',
           image: 'https://example.com/image.jpg',
-          order: 1,
+          order: 1, // <-- always present and a number
           publish: true,
           catalogueId: 1,
         },
@@ -71,6 +71,7 @@ export class PostsController {
         value: {
           name: 'Updated Title',
           content: 'Updated content...',
+          order: 2, // <-- show order can be updated
         },
       },
     },
