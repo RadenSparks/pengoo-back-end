@@ -19,17 +19,21 @@ const typeorm_2 = require("typeorm");
 const collection_entity_1 = require("./collection.entity");
 const product_entity_1 = require("../products/entities/product.entity");
 const products_service_1 = require("../products/products.service");
+const coupons_service_1 = require("../coupons/coupons.service");
 let CollectionsService = class CollectionsService {
     collectionsRepo;
     productsRepo;
-    constructor(collectionsRepo, productsRepo) {
+    couponsService;
+    constructor(collectionsRepo, productsRepo, couponsService) {
         this.collectionsRepo = collectionsRepo;
         this.productsRepo = productsRepo;
+        this.couponsService = couponsService;
     }
     findAll() {
         return this.collectionsRepo.createQueryBuilder('collection')
             .leftJoinAndSelect('collection.products', 'product')
             .leftJoinAndSelect('product.images', 'image')
+            .leftJoinAndSelect('product.category_ID', 'category')
             .getMany();
     }
     findOne(slug) {
@@ -39,17 +43,21 @@ let CollectionsService = class CollectionsService {
             .leftJoinAndSelect('product.images', 'image')
             .leftJoinAndSelect('product.tags', 'tag')
             .leftJoinAndSelect('product.category_ID', 'category')
+            .leftJoinAndSelect('collection.specialCoupon', 'specialCoupon')
             .getOne();
     }
     async create(dto) {
-        if (!dto)
-            throw new Error('No data received');
         const collection = this.collectionsRepo.create(dto);
         if (dto.productIds && dto.productIds.length) {
             collection.products = await this.productsRepo.findBy({ id: (0, typeorm_2.In)(dto.productIds) });
         }
         else {
             collection.products = [];
+        }
+        if (dto.specialCouponId) {
+            collection.specialCoupon = { id: dto.specialCouponId };
+            collection.specialCouponId = dto.specialCouponId;
+            await this.couponsService.updateCouponCollectionId(dto.specialCouponId, collection.id);
         }
         return this.collectionsRepo.save(collection);
     }
@@ -61,9 +69,20 @@ let CollectionsService = class CollectionsService {
         if (dto.productIds) {
             collection.products = await this.productsRepo.findBy({ id: (0, typeorm_2.In)(dto.productIds) });
         }
+        if (dto.specialCouponId !== undefined) {
+            if (!dto.specialCouponId && collection.specialCouponId) {
+                await this.couponsService.updateCouponCollectionId(collection.specialCouponId, null);
+            }
+            if (dto.specialCouponId) {
+                await this.couponsService.updateCouponCollectionId(dto.specialCouponId, collection.id);
+            }
+            collection.specialCoupon = dto.specialCouponId ? { id: dto.specialCouponId } : null;
+            collection.specialCouponId = dto.specialCouponId ?? null;
+        }
         return this.collectionsRepo.save(collection);
     }
     async remove(id) {
+        await this.couponsService.unassignCouponsFromCollection(id);
         await this.collectionsRepo.softDelete(id);
         return { deleted: true };
     }
@@ -91,6 +110,7 @@ exports.CollectionsService = CollectionsService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(collection_entity_1.Collection)),
     __param(1, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        coupons_service_1.CouponsService])
 ], CollectionsService);
 //# sourceMappingURL=collections.service.js.map

@@ -6,4 +6,5 @@ export declare class CreateCollectionDto {
     hasSpecialCoupon?: boolean;
     baseDiscountPercent?: number;
     incrementPerExpansion?: number;
+    specialCouponId?: number;
 }

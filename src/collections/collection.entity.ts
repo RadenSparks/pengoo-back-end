@@ -8,7 +8,9 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
-    DeleteDateColumn
+    DeleteDateColumn,
+    OneToOne,
+    JoinColumn
 } from 'typeorm';
 
 @Entity()
@@ -50,7 +52,11 @@ export class Collection {
     @OneToMany(() => Product, (product) => product.collection)
     products: Product[];
 
-    @OneToMany(() => Coupon, coupon => coupon.collection)
-    specialCoupons: Coupon[];
+    @OneToOne(() => Coupon, { nullable: true })
+    @JoinColumn()
+    specialCoupon?: Coupon;
+
+    @Column({ type: 'integer', nullable: true })
+    specialCouponId?: number;
 }
 

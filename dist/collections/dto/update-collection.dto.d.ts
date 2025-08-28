@@ -6,4 +6,5 @@ export declare class UpdateCollectionDto {
     hasSpecialCoupon?: boolean;
     baseDiscountPercent?: number;
     incrementPerExpansion?: number;
+    specialCouponId?: number;
 }

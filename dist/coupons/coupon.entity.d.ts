@@ -21,5 +21,5 @@ export declare class Coupon {
     milestonePoints: number | null;
     deletedAt?: Date;
     collection: Collection;
-    collectionId: number;
+    collectionId: number | null;
 }

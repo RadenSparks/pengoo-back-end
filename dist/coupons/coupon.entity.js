@@ -95,12 +95,12 @@ __decorate([
     __metadata("design:type", Date)
 ], Coupon.prototype, "deletedAt", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => collection_entity_1.Collection, collection => collection.specialCoupons, { nullable: true }),
+    (0, typeorm_1.ManyToOne)(() => collection_entity_1.Collection, { nullable: true, onDelete: 'SET NULL' }),
     __metadata("design:type", collection_entity_1.Collection)
 ], Coupon.prototype, "collection", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", Number)
+    (0, typeorm_1.Column)({ type: 'int', nullable: true }),
+    __metadata("design:type", Object)
 ], Coupon.prototype, "collectionId", void 0);
 exports.Coupon = Coupon = __decorate([
     (0, typeorm_1.Entity)()

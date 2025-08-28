@@ -13,5 +13,6 @@ export declare class Collection {
     updatedAt: Date;
     deletedAt?: Date;
     products: Product[];
-    specialCoupons: Coupon[];
+    specialCoupon?: Coupon;
+    specialCouponId?: number;
 }

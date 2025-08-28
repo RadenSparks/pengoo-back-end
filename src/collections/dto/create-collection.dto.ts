@@ -6,4 +6,5 @@ export class CreateCollectionDto {
   hasSpecialCoupon?: boolean;
   baseDiscountPercent?: number;
   incrementPerExpansion?: number;
+  specialCouponId?: number; // <-- add this
 }

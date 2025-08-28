@@ -54,9 +54,9 @@ export class Coupon {
   @DeleteDateColumn({ nullable: true })
   deletedAt?: Date;
 
-  @ManyToOne(() => Collection, collection => collection.specialCoupons, { nullable: true })
+  @ManyToOne(() => Collection, { nullable: true, onDelete: 'SET NULL' })
   collection: Collection;
 
-  @Column({ nullable: true })
-  collectionId: number;
+  @Column({ type: 'int', nullable: true })
+  collectionId: number | null;
 }
