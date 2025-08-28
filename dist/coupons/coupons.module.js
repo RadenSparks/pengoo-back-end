@@ -10,17 +10,19 @@ exports.CouponsModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const coupon_entity_1 = require("./coupon.entity");
+const user_coupon_entity_1 = require("./user-coupon.entity");
 const coupons_service_1 = require("./coupons.service");
 const coupons_controller_1 = require("./coupons.controller");
 const product_entity_1 = require("../products/entities/product.entity");
-const user_entity_1 = require("../users/user.entity");
-const user_coupon_entity_1 = require("./user-coupon.entity");
+const collection_entity_1 = require("../collections/collection.entity");
 let CouponsModule = class CouponsModule {
 };
 exports.CouponsModule = CouponsModule;
 exports.CouponsModule = CouponsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([coupon_entity_1.Coupon, product_entity_1.Product, user_entity_1.User, user_coupon_entity_1.UserCoupon])],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([coupon_entity_1.Coupon, user_coupon_entity_1.UserCoupon, product_entity_1.Product, collection_entity_1.Collection]),
+        ],
         providers: [coupons_service_1.CouponsService],
         controllers: [coupons_controller_1.CouponsController],
         exports: [coupons_service_1.CouponsService],
