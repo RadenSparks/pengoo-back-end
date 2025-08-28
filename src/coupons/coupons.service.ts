@@ -6,6 +6,9 @@ import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UserCoupon } from './user-coupon.entity';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
 import { User } from '../users/user.entity';
+import { Product } from '../products/entities/product.entity';
+import { Collection } from '../collections/collection.entity';
+import { isBaseGame, isExpansion } from '../products/products.service';
 
 @Injectable()
 export class CouponsService {
@@ -13,7 +16,11 @@ export class CouponsService {
     @InjectRepository(Coupon)
     private couponsRepo: Repository<Coupon>,
     @InjectRepository(UserCoupon)
-    private userCouponRepo: Repository<UserCoupon>, // <-- Add this line
+    private userCouponRepo: Repository<UserCoupon>,
+    @InjectRepository(Product)
+    private productsRepo: Repository<Product>,
+    @InjectRepository(Collection)
+    private collectionsRepo: Repository<Collection>,
   ) { }
 
   async create(dto: CreateCouponDto): Promise<Coupon> {
@@ -25,7 +32,72 @@ export class CouponsService {
     return this.couponsRepo.save(coupon);
   }
 
+  /**
+   * Special collection coupon logic:
+   * - If order contains at least 1 base game and 1 expansion from the same collection,
+   *   apply a special coupon: basePercent + (expansionCount - 1) * incrementPercent
+   */
+  async getSpecialCollectionDiscount(productIds: number[]) {
+    // Load products with their collection and category
+    const products = await this.productsRepo.find({
+      where: { id: In(productIds) },
+      relations: ['collection', 'category_ID'],
+    });
+    // Group by collection
+    const collections = new Map<number, { base: Product[]; expansions: Product[]; config?: Collection }>();
+    for (const product of products) {
+      if (!product.collection) continue;
+      const colId = product.collection.id;
+      if (!collections.has(colId)) {
+        collections.set(colId, { base: [], expansions: [], config: product.collection });
+      }
+      if (isBaseGame(product)) collections.get(colId)!.base.push(product);
+      if (isExpansion(product)) collections.get(colId)!.expansions.push(product);
+    }
+    // Find a collection with at least 1 base and 1 expansion and hasSpecialCoupon
+    for (const [colId, { base, expansions, config }] of collections.entries()) {
+      if (
+        base.length > 0 &&
+        expansions.length > 0 &&
+        config?.hasSpecialCoupon
+      ) {
+        const basePercent = config.baseDiscountPercent ?? 10;
+        const incrementPercent = config.incrementPerExpansion ?? 5;
+        const discountPercent = basePercent + (expansions.length - 1) * incrementPercent;
+        return { discountPercent, collectionId: colId };
+      }
+    }
+    return { discountPercent: 0, collectionId: null };
+  }
+
+  // Override validateAndApply to use special logic
   async validateAndApply(code: string, orderValue: number, userId: number, productIds: number[]): Promise<{ coupon: Coupon, discount: number }> {
+    // Special collection coupon logic
+    const { discountPercent, collectionId } = await this.getSpecialCollectionDiscount(productIds);
+    if (discountPercent > 0) {
+      // Return a virtual coupon object for this special case
+      const discount = (orderValue * discountPercent) / 100;
+      return {
+        coupon: {
+          id: 0,
+          code: 'COLLECTION_SPECIAL',
+          minOrderValue: 0,
+          maxOrderValue: orderValue,
+          startDate: new Date(),
+          endDate: new Date(),
+          usageLimit: 1,
+          usedCount: 0,
+          status: 'active',
+          discountPercent,
+          description: `Special collection coupon for collection ${collectionId}`,
+          userCoupons: [],
+          milestonePoints: null,
+          deletedAt: undefined,
+        } as Coupon,
+        discount,
+      };
+    }
+
     const coupon = await this.couponsRepo.findOne({
       where: { code: ILike(code) },
       // relations: ['products', 'users'],

@@ -5,6 +5,9 @@ export declare class Collection {
     slug: string;
     description: string;
     image_url: string;
+    hasSpecialCoupon: boolean;
+    baseDiscountPercent: number;
+    incrementPerExpansion: number;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;

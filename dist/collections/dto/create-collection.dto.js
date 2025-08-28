@@ -6,6 +6,9 @@ class CreateCollectionDto {
     slug;
     image_url;
     productIds;
+    hasSpecialCoupon;
+    baseDiscountPercent;
+    incrementPerExpansion;
 }
 exports.CreateCollectionDto = CreateCollectionDto;
 //# sourceMappingURL=create-collection.dto.js.map

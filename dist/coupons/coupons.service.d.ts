@@ -4,11 +4,22 @@ import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UserCoupon } from './user-coupon.entity';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
 import { User } from '../users/user.entity';
+import { Product } from '../products/entities/product.entity';
+import { Collection } from '../collections/collection.entity';
 export declare class CouponsService {
     private couponsRepo;
     private userCouponRepo;
-    constructor(couponsRepo: Repository<Coupon>, userCouponRepo: Repository<UserCoupon>);
+    private productsRepo;
+    private collectionsRepo;
+    constructor(couponsRepo: Repository<Coupon>, userCouponRepo: Repository<UserCoupon>, productsRepo: Repository<Product>, collectionsRepo: Repository<Collection>);
     create(dto: CreateCouponDto): Promise<Coupon>;
+    getSpecialCollectionDiscount(productIds: number[]): Promise<{
+        discountPercent: number;
+        collectionId: number;
+    } | {
+        discountPercent: number;
+        collectionId: null;
+    }>;
     validateAndApply(code: string, orderValue: number, userId: number, productIds: number[]): Promise<{
         coupon: Coupon;
         discount: number;

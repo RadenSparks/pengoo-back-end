@@ -19,6 +19,9 @@ let Collection = class Collection {
     slug;
     description;
     image_url;
+    hasSpecialCoupon;
+    baseDiscountPercent;
+    incrementPerExpansion;
     createdAt;
     updatedAt;
     deletedAt;
@@ -45,6 +48,18 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
     __metadata("design:type", String)
 ], Collection.prototype, "image_url", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
+    __metadata("design:type", Boolean)
+], Collection.prototype, "hasSpecialCoupon", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', default: 10 }),
+    __metadata("design:type", Number)
+], Collection.prototype, "baseDiscountPercent", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', default: 5 }),
+    __metadata("design:type", Number)
+], Collection.prototype, "incrementPerExpansion", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

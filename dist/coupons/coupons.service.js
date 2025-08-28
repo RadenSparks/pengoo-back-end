@@ -18,12 +18,19 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const coupon_entity_1 = require("./coupon.entity");
 const user_coupon_entity_1 = require("./user-coupon.entity");
+const product_entity_1 = require("../products/entities/product.entity");
+const collection_entity_1 = require("../collections/collection.entity");
+const products_service_1 = require("../products/products.service");
 let CouponsService = class CouponsService {
     couponsRepo;
     userCouponRepo;
-    constructor(couponsRepo, userCouponRepo) {
+    productsRepo;
+    collectionsRepo;
+    constructor(couponsRepo, userCouponRepo, productsRepo, collectionsRepo) {
         this.couponsRepo = couponsRepo;
         this.userCouponRepo = userCouponRepo;
+        this.productsRepo = productsRepo;
+        this.collectionsRepo = collectionsRepo;
     }
     async create(dto) {
         const coupon = this.couponsRepo.create({
@@ -32,7 +39,60 @@ let CouponsService = class CouponsService {
         });
         return this.couponsRepo.save(coupon);
     }
+    async getSpecialCollectionDiscount(productIds) {
+        const products = await this.productsRepo.find({
+            where: { id: (0, typeorm_2.In)(productIds) },
+            relations: ['collection', 'category_ID'],
+        });
+        const collections = new Map();
+        for (const product of products) {
+            if (!product.collection)
+                continue;
+            const colId = product.collection.id;
+            if (!collections.has(colId)) {
+                collections.set(colId, { base: [], expansions: [], config: product.collection });
+            }
+            if ((0, products_service_1.isBaseGame)(product))
+                collections.get(colId).base.push(product);
+            if ((0, products_service_1.isExpansion)(product))
+                collections.get(colId).expansions.push(product);
+        }
+        for (const [colId, { base, expansions, config }] of collections.entries()) {
+            if (base.length > 0 &&
+                expansions.length > 0 &&
+                config?.hasSpecialCoupon) {
+                const basePercent = config.baseDiscountPercent ?? 10;
+                const incrementPercent = config.incrementPerExpansion ?? 5;
+                const discountPercent = basePercent + (expansions.length - 1) * incrementPercent;
+                return { discountPercent, collectionId: colId };
+            }
+        }
+        return { discountPercent: 0, collectionId: null };
+    }
     async validateAndApply(code, orderValue, userId, productIds) {
+        const { discountPercent, collectionId } = await this.getSpecialCollectionDiscount(productIds);
+        if (discountPercent > 0) {
+            const discount = (orderValue * discountPercent) / 100;
+            return {
+                coupon: {
+                    id: 0,
+                    code: 'COLLECTION_SPECIAL',
+                    minOrderValue: 0,
+                    maxOrderValue: orderValue,
+                    startDate: new Date(),
+                    endDate: new Date(),
+                    usageLimit: 1,
+                    usedCount: 0,
+                    status: 'active',
+                    discountPercent,
+                    description: `Special collection coupon for collection ${collectionId}`,
+                    userCoupons: [],
+                    milestonePoints: null,
+                    deletedAt: undefined,
+                },
+                discount,
+            };
+        }
         const coupon = await this.couponsRepo.findOne({
             where: { code: (0, typeorm_2.ILike)(code) },
         });
@@ -159,7 +219,11 @@ exports.CouponsService = CouponsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(coupon_entity_1.Coupon)),
     __param(1, (0, typeorm_1.InjectRepository)(user_coupon_entity_1.UserCoupon)),
+    __param(2, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
+    __param(3, (0, typeorm_1.InjectRepository)(collection_entity_1.Collection)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository])
 ], CouponsService);
 //# sourceMappingURL=coupons.service.js.map
