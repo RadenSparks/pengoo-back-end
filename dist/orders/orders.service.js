@@ -282,13 +282,9 @@ let OrdersService = class OrdersService {
                 toAccountNumber: data.toAccountNumber,
                 toBin: data.toBin,
                 bank: data.bank,
-                paymentMethod: order.payment_type,
+                paymentMethod: data.paymentMethod,
                 times: (order.refundRequests?.length ?? 0) + 1,
                 status: refund_request_entity_1.RefundRequestStatus.PENDING,
-                paymentMethod: data.paymentMethod,
-                toAccountNumber: data.toAccountNumber,
-                toBin: data.toBin,
-                bank: data.bank,
             });
             await manager.save(refundRequest);
             if (Array.isArray(data.uploadFiles)) {

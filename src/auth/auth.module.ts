@@ -24,7 +24,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '60h' },
+        signOptions: { expiresIn: '600h' },
       }),
     }),
     TypeOrmModule.forFeature([RolePermission, Permission, Role]),

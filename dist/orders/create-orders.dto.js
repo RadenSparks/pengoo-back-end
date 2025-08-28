@@ -41,9 +41,6 @@ class CreateRefundRequestDto {
     toAccountNumber;
     uploadFiles;
     paymentMethod;
-    toAccountNumber;
-    toBin;
-    bank;
 }
 exports.CreateRefundRequestDto = CreateRefundRequestDto;
 __decorate([
@@ -85,21 +82,6 @@ __decorate([
     (0, class_validator_1.IsEnum)(payment_types_1.PaymentMethod),
     __metadata("design:type", String)
 ], CreateRefundRequestDto.prototype, "paymentMethod", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRefundRequestDto.prototype, "toAccountNumber", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRefundRequestDto.prototype, "toBin", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateRefundRequestDto.prototype, "bank", void 0);
 class CreateOrderDto {
     userId;
     delivery_id;

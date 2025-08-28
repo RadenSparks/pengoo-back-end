@@ -45,18 +45,6 @@ export class CreateRefundRequestDto {
   @IsNotEmpty()
   @IsEnum(PaymentMethod)
   paymentMethod: PaymentMethod;
-
-  @IsNotEmpty()
-  @IsString()
-  toAccountNumber: string;
-
-  @IsNotEmpty()
-  @IsString()
-  toBin: string;
-
-  @IsNotEmpty()
-  @IsString()
-  bank: string;
 }
 
 export class CreateOrderDto {

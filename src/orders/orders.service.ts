@@ -331,13 +331,9 @@ export class OrdersService {
         toAccountNumber: data.toAccountNumber,
         toBin: data.toBin,
         bank: data.bank,
-        paymentMethod: order.payment_type as PaymentMethod,
+        paymentMethod: data.paymentMethod, // <-- Store payment method
         times: (order.refundRequests?.length ?? 0) + 1,
         status: RefundRequestStatus.PENDING,
-        paymentMethod: data.paymentMethod, // <-- Store payment method
-        toAccountNumber: data.toAccountNumber,
-        toBin: data.toBin,
-        bank: data.bank,
       });
       await manager.save(refundRequest);
       // 8. Save evidence URLs

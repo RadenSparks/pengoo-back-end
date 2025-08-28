@@ -36,7 +36,7 @@ exports.AuthModule = AuthModule = __decorate([
                 inject: [config_1.ConfigService],
                 useFactory: async (configService) => ({
                     secret: configService.get('JWT_SECRET'),
-                    signOptions: { expiresIn: '60h' },
+                    signOptions: { expiresIn: '600h' },
                 }),
             }),
             typeorm_1.TypeOrmModule.forFeature([role_permission_entity_1.RolePermission, permission_entity_1.Permission, role_entity_1.Role]),

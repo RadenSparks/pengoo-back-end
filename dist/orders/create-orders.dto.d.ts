@@ -16,9 +16,6 @@ export declare class CreateRefundRequestDto {
         url: string;
     }[];
     paymentMethod: PaymentMethod;
-    toAccountNumber: string;
-    toBin: string;
-    bank: string;
 }
 export declare class CreateOrderDto {
     userId: number;
