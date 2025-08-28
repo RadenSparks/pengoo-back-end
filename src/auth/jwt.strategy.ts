@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     console.log('User found:', user);
     if (!user) {
       console.log('User not found!');
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException("Thông tin xác thực không hợp lệ");
     }
     if (user.role != payload.role) {
       console.log('Role mismatch:', user.role, payload.role);
@@ -35,7 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
     if (user.role != payload.role || user.email != payload.email || user.id != payload.sub) {
       console.log('User data mismatch!', user, payload);
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Thông tin xác thực không hợp lệ');
     }
     return user;
   }

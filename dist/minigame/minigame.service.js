@@ -50,9 +50,9 @@ let MinigameService = class MinigameService {
     async submitScore(userId, score) {
         const user = await this.usersRepository.findOne({ where: { id: userId }, relations: ['coupons'] });
         if (!user)
-            throw new common_1.NotFoundException('User not found');
+            throw new common_1.NotFoundException('Không tìm thấy người dùng');
         if (user.minigame_tickets <= 0) {
-            return { message: 'No tickets left.', tickets: user.minigame_tickets };
+            return { message: 'Không còn vé.', tickets: user.minigame_tickets };
         }
         user.minigame_tickets -= 1;
         user.points += score;
@@ -85,7 +85,7 @@ let MinigameService = class MinigameService {
     async addTicket(userId, type, refId) {
         const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (!user)
-            throw new common_1.NotFoundException('User not found');
+            throw new common_1.NotFoundException('Không tìm thấy người dùng');
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
@@ -113,9 +113,9 @@ let MinigameService = class MinigameService {
     async playScratch(userId) {
         const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (!user)
-            throw new common_1.NotFoundException('User not found');
+            throw new common_1.NotFoundException('Không tìm thấy người dùng');
         if (user.minigame_tickets <= 0) {
-            return { message: 'No tickets left.', tickets: user.minigame_tickets };
+            return { message: 'Không còn vé.', tickets: user.minigame_tickets };
         }
         user.minigame_tickets -= 1;
         const grid = [];
@@ -177,9 +177,9 @@ let MinigameService = class MinigameService {
     async startScratch(userId) {
         const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (!user)
-            throw new common_1.NotFoundException('User not found');
+            throw new common_1.NotFoundException('Không tìm thấy người dùng');
         if (user.minigame_tickets <= 0) {
-            return { message: 'No tickets left.', tickets: user.minigame_tickets };
+            return { message: 'Không còn vé.', tickets: user.minigame_tickets };
         }
         user.minigame_tickets -= 1;
         await this.usersRepository.save(user);
@@ -197,13 +197,13 @@ let MinigameService = class MinigameService {
     async revealScratch(userId, gameId) {
         const game = this.scratchGames.get(gameId);
         if (!game || game.userId !== userId) {
-            throw new common_1.NotFoundException('Game not found or expired');
+            throw new common_1.NotFoundException('Trò chơi không được tìm thấy hoặc đã hết hạn');
         }
         const { reward } = game;
         this.scratchGames.delete(gameId);
         const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (!user)
-            throw new common_1.NotFoundException('User not found');
+            throw new common_1.NotFoundException('Không tìm thấy người dùng');
         let couponGranted = false;
         let couponCode = null;
         if (reward.type === 'points') {
@@ -227,7 +227,7 @@ let MinigameService = class MinigameService {
     async claimDailyFreeTicket(userId) {
         const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (!user)
-            throw new common_1.NotFoundException('User not found');
+            throw new common_1.NotFoundException('Không tìm thấy người dùng');
         const today = new Date();
         today.setHours(0, 0, 0);
         if (user.lastFreeTicketClaim) {

@@ -20,7 +20,7 @@ export class UsersService {
     try {
       // Validate email format (simple check)
       if (!createUserDto.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createUserDto.email)) {
-        throw new InternalServerErrorException('Invalid email format');
+        throw new InternalServerErrorException('Định dạng email không hợp lệ');
       }
 
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -39,7 +39,7 @@ export class UsersService {
       if (existingUser) {
         if (existingUser.provider === 'google' && (!createUserDto.provider || createUserDto.provider === 'local')) {
           throw new BadRequestException(
-            'An account with this email already exists via Google. Please log in with Google.'
+            'Tài khoản có email này đã tồn tại qua Google. Vui lòng đăng nhập bằng Google.'
           );
         }
         // Optionally, prevent other provider overwrites as well
@@ -61,7 +61,7 @@ export class UsersService {
     } catch (error) {
       // Log the actual error for debugging
       console.error('User creation error:', error);
-      throw new InternalServerErrorException('User registration failed');
+      throw new InternalServerErrorException('Đăng ký người dùng không thành công');
     }
   }
 
@@ -115,13 +115,13 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new Error('Không tìm thấy người dùng');
     Object.assign(user, updateUserDto);
     return this.usersRepository.save(user);
   }
   async updateClient(id: number, updateUserDto: UpdateUserDto, file?: Express.Multer.File) {
     const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new Error('Không tìm thấy người dùng');
     if (file) {
       const avatarUpload = await this.cloudinaryService.uploadImage(
         file, // Express.Multer.File
@@ -139,7 +139,7 @@ export class UsersService {
 
   async updatePassword(userId: number, dto) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Không tìm thấy người dùng');
 
     const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
     if (!isMatch) throw new BadRequestException('Mật khẩu hiện tại không đúng');
@@ -152,21 +152,21 @@ export class UsersService {
   }
   async setStatus(id: number, status: boolean): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new Error('Không tìm thấy người dùng');
     user.status = status;
     return this.usersRepository.save(user);
   }
 
   async adminResetPassword(id: number, newPassword: string): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new Error('Không tìm thấy người dùng');
     user.password = await bcrypt.hash(newPassword, 10);
     return this.usersRepository.save(user);
   }
 
   async updateRole(id: number, role: string) {
     const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new Error('Không tìm thấy người dùng');
     user.role = role;
     return this.usersRepository.save(user);
   }

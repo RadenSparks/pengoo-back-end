@@ -34,17 +34,17 @@ let ReviewsService = class ReviewsService {
     async addReview(userId, productId, createReviewDto) {
         const user = await this.usersService.findById(userId);
         if (!user) {
-            throw new common_1.NotFoundException('User not found');
+            throw new common_1.NotFoundException('Không tìm thấy người dùng');
         }
         const product = await this.productsService.findById(productId);
         if (!product) {
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.NotFoundException('Không tìm thấy sản phẩm');
         }
         let order;
         if (createReviewDto.orderId) {
             const foundOrder = await this.ordersRepository.findOne({ where: { id: createReviewDto.orderId } });
             if (!foundOrder || foundOrder.productStatus !== order_entity_1.ProductStatus.Delivered) {
-                throw new common_1.BadRequestException('You can leave a review after the order is delivered.');
+                throw new common_1.BadRequestException('Bạn có thể để lại đánh giá sau khi đơn hàng được giao.');
             }
             order = foundOrder;
         }
@@ -60,7 +60,7 @@ let ReviewsService = class ReviewsService {
     async updateReview(userId, reviewId, updateReviewDto) {
         const review = await this.reviewsRepository.findOne({ where: { id: reviewId, user: { id: userId } } });
         if (!review) {
-            throw new common_1.NotFoundException('Review not found');
+            throw new common_1.NotFoundException('Không tìm thấy bài đánh giá');
         }
         review.rating = updateReviewDto.rating;
         review.content = updateReviewDto.content;
@@ -69,7 +69,7 @@ let ReviewsService = class ReviewsService {
     async updateReviewStatus(reviewId, status) {
         const review = await this.reviewsRepository.findOne({ where: { id: reviewId } });
         if (!review) {
-            throw new common_1.NotFoundException('Review not found');
+            throw new common_1.NotFoundException('Không tìm thấy bài đánh giá');
         }
         review.status = status;
         return this.reviewsRepository.save(review);
@@ -77,7 +77,7 @@ let ReviewsService = class ReviewsService {
     async deleteReview(userId, reviewId) {
         const review = await this.reviewsRepository.findOne({ where: { id: reviewId, user: { id: userId } } });
         if (!review) {
-            throw new common_1.NotFoundException('Review not found');
+            throw new common_1.NotFoundException('Không tìm thấy bài đánh giá');
         }
         await this.reviewsRepository.remove(review);
     }

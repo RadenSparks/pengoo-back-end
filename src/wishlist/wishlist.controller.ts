@@ -11,7 +11,7 @@ interface WishlistBody {
 @ApiBearerAuth()
 @Controller('wishlist')
 export class WishlistController {
-  constructor(private readonly wishlistService: WishlistService) {}
+  constructor(private readonly wishlistService: WishlistService) { }
 
   @Post(':productId')
   @ApiOperation({ summary: 'Add product to wishlist' })
@@ -34,7 +34,7 @@ export class WishlistController {
   addToWishlist(@Body() body: WishlistBody, @Param('productId') productId: string) {
     const userId = Number(body.userId);
     if (!body || isNaN(userId)) {
-      throw new BadRequestException('userId is required and must be a number');
+      throw new BadRequestException('userId là bắt buộc và phải là số');
     }
     return this.wishlistService.addToWishlist(userId, Number(productId));
   }
@@ -60,7 +60,7 @@ export class WishlistController {
   removeFromWishlist(@Body() body: WishlistBody, @Param('productId') productId: string) {
     const userId = Number(body.userId);
     if (!body || isNaN(userId)) {
-      throw new BadRequestException('userId is required and must be a number');
+      throw new BadRequestException('userId là bắt buộc và phải là số');
     }
     return this.wishlistService.removeFromWishlist(userId, Number(productId));
   }
@@ -93,7 +93,7 @@ export class WishlistController {
   async moveToOrder(@Body() body: WishlistBody, @Param('orderId') orderId: string) {
     const userId = Number(body.userId);
     if (!body || isNaN(userId)) {
-      throw new BadRequestException('userId is required and must be a number');
+      throw new BadRequestException('userId là bắt buộc và phải là số');
     }
     return this.wishlistService.moveWishlistToOrder(userId, Number(orderId));
   }

@@ -31,7 +31,7 @@ export class PaypalService {
 
   async createOrder(orderId: number) {
     const order = await this.ordersService.findById(orderId);
-    if (!order) throw new NotFoundException('Order not found');
+    if (!order) throw new NotFoundException('Không tìm thấy đơn hàng');
 
     // Convert VND to USD for PayPal
     const usdAmount = convertVndToUsd(order.total_price);
@@ -66,7 +66,7 @@ export class PaypalService {
       return { paypalOrderId, approvalUrl };
     } catch (err) {
       console.error('[PayPal] Failed to create PayPal order:', err?.message, err?.response?.data || err);
-      throw new InternalServerErrorException('Failed to create PayPal order');
+      throw new InternalServerErrorException('Không tạo được đơn hàng PayPal');
     }
   }
 
@@ -97,14 +97,14 @@ export class PaypalService {
       return response.result;
     } catch (err) {
       console.error('[PayPal] Failed to capture PayPal order:', err?.message, err?.response?.data || err);
-      throw new InternalServerErrorException('Failed to capture PayPal order');
+      throw new InternalServerErrorException('Không tạo được đơn hàng PayPal');
     }
   }
 
   async refundOrder(orderId: number): Promise<any> {
     const order = await this.ordersService.findById(orderId);
     if (!order || !order.paypal_order_id) {
-      throw new NotFoundException('Order or PayPal order ID not found');
+      throw new NotFoundException('Không tìm thấy đơn hàng hoặc ID đơn hàng PayPal');
     }
 
     // Get the capture ID from the PayPal order
@@ -114,9 +114,9 @@ export class PaypalService {
       const orderRes = await this.client.execute(getOrderRequest);
       captureId = orderRes.result.purchase_units?.[0]?.payments?.captures?.[0]?.id;
     } catch {
-      throw new InternalServerErrorException('Failed to fetch PayPal order details');
+      throw new InternalServerErrorException('Không tìm nạp được chi tiết đơn hàng PayPal');
     }
-    if (!captureId) throw new InternalServerErrorException('PayPal capture ID not found');
+    if (!captureId) throw new InternalServerErrorException('Không tìm thấy ID chụp PayPal');
 
     // Refund the capture
     const refundRequest = new paypal.payments.CapturesRefundRequest(captureId);
@@ -128,7 +128,7 @@ export class PaypalService {
       await this.ordersService.save(order);
       return refundRes.result;
     } catch {
-      throw new InternalServerErrorException('Failed to refund PayPal payment');
+      throw new InternalServerErrorException('Không thể hoàn trả khoản thanh toán PayPal');
     }
   }
 }

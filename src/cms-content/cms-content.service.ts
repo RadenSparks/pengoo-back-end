@@ -13,18 +13,18 @@ export class CmsContentService {
     private cmsContentRepo: Repository<CmsContent>,
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
-  ) {}
+  ) { }
 
   async create(productId: number, dto: CreateCmsContentDto) {
     const product = await this.productRepo.findOneBy({ id: productId });
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
     const cms = this.cmsContentRepo.create({ ...dto, product });
     return this.cmsContentRepo.save(cms);
   }
 
   async update(productId: number, dto: UpdateCmsContentDto) {
     const cms = await this.cmsContentRepo.findOne({ where: { product: { id: productId } } });
-    if (!cms) throw new NotFoundException('CMS Content not found');
+    if (!cms) throw new NotFoundException('Không tìm thấy nội dung CMS');
     Object.assign(cms, dto);
     return this.cmsContentRepo.save(cms);
   }

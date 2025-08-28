@@ -93,7 +93,7 @@ let ProductsService = class ProductsService {
             featuredImageEntities = await Promise.all(features.map(async (f, i) => {
                 const imageFile = featureImages[i];
                 if (!imageFile?.buffer) {
-                    throw new common_1.BadRequestException(`Missing feature image for feature ${i}`);
+                    throw new common_1.BadRequestException(`Thiếu hình ảnh đặc trưng cho tính năng ${i}`);
                 }
                 const uploaded = await this.cloudinaryService.uploadImage(imageFile, 'product', { userId: 0 });
                 const img = new image_entity_1.Image();
@@ -245,7 +245,7 @@ let ProductsService = class ProductsService {
             withDeleted: true,
         });
         if (!product) {
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.NotFoundException('Không tìm thấy sản phẩm');
         }
         if (product.category_ID?.id) {
             product.category_ID = await this.categoriesService.findById(product.category_ID.id);
@@ -269,7 +269,7 @@ let ProductsService = class ProductsService {
             ],
         });
         if (!product) {
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.NotFoundException('Không tìm thấy sản phẩm');
         }
         return product;
     }
@@ -285,7 +285,7 @@ let ProductsService = class ProductsService {
             relations: ['tags', 'category_ID', 'publisher_ID', 'images'],
         });
         if (!product) {
-            throw new common_1.NotFoundException(`Product with ID ${id} not found`);
+            throw new common_1.NotFoundException(`Không tìm thấy sản phẩm có ID ${id}`);
         }
         if (updateProductDto.category_ID) {
             product.category_ID = await this.categoriesService.findById(updateProductDto.category_ID);
@@ -398,7 +398,7 @@ let ProductsService = class ProductsService {
     async createCmsContentForProduct(id) {
         const product = await this.productsRepository.findOne({ where: { id }, relations: ['cmsContent'] });
         if (!product)
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.NotFoundException('Không tìm thấy sản phẩm');
         if (!product.cmsContent) {
             const cmsContent = this.cmsContentRepository.create();
             cmsContent.product = product;
@@ -453,7 +453,7 @@ function findExpansionsForBaseGame(products, baseSlug) {
 }
 function checkStockBeforeOrder(product, detail) {
     if (product.quantity_stock < detail.quantity) {
-        throw new common_1.BadRequestException(`Not enough stock for product ${product.product_name}`);
+        throw new common_1.BadRequestException(`Không đủ hàng cho sản phẩm ${product.product_name}`);
     }
 }
 //# sourceMappingURL=products.service.js.map

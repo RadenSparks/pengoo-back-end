@@ -11,7 +11,7 @@ export class CategoriesService {
     constructor(
         @InjectRepository(Category)
         private categoriesRepository: Repository<Category>,
-      ) {}
+    ) { }
 
     async create(
         createCategoryDto: CreateCategoryDto,
@@ -26,14 +26,14 @@ export class CategoriesService {
 
     async findById(id: number): Promise<Category> {
         if (!id) {
-            throw new NotFoundException('Category id empty');
+            throw new NotFoundException('Id danh mục trống');
         }
         const category = await this.categoriesRepository.findOne({
             where: { id },
             relations: ['products'],
         });
         if (!category) {
-            throw new NotFoundException('Category not found');
+            throw new NotFoundException('Không tìm thấy danh mục');
         }
         return category;
     }
@@ -44,18 +44,18 @@ export class CategoriesService {
     ): Promise<Category> {
         const category = await this.findById(id);
         if (!category) {
-            throw new NotFoundException('Category not found');
+            throw new NotFoundException('Không tìm thấy danh mục');
         }
         Object.assign(category, updateCategoryDto);
         return this.categoriesRepository.save(category);
     }
 
     async remove(id: number): Promise<void> {
-      await this.categoriesRepository.softDelete(id);
+        await this.categoriesRepository.softDelete(id);
     }
 
     async restore(id: number): Promise<void> {
-      await this.categoriesRepository.restore(id);
+        await this.categoriesRepository.restore(id);
     }
 
     async findAllDeleted(): Promise<Category[]> {

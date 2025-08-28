@@ -22,10 +22,10 @@ export class WishlistService {
     if (existing) return existing; // or just return a success message
 
     const user = await this.usersService.findById(userId);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Không tìm thấy người dùng');
 
     const product = await this.productsService.findById(productId);
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
 
     const wishlistItem = this.wishlistRepository.create({ user, product });
     return this.wishlistRepository.save(wishlistItem);
@@ -35,7 +35,7 @@ export class WishlistService {
     const wishlistItem = await this.wishlistRepository.findOne({
       where: { user: { id: userId }, product: { id: productId }, movedToOrder: IsNull() },
     });
-    if (!wishlistItem) throw new NotFoundException('Wishlist item not found');
+    if (!wishlistItem) throw new NotFoundException('Không tìm thấy mục danh sách yêu thích');
     await this.wishlistRepository.remove(wishlistItem);
   }
 
@@ -49,7 +49,7 @@ export class WishlistService {
 
   async moveWishlistToOrder(userId: number, orderId: number): Promise<{ moved: number }> {
     const order = await this.ordersService.findById(orderId);
-    if (!order) throw new NotFoundException('Order not found');
+    if (!order) throw new NotFoundException('Không tìm thấy đơn hàng');
 
     const wishlistItems = await this.wishlistRepository.find({
       where: { user: { id: userId }, movedToOrder: IsNull() },

@@ -94,7 +94,7 @@ export class ProductsService {
         features.map(async (f, i) => {
           const imageFile = featureImages[i];
           if (!imageFile?.buffer) {
-            throw new BadRequestException(`Missing feature image for feature ${i}`);
+            throw new BadRequestException(`Thiếu hình ảnh đặc trưng cho tính năng ${i}`);
           }
           const uploaded = await this.cloudinaryService.uploadImage(imageFile, 'product', { userId: 0 });
           const img = new Image();
@@ -285,7 +285,7 @@ export class ProductsService {
       withDeleted: true, // <-- include deleted relations
     });
     if (!product) {
-      throw new NotFoundException('Product not found');
+      throw new NotFoundException('Không tìm thấy sản phẩm');
     }
     // Manually fetch deleted category and tags if needed
     if (product.category_ID?.id) {
@@ -311,7 +311,7 @@ export class ProductsService {
       ],
     });
     if (!product) {
-      throw new NotFoundException('Product not found');
+      throw new NotFoundException('Không tìm thấy sản phẩm');
     }
     return product;
   }
@@ -338,7 +338,7 @@ export class ProductsService {
     });
 
     if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy sản phẩm có ID ${id}`);
     }
 
     if (updateProductDto.category_ID) {
@@ -477,7 +477,7 @@ export class ProductsService {
 
   async createCmsContentForProduct(id: number): Promise<Product> {
     const product = await this.productsRepository.findOne({ where: { id }, relations: ['cmsContent'] });
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
     if (!product.cmsContent) {
       const cmsContent = this.cmsContentRepository.create();
       cmsContent.product = product;
@@ -530,6 +530,6 @@ export function findExpansionsForBaseGame(products: Product[], baseSlug: string)
 // Check stock before processing an order
 export function checkStockBeforeOrder(product: Product, detail: { quantity: number }): void {
   if (product.quantity_stock < detail.quantity) {
-    throw new BadRequestException(`Not enough stock for product ${product.product_name}`);
+    throw new BadRequestException(`Không đủ hàng cho sản phẩm ${product.product_name}`);
   }
 }

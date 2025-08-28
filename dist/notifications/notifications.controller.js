@@ -24,31 +24,33 @@ let NotificationsController = class NotificationsController {
     }
     async sendEmail(body) {
         if (!body.to || !body.subject || !body.message) {
-            throw new common_1.BadRequestException('Missing required fields: to, subject, message');
+            throw new common_1.BadRequestException('Thiếu các trường bắt buộc: đến, chủ đề, tin nhắn');
         }
         await this.notificationsService.sendEmail(body.to, body.subject, body.message);
         return { message: 'Email sent.' };
     }
     async sendOrderConfirmation(body) {
         if (!body.email || !body.orderId) {
-            throw new common_1.BadRequestException('Missing required fields: email, orderId');
+            throw new common_1.BadRequestException('Thiếu các trường bắt buộc: email, orderId');
         }
         await this.notificationsService.sendOrderConfirmation(body.email, body.orderId);
         return { message: 'Order confirmation email sent.' };
     }
     async sendShippingUpdate(body) {
         if (!body.email || !body.orderId || !body.status) {
-            throw new common_1.BadRequestException('Missing required fields: email, orderId, status');
+            throw new common_1.BadRequestException('Thiếu các trường bắt buộc: email, orderId, trạng thái');
         }
         await this.notificationsService.sendShippingUpdate(body.email, body.orderId, body.status);
-        return { message: 'Shipping update email sent.' };
+        return { message: 'Đã gửi email cập nhật vận chuyển.' };
     }
     async sendPasswordReset(body) {
         if (!body.email || !body.token) {
-            throw new common_1.BadRequestException('Missing required fields: email, token');
+            throw new common_1.BadRequestException('Thiếu các trường bắt buộc: email, token');
         }
         await this.notificationsService.sendPasswordReset(body.email, body.token);
-        return { message: 'Password reset email sent.' };
+        return {
+            message: 'Đã gửi email đặt lại mật khẩu.'
+        };
     }
 };
 exports.NotificationsController = NotificationsController;

@@ -58,7 +58,7 @@ let PublishersService = class PublishersService {
             ]
         });
         if (!publisher)
-            throw new common_1.NotFoundException('Publisher not found');
+            throw new common_1.NotFoundException('Không tìm thấy nhà xuất bản');
         return {
             ...publisher,
             products: publisher.products.map(p => ({

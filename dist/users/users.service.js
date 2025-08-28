@@ -30,7 +30,7 @@ let UsersService = class UsersService {
     async create(createUserDto) {
         try {
             if (!createUserDto.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createUserDto.email)) {
-                throw new common_1.InternalServerErrorException('Invalid email format');
+                throw new common_1.InternalServerErrorException('Định dạng email không hợp lệ');
             }
             const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
             let baseUsername = createUserDto.email.split('@')[0].trim().toLowerCase();
@@ -43,7 +43,7 @@ let UsersService = class UsersService {
             const existingUser = await this.usersRepository.findOne({ where: { email: createUserDto.email } });
             if (existingUser) {
                 if (existingUser.provider === 'google' && (!createUserDto.provider || createUserDto.provider === 'local')) {
-                    throw new common_1.BadRequestException('An account with this email already exists via Google. Please log in with Google.');
+                    throw new common_1.BadRequestException('Tài khoản có email này đã tồn tại qua Google. Vui lòng đăng nhập bằng Google.');
                 }
             }
             const newUser = new user_entity_1.User();
@@ -61,7 +61,7 @@ let UsersService = class UsersService {
         }
         catch (error) {
             console.error('User creation error:', error);
-            throw new common_1.InternalServerErrorException('User registration failed');
+            throw new common_1.InternalServerErrorException('Đăng ký người dùng không thành công');
         }
     }
     async findByUsername(accountUsername) {
@@ -109,14 +109,14 @@ let UsersService = class UsersService {
     async update(id, updateUserDto) {
         const user = await this.usersRepository.findOne({ where: { id } });
         if (!user)
-            throw new Error('User not found');
+            throw new Error('Không tìm thấy người dùng');
         Object.assign(user, updateUserDto);
         return this.usersRepository.save(user);
     }
     async updateClient(id, updateUserDto, file) {
         const user = await this.usersRepository.findOne({ where: { id } });
         if (!user)
-            throw new Error('User not found');
+            throw new Error('Không tìm thấy người dùng');
         if (file) {
             const avatarUpload = await this.cloudinaryService.uploadImage(file, 'user', { userId: id });
             updateUserDto.avatar_url = avatarUpload.secure_url;
@@ -130,7 +130,7 @@ let UsersService = class UsersService {
     async updatePassword(userId, dto) {
         const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (!user)
-            throw new common_1.NotFoundException('User not found');
+            throw new common_1.NotFoundException('Không tìm thấy người dùng');
         const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
         if (!isMatch)
             throw new common_1.BadRequestException('Mật khẩu hiện tại không đúng');
@@ -142,21 +142,21 @@ let UsersService = class UsersService {
     async setStatus(id, status) {
         const user = await this.usersRepository.findOne({ where: { id } });
         if (!user)
-            throw new Error('User not found');
+            throw new Error('Không tìm thấy người dùng');
         user.status = status;
         return this.usersRepository.save(user);
     }
     async adminResetPassword(id, newPassword) {
         const user = await this.usersRepository.findOne({ where: { id } });
         if (!user)
-            throw new Error('User not found');
+            throw new Error('Không tìm thấy người dùng');
         user.password = await bcrypt.hash(newPassword, 10);
         return this.usersRepository.save(user);
     }
     async updateRole(id, role) {
         const user = await this.usersRepository.findOne({ where: { id } });
         if (!user)
-            throw new Error('User not found');
+            throw new Error('Không tìm thấy người dùng');
         user.role = role;
         return this.usersRepository.save(user);
     }

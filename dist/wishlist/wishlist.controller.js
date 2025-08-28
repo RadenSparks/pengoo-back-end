@@ -24,14 +24,14 @@ let WishlistController = class WishlistController {
     addToWishlist(body, productId) {
         const userId = Number(body.userId);
         if (!body || isNaN(userId)) {
-            throw new common_1.BadRequestException('userId is required and must be a number');
+            throw new common_1.BadRequestException('userId là bắt buộc và phải là số');
         }
         return this.wishlistService.addToWishlist(userId, Number(productId));
     }
     removeFromWishlist(body, productId) {
         const userId = Number(body.userId);
         if (!body || isNaN(userId)) {
-            throw new common_1.BadRequestException('userId is required and must be a number');
+            throw new common_1.BadRequestException('userId là bắt buộc và phải là số');
         }
         return this.wishlistService.removeFromWishlist(userId, Number(productId));
     }
@@ -41,7 +41,7 @@ let WishlistController = class WishlistController {
     async moveToOrder(body, orderId) {
         const userId = Number(body.userId);
         if (!body || isNaN(userId)) {
-            throw new common_1.BadRequestException('userId is required and must be a number');
+            throw new common_1.BadRequestException('userId là bắt buộc và phải là số');
         }
         return this.wishlistService.moveWishlistToOrder(userId, Number(orderId));
     }

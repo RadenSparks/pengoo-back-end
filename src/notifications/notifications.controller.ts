@@ -5,7 +5,7 @@ import { Public } from '../auth/public.decorator'; // Add this import
 
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(private readonly notificationsService: NotificationsService) { }
 
   @Post('send-email')
   @Public()
@@ -22,7 +22,7 @@ export class NotificationsController {
     @Body() body: { to: string; subject: string; message: string },
   ) {
     if (!body.to || !body.subject || !body.message) {
-      throw new BadRequestException('Missing required fields: to, subject, message');
+      throw new BadRequestException('Thiếu các trường bắt buộc: đến, chủ đề, tin nhắn');
     }
     await this.notificationsService.sendEmail(body.to, body.subject, body.message);
     return { message: 'Email sent.' };
@@ -42,7 +42,7 @@ export class NotificationsController {
     @Body() body: { email: string; orderId: number },
   ) {
     if (!body.email || !body.orderId) {
-      throw new BadRequestException('Missing required fields: email, orderId');
+      throw new BadRequestException('Thiếu các trường bắt buộc: email, orderId');
     }
     await this.notificationsService.sendOrderConfirmation(body.email, body.orderId);
     return { message: 'Order confirmation email sent.' };
@@ -63,10 +63,10 @@ export class NotificationsController {
     @Body() body: { email: string; orderId: number; status: string },
   ) {
     if (!body.email || !body.orderId || !body.status) {
-      throw new BadRequestException('Missing required fields: email, orderId, status');
+      throw new BadRequestException('Thiếu các trường bắt buộc: email, orderId, trạng thái');
     }
     await this.notificationsService.sendShippingUpdate(body.email, body.orderId, body.status);
-    return { message: 'Shipping update email sent.' };
+    return { message: 'Đã gửi email cập nhật vận chuyển.' };
   }
 
   @Post('password-reset')
@@ -83,9 +83,11 @@ export class NotificationsController {
     @Body() body: { email: string; token: string },
   ) {
     if (!body.email || !body.token) {
-      throw new BadRequestException('Missing required fields: email, token');
+      throw new BadRequestException('Thiếu các trường bắt buộc: email, token');
     }
     await this.notificationsService.sendPasswordReset(body.email, body.token);
-    return { message: 'Password reset email sent.' };
+    return {
+      message: 'Đã gửi email đặt lại mật khẩu.'
+    };
   }
 }

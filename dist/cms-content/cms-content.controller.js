@@ -25,7 +25,7 @@ let CmsContentController = class CmsContentController {
     async getCmsContent(productId) {
         const cms = await this.cmsService.findByProduct(productId);
         if (!cms)
-            throw new common_1.NotFoundException('CMS Content not found');
+            throw new common_1.NotFoundException('Không tìm thấy nội dung CMS');
         return cms;
     }
     async createCmsContent(productId, dto) {

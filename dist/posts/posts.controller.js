@@ -46,7 +46,7 @@ let PostsController = class PostsController {
     async getPostBySlug(slug) {
         const post = await this.postsService.findBySlugOrId(slug);
         if (!post)
-            throw new common_1.NotFoundException('Post not found');
+            throw new common_1.NotFoundException('Không tìm thấy bài đăng');
         return post;
     }
 };

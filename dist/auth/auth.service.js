@@ -30,13 +30,13 @@ let AuthService = class AuthService {
     async validateUser(validatedUser, pass) {
         const isPasswordMatched = await bcrypt.compare(pass, validatedUser.password);
         if (!isPasswordMatched) {
-            throw new common_1.UnauthorizedException('Wrong username or password');
+            throw new common_1.UnauthorizedException('Tên người dùng hoặc mật khẩu sai');
         }
     }
     async signin(email, password) {
         const user = await this.usersService.findByEmail(email);
         if (!user)
-            throw new common_1.UnauthorizedException('User not found');
+            throw new common_1.UnauthorizedException('Không tìm thấy người dùng');
         await this.validateUser(user, password);
         const payload = {
             email: user.email,
@@ -55,7 +55,7 @@ let AuthService = class AuthService {
             return decoded;
         }
         catch (error) {
-            throw new common_1.UnauthorizedException('Invalid credentials');
+            throw new common_1.UnauthorizedException('Thông tin xác thực không hợp lệ');
         }
     }
     async googleLogin(idToken, skipMfa = false) {
@@ -65,7 +65,7 @@ let AuthService = class AuthService {
                 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
                 const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
                 if (!projectId || !clientEmail || !privateKey) {
-                    throw new common_1.InternalServerErrorException('Missing Firebase Admin credentials');
+                    throw new common_1.InternalServerErrorException('Thiếu thông tin xác thực của quản trị viên Firebase');
                 }
                 admin.initializeApp({
                     credential: admin.credential.cert({
@@ -79,7 +79,7 @@ let AuthService = class AuthService {
             const email = decoded.email?.toLowerCase();
             const { name, picture, uid } = decoded;
             if (!email) {
-                throw new common_1.UnauthorizedException('Google account email is missing');
+                throw new common_1.UnauthorizedException('Email tài khoản Google bị thiếu');
             }
             let user = await this.usersService.findByEmail(email);
             if (user) {
@@ -117,16 +117,16 @@ let AuthService = class AuthService {
             return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
         }
         catch (error) {
-            throw new common_1.UnauthorizedException('Invalid Google token');
+            throw new common_1.UnauthorizedException('Mã thông báo Google không hợp lệ');
         }
     }
     async signinWithEmailMfa(email, password) {
         const user = await this.usersService.findByEmail(email);
         if (!user)
-            throw new common_1.UnauthorizedException('User not found');
+            throw new common_1.UnauthorizedException('Không tìm thấy người dùng');
         const isPasswordMatched = await bcrypt.compare(password, user.password);
         if (!isPasswordMatched)
-            throw new common_1.UnauthorizedException('Wrong username or password');
+            throw new common_1.UnauthorizedException('Tên người dùng hoặc mật khẩu sai');
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         user.mfaCode = code;
         user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000);
@@ -158,7 +158,7 @@ let AuthService = class AuthService {
             const token = this.signToken(payload);
             return { token, username: user.username, role: user.role };
         }
-        throw new common_1.UnauthorizedException('Invalid or expired code');
+        throw new common_1.UnauthorizedException('Mã không hợp lệ hoặc hết hạn');
     }
     signToken(payload) {
         return this.jwtService.sign(payload);
@@ -168,7 +168,7 @@ let AuthService = class AuthService {
             const fbRes = await (0, node_fetch_1.default)(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`);
             const fbData = await fbRes.json();
             if (!fbData.email) {
-                throw new common_1.UnauthorizedException('Facebook account email is missing');
+                throw new common_1.UnauthorizedException('Email tài khoản Facebook bị thiếu');
             }
             let user = await this.usersService.findByEmail(fbData.email);
             if (!user) {
@@ -200,7 +200,7 @@ let AuthService = class AuthService {
             return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
         }
         catch (error) {
-            throw new common_1.UnauthorizedException('Invalid Facebook token');
+            throw new common_1.UnauthorizedException('Mã thông báo Facebook không hợp lệ');
         }
     }
     loginUser(user, skipMfa = false) {

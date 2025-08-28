@@ -37,10 +37,10 @@ let WishlistService = class WishlistService {
             return existing;
         const user = await this.usersService.findById(userId);
         if (!user)
-            throw new common_1.NotFoundException('User not found');
+            throw new common_1.NotFoundException('Không tìm thấy người dùng');
         const product = await this.productsService.findById(productId);
         if (!product)
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.NotFoundException('Không tìm thấy sản phẩm');
         const wishlistItem = this.wishlistRepository.create({ user, product });
         return this.wishlistRepository.save(wishlistItem);
     }
@@ -49,7 +49,7 @@ let WishlistService = class WishlistService {
             where: { user: { id: userId }, product: { id: productId }, movedToOrder: (0, typeorm_2.IsNull)() },
         });
         if (!wishlistItem)
-            throw new common_1.NotFoundException('Wishlist item not found');
+            throw new common_1.NotFoundException('Không tìm thấy mục danh sách yêu thích');
         await this.wishlistRepository.remove(wishlistItem);
     }
     async viewWishlist(userId) {
@@ -62,7 +62,7 @@ let WishlistService = class WishlistService {
     async moveWishlistToOrder(userId, orderId) {
         const order = await this.ordersService.findById(orderId);
         if (!order)
-            throw new common_1.NotFoundException('Order not found');
+            throw new common_1.NotFoundException('Không tìm thấy đơn hàng');
         const wishlistItems = await this.wishlistRepository.find({
             where: { user: { id: userId }, movedToOrder: (0, typeorm_2.IsNull)() },
             relations: ['product'],

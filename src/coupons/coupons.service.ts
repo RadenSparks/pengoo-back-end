@@ -102,7 +102,7 @@ export class CouponsService {
       where: { code: ILike(code) },
       // relations: ['products', 'users'],
     });
-    if (!coupon) throw new NotFoundException('Coupon not found');
+    if (!coupon) throw new NotFoundException('Không tìm thấy phiếu giảm giá');
     const voucherId = coupon.id
     const existing = await this.userCouponRepo.createQueryBuilder("user_coupon")
       .where("user_coupon.userId = :userId", { userId })
@@ -112,10 +112,10 @@ export class CouponsService {
     // if (!existing) throw new BadRequestException("User hasn't redeem a voucher");
     const now = new Date();
     console.log(now)
-    if (coupon.status !== CouponStatus.Active) throw new BadRequestException('Coupon is not active');
-    if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate)) throw new BadRequestException('Coupon is not valid at this time');
-    if (orderValue < Number(coupon.minOrderValue)) throw new BadRequestException('Order value not eligible for this coupon');
-    if (coupon.usedCount >= coupon.usageLimit) throw new BadRequestException('Coupon usage limit reached');
+    if (coupon.status !== CouponStatus.Active) throw new BadRequestException('Phiếu giảm giá không hoạt động');
+    if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate)) throw new BadRequestException('Phiếu giảm giá không hợp lệ vào thời điểm này');
+    if (orderValue < Number(coupon.minOrderValue)) throw new BadRequestException('Giá trị đơn hàng không đủ điều kiện cho phiếu giảm giá này');
+    if (coupon.usedCount >= coupon.usageLimit) throw new BadRequestException('Đã đạt đến giới hạn sử dụng phiếu giảm giá');
 
     // If coupon is restricted to certain users
     //     if (coupon.users && coupon.users.length > 0 && !coupon.users.some(u => u.id === userId)) {
@@ -178,7 +178,7 @@ export class CouponsService {
     const coupon = await this.couponsRepo.findOne({
       where: { id }
     });
-    if (!coupon) throw new NotFoundException('Coupon not found');
+    if (!coupon) throw new NotFoundException('Không tìm thấy phiếu giảm giá');
 
     Object.assign(coupon, dto);
 
@@ -188,14 +188,14 @@ export class CouponsService {
 
   async updateStatus(id: number, status: CouponStatus): Promise<Coupon> {
     const coupon = await this.couponsRepo.findOne({ where: { id } });
-    if (!coupon) throw new NotFoundException('Coupon not found');
+    if (!coupon) throw new NotFoundException('Không tìm thấy phiếu giảm giá');
 
     coupon.status = status;
     return this.couponsRepo.save(coupon);
   }
   async delete(id: number): Promise<Coupon> {
     const coupon = await this.couponsRepo.findOne({ where: { id } });
-    if (!coupon) throw new NotFoundException('Coupon not found');
+    if (!coupon) throw new NotFoundException('Không tìm thấy phiếu giảm giá');
 
     return this.couponsRepo.remove(coupon);
   }
@@ -206,7 +206,7 @@ export class CouponsService {
       .andWhere("coupon.status = :status", { status: CouponStatus.Active })
       .andWhere("coupon.code = :voucherCode", { voucherCode })
       .getOne();
-    if (!isActive) throw new NotFoundException('Coupon not found');
+    if (!isActive) throw new NotFoundException('Không tìm thấy phiếu giảm giá');
     await this.handleSaveCouponForUser(user.id, isActive.id)
     return await this.getVoucherByUserId(user.id);
 
@@ -217,7 +217,7 @@ export class CouponsService {
       .andWhere("user_coupon.redeemed = :redeemed", { redeemed: true })
       .andWhere("user_coupon.couponId = :voucherId", { voucherId })
       .getOne();
-    if (existing) throw new BadRequestException("User has redeem a voucher");
+    if (existing) throw new BadRequestException("Người dùng đã đổi phiếu thưởng này rồi");
     const userCoupon = this.userCouponRepo.create({
       user: { id: userId },
       coupon: { id: voucherId },

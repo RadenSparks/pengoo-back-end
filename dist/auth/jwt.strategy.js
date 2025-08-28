@@ -33,7 +33,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         console.log('User found:', user);
         if (!user) {
             console.log('User not found!');
-            throw new common_1.UnauthorizedException("Invalid credentials");
+            throw new common_1.UnauthorizedException("Thông tin xác thực không hợp lệ");
         }
         if (user.role != payload.role) {
             console.log('Role mismatch:', user.role, payload.role);
@@ -46,7 +46,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         }
         if (user.role != payload.role || user.email != payload.email || user.id != payload.sub) {
             console.log('User data mismatch!', user, payload);
-            throw new common_1.UnauthorizedException('Invalid credentials');
+            throw new common_1.UnauthorizedException('Thông tin xác thực không hợp lệ');
         }
         return user;
     }

@@ -31,7 +31,7 @@ let OrdersController = class OrdersController {
     updateOrderStatus(id, updateOrderStatusDto) {
         const parsedId = parseInt(id, 10);
         if (isNaN(parsedId)) {
-            throw new common_1.BadRequestException('Order ID must be an integer');
+            throw new common_1.BadRequestException('ID đơn hàng phải là số nguyên');
         }
         return this.ordersService.updateStatus(parsedId, updateOrderStatusDto);
     }
@@ -50,13 +50,13 @@ let OrdersController = class OrdersController {
         }
         catch (err) {
             console.error('Error fetching refund requests:', err?.message, err?.stack);
-            throw new common_1.BadRequestException('Could not fetch refund requests');
+            throw new common_1.BadRequestException('Không thể tìm nạp yêu cầu hoàn tiền');
         }
     }
     findOrderById(id) {
         const parsedId = parseInt(id, 10);
         if (isNaN(parsedId)) {
-            throw new common_1.BadRequestException('Order ID must be an integer');
+            throw new common_1.BadRequestException('ID đơn hàng phải là số nguyên');
         }
         return this.ordersService.findById(parsedId);
     }
@@ -76,7 +76,7 @@ let OrdersController = class OrdersController {
     removeOrder(id) {
         const parsedId = parseInt(id, 10);
         if (isNaN(parsedId)) {
-            throw new common_1.BadRequestException('Order ID must be an integer');
+            throw new common_1.BadRequestException('ID đơn hàng phải là số nguyên');
         }
         return this.ordersService.remove(parsedId);
     }
@@ -93,21 +93,21 @@ let OrdersController = class OrdersController {
     updateOrderAddress(id, body) {
         const parsedId = parseInt(id, 10);
         if (isNaN(parsedId)) {
-            throw new common_1.BadRequestException('Order ID must be an integer');
+            throw new common_1.BadRequestException('ID đơn hàng phải là số nguyên');
         }
         return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
     }
     async updateRefundRequestStatus(id, body) {
         const parsedId = parseInt(id, 10);
         if (isNaN(parsedId)) {
-            throw new common_1.BadRequestException('RefundRequest ID must be an integer');
+            throw new common_1.BadRequestException('ID yêu cầu hoàn tiền phải là số nguyên');
         }
         return await this.ordersService.updateRefundRequestStatus(parsedId, body.status);
     }
     async processRefundRequest(id) {
         const parsedId = parseInt(id, 10);
         if (isNaN(parsedId)) {
-            throw new common_1.BadRequestException('RefundRequest ID must be an integer');
+            throw new common_1.BadRequestException('ID yêu cầu hoàn tiền phải là số nguyên');
         }
         return await this.ordersService.processRefundRequest(parsedId);
     }

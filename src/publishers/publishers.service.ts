@@ -51,7 +51,7 @@ export class PublishersService {
         'products.publisher_ID'
       ]
     });
-    if (!publisher) throw new NotFoundException('Publisher not found');
+    if (!publisher) throw new NotFoundException('Không tìm thấy nhà xuất bản');
     return {
       ...publisher,
       products: publisher.products.map(p => ({

@@ -97,7 +97,7 @@ let CouponsService = class CouponsService {
             where: { code: (0, typeorm_2.ILike)(code) },
         });
         if (!coupon)
-            throw new common_1.NotFoundException('Coupon not found');
+            throw new common_1.NotFoundException('Không tìm thấy phiếu giảm giá');
         const voucherId = coupon.id;
         const existing = await this.userCouponRepo.createQueryBuilder("user_coupon")
             .where("user_coupon.userId = :userId", { userId })
@@ -107,13 +107,13 @@ let CouponsService = class CouponsService {
         const now = new Date();
         console.log(now);
         if (coupon.status !== coupon_entity_1.CouponStatus.Active)
-            throw new common_1.BadRequestException('Coupon is not active');
+            throw new common_1.BadRequestException('Phiếu giảm giá không hoạt động');
         if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate))
-            throw new common_1.BadRequestException('Coupon is not valid at this time');
+            throw new common_1.BadRequestException('Phiếu giảm giá không hợp lệ vào thời điểm này');
         if (orderValue < Number(coupon.minOrderValue))
-            throw new common_1.BadRequestException('Order value not eligible for this coupon');
+            throw new common_1.BadRequestException('Giá trị đơn hàng không đủ điều kiện cho phiếu giảm giá này');
         if (coupon.usedCount >= coupon.usageLimit)
-            throw new common_1.BadRequestException('Coupon usage limit reached');
+            throw new common_1.BadRequestException('Đã đạt đến giới hạn sử dụng phiếu giảm giá');
         let discount = (orderValue * Number(coupon.discountPercent)) / 100;
         if (discount > coupon.maxOrderValue) {
             discount = coupon.maxOrderValue;
@@ -151,21 +151,21 @@ let CouponsService = class CouponsService {
             where: { id }
         });
         if (!coupon)
-            throw new common_1.NotFoundException('Coupon not found');
+            throw new common_1.NotFoundException('Không tìm thấy phiếu giảm giá');
         Object.assign(coupon, dto);
         return this.couponsRepo.save(coupon);
     }
     async updateStatus(id, status) {
         const coupon = await this.couponsRepo.findOne({ where: { id } });
         if (!coupon)
-            throw new common_1.NotFoundException('Coupon not found');
+            throw new common_1.NotFoundException('Không tìm thấy phiếu giảm giá');
         coupon.status = status;
         return this.couponsRepo.save(coupon);
     }
     async delete(id) {
         const coupon = await this.couponsRepo.findOne({ where: { id } });
         if (!coupon)
-            throw new common_1.NotFoundException('Coupon not found');
+            throw new common_1.NotFoundException('Không tìm thấy phiếu giảm giá');
         return this.couponsRepo.remove(coupon);
     }
     async checkVoucherByUserPoint(user, voucherCode) {
@@ -176,7 +176,7 @@ let CouponsService = class CouponsService {
             .andWhere("coupon.code = :voucherCode", { voucherCode })
             .getOne();
         if (!isActive)
-            throw new common_1.NotFoundException('Coupon not found');
+            throw new common_1.NotFoundException('Không tìm thấy phiếu giảm giá');
         await this.handleSaveCouponForUser(user.id, isActive.id);
         return await this.getVoucherByUserId(user.id);
     }
@@ -187,7 +187,7 @@ let CouponsService = class CouponsService {
             .andWhere("user_coupon.couponId = :voucherId", { voucherId })
             .getOne();
         if (existing)
-            throw new common_1.BadRequestException("User has redeem a voucher");
+            throw new common_1.BadRequestException("Người dùng đã đổi phiếu thưởng này rồi");
         const userCoupon = this.userCouponRepo.create({
             user: { id: userId },
             coupon: { id: voucherId },

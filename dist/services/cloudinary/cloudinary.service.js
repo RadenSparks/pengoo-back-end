@@ -41,7 +41,7 @@ let CloudinaryService = class CloudinaryService {
                 if (error)
                     return reject(error);
                 if (!result) {
-                    throw new Error('Upload failed');
+                    throw new Error('Tải lên không thành công');
                 }
                 resolve({ secure_url: result.secure_url, public_id: result.public_id });
             }).end(file.buffer);

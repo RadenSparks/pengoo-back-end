@@ -78,7 +78,7 @@ let OrdersService = class OrdersService {
                     throw new common_1.NotFoundException(`Product with ID ${item.productId} not found`);
                 if (product.quantity_stock < item.quantity) {
                     throw new common_1.BadRequestException({
-                        message: `Not enough stock for ${product.product_name}`,
+                        message: `Không đủ hàng cho ${product.product_name}`,
                         productId: product.id,
                         requested: item.quantity,
                         available: product.quantity_stock,
@@ -132,9 +132,9 @@ let OrdersService = class OrdersService {
             for (const detail of createOrderDto.details) {
                 const product = await manager.findOne(product_entity_1.Product, { where: { id: detail.productId } });
                 if (!product)
-                    throw new common_1.NotFoundException(`Product ${detail.productId} not found`);
+                    throw new common_1.NotFoundException(`Sản phẩm ${detail.productId} không tìm thấy`);
                 if (product.quantity_stock < detail.quantity) {
-                    throw new common_1.BadRequestException(`Not enough stock for product ${product.product_name}`);
+                    throw new common_1.BadRequestException(`Không đủ hàng cho sản phẩm ${product.product_name}`);
                 }
                 product.quantity_sold += detail.quantity;
                 product.quantity_stock -= detail.quantity;
@@ -179,7 +179,7 @@ let OrdersService = class OrdersService {
     async markOrderAsPaidByCode(orderCode) {
         const order = await this.ordersRepository.findOne({ where: { order_code: orderCode }, relations: ['user'] });
         if (!order)
-            throw new Error('Order not found');
+            throw new Error('Không tìm thấy đơn hàng');
         order.payment_status = order_entity_1.PaymentStatus.Paid;
         order.productStatus = order_entity_1.ProductStatus.Pending;
         await this.invoicesService.generateInvoice(order.id);
@@ -189,7 +189,7 @@ let OrdersService = class OrdersService {
         const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
         console.log(`Handling cancellation for order code: ${order?.order_code}`);
         if (!order) {
-            return new common_1.NotFoundException('Order not found');
+            return new common_1.NotFoundException('Không tìm thấy đơn hàng');
         }
         order.payment_status = order_entity_1.PaymentStatus.Canceled;
         order.productStatus = order_entity_1.ProductStatus.Cancelled;
@@ -198,7 +198,7 @@ let OrdersService = class OrdersService {
     async updateStatus(id, updateOrderStatusDto) {
         const order = await this.findById(id);
         if (!order) {
-            throw new common_1.NotFoundException('Order not found');
+            throw new common_1.NotFoundException('Không tìm thấy đơn hàng');
         }
         order.productStatus = updateOrderStatusDto.productStatus;
         return this.ordersRepository.save(order);
@@ -225,7 +225,7 @@ let OrdersService = class OrdersService {
         await this.dataSource.transaction(async (manager) => {
             const order = await manager.findOne(order_entity_1.Order, { where: { id: orderId }, relations: ['details', 'details.product'] });
             if (!order)
-                throw new common_1.NotFoundException('Order not found');
+                throw new common_1.NotFoundException('Không tìm thấy đơn hàng');
             for (const detail of order.details) {
                 const product = await this.productsService.findById(detail.product.id);
                 if (product) {
@@ -245,7 +245,7 @@ let OrdersService = class OrdersService {
                 relations: ['details', 'details.product', 'refundRequests', 'user'],
             });
             if (!order)
-                throw new common_1.NotFoundException('Order not found');
+                throw new common_1.NotFoundException('Không tìm thấy đơn hàng');
             if (order.productStatus !== order_entity_1.ProductStatus.Delivered) {
                 throw new common_1.BadRequestException('Refunds can only be requested for delivered orders.');
             }
@@ -254,25 +254,25 @@ let OrdersService = class OrdersService {
             const now = new Date();
             const deliveredDate = new Date(deliveredAt);
             if ((now.getTime() - deliveredDate.getTime()) > REFUND_WINDOW_DAYS * 24 * 60 * 60 * 1000) {
-                throw new common_1.BadRequestException('Refund period has expired.');
+                throw new common_1.BadRequestException('Thời hạn hoàn tiền đã hết.');
             }
             const previousRequests = order.refundRequests || [];
             const pendingRequest = previousRequests.find(r => r.status === refund_request_entity_1.RefundRequestStatus.PENDING);
             if (pendingRequest) {
-                throw new common_1.BadRequestException('There is already a pending refund request for this order.');
+                throw new common_1.BadRequestException('Đã có yêu cầu hoàn tiền đang chờ xử lý cho đơn đặt hàng này.');
             }
             if (previousRequests.length >= 3) {
-                throw new common_1.BadRequestException('You have reached the maximum number of refund requests for this order.');
+                throw new common_1.BadRequestException('Bạn đã đạt đến số lượng yêu cầu hoàn tiền tối đa cho đơn đặt hàng này.');
             }
             const dropdownReasons = ['defective', 'missing', 'wrong'];
             if (!data.reason ||
                 (!dropdownReasons.includes(data.reason) &&
                     data.reason.trim().length < 10)) {
-                throw new common_1.BadRequestException('Please provide a detailed reason for your refund request (at least 10 characters for custom reasons).');
+                throw new common_1.BadRequestException('Vui lòng cung cấp lý do chi tiết cho yêu cầu hoàn tiền của bạn (ít nhất 10 ký tự cho lý do tùy chỉnh).');
             }
             let refundAmount = order.total_price;
             if (order.payment_status === order_entity_1.PaymentStatus.Refunded) {
-                throw new common_1.BadRequestException('This order has already been refunded.');
+                throw new common_1.BadRequestException('Đơn đặt hàng này đã được hoàn tiền.');
             }
             const refundRequest = manager.create(refund_request_entity_1.RefundRequest, {
                 order,
@@ -357,7 +357,7 @@ let OrdersService = class OrdersService {
     async updateAddress(id, newAddress, phoneNumber) {
         const order = await this.findById(id);
         if (!order)
-            throw new common_1.NotFoundException('Order not found');
+            throw new common_1.NotFoundException('Không tìm thấy đơn hàng');
         order.shipping_address = newAddress;
         order.phone_number = phoneNumber;
         return this.ordersRepository.save(order);
@@ -372,19 +372,19 @@ let OrdersService = class OrdersService {
         const refundRequestRepo = this.dataSource.getRepository(refund_request_entity_1.RefundRequest);
         const refundRequest = await refundRequestRepo.findOne({ where: { id } });
         if (!refundRequest)
-            throw new common_1.NotFoundException('Refund request not found');
+            throw new common_1.NotFoundException('Không tìm thấy yêu cầu hoàn tiền');
         refundRequest.status = status;
         await refundRequestRepo.save(refundRequest);
-        return { status: 200, message: 'Refund request status updated', data: refundRequest };
+        return { status: 200, message: 'Đã cập nhật trạng thái yêu cầu hoàn tiền', data: refundRequest };
     }
     async processRefundRequest(id) {
         const refundRequestRepo = this.dataSource.getRepository(refund_request_entity_1.RefundRequest);
         const refundRequest = await refundRequestRepo.findOne({ where: { id } });
         if (!refundRequest)
-            throw new common_1.NotFoundException('Refund request not found');
+            throw new common_1.NotFoundException('Không tìm thấy yêu cầu hoàn tiền');
         refundRequest.status = refund_request_entity_1.RefundRequestStatus.REFUNDED;
         await refundRequestRepo.save(refundRequest);
-        return { status: 200, message: 'Refund request marked as refunded', data: refundRequest };
+        return { status: 200, message: 'Yêu cầu hoàn tiền được đánh dấu là đã hoàn lại', data: refundRequest };
     }
 };
 exports.OrdersService = OrdersService;

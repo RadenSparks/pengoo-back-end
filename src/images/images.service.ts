@@ -25,7 +25,7 @@ export class ImagesService {
 
   async findOne(id: number): Promise<Image> {
     const image = await this.imageRepo.findOne({ where: { id }, relations: ['product'] });
-    if (!image) throw new NotFoundException(`Image #${id} not found`);
+    if (!image) throw new NotFoundException(`Không tìm thấy ảnh #${id}`);
     return image;
   }
 
@@ -42,7 +42,7 @@ export class ImagesService {
 
   async moveImage(id: number, folder: string) {
     const image = await this.imageRepo.findOneBy({ id });
-    if (!image) throw new NotFoundException('Image not found');
+    if (!image) throw new NotFoundException('Không tìm thấy hình ảnh');
     image.folder = folder;
     return this.imageRepo.save(image);
   }

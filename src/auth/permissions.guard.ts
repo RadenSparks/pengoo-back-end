@@ -14,8 +14,8 @@ export class PermissionsGuard implements CanActivate {
     @InjectRepository(RolePermission)
     private rolePermissionRepo: Repository<RolePermission>,
     @InjectRepository(Role)
-    private roleRepo: Repository<Role>, 
-  ) {}
+    private roleRepo: Repository<Role>,
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
@@ -29,7 +29,7 @@ export class PermissionsGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user: User = request.user;
     if (!user || !user.role) {
-      throw new ForbiddenException('No user or role found');
+      throw new ForbiddenException('Không tìm thấy người dùng hoặc vai trò');
     }
 
     // If user.role is a string (role name or canonical), fetch the Role entity
@@ -41,7 +41,7 @@ export class PermissionsGuard implements CanActivate {
     }
 
     if (!roleEntity) {
-      throw new ForbiddenException('Role not found');
+      throw new ForbiddenException('Không tìm thấy vai trò');
     }
 
     // Get all permissions for the user's role
@@ -53,7 +53,7 @@ export class PermissionsGuard implements CanActivate {
 
     const hasPermission = requiredPermissions.every(p => userPermissions.includes(p));
     if (!hasPermission) {
-      throw new ForbiddenException('Insufficient permissions');
+      throw new ForbiddenException('Không đủ quyền');
     }
     return true;
   }

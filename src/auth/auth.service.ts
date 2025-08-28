@@ -20,13 +20,13 @@ export class AuthService {
   async validateUser(validatedUser: User, pass: string) {
     const isPasswordMatched = await bcrypt.compare(pass, validatedUser.password);
     if (!isPasswordMatched) {
-      throw new UnauthorizedException('Wrong username or password');
+      throw new UnauthorizedException('Tên người dùng hoặc mật khẩu sai');
     }
   }
 
   async signin(email: string, password: string): Promise<SignInResponseDto> {
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new UnauthorizedException('User not found');
+    if (!user) throw new UnauthorizedException('Không tìm thấy người dùng');
     await this.validateUser(user, password);
 
     const payload: TokenPayloadDto = {
@@ -48,7 +48,7 @@ export class AuthService {
       console.log(decoded)
       return decoded;
     } catch (error) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Thông tin xác thực không hợp lệ');
     }
   }
 
@@ -60,7 +60,7 @@ export class AuthService {
         const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
         const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
         if (!projectId || !clientEmail || !privateKey) {
-          throw new InternalServerErrorException('Missing Firebase Admin credentials');
+          throw new InternalServerErrorException('Thiếu thông tin xác thực của quản trị viên Firebase');
         }
         admin.initializeApp({
           credential: admin.credential.cert({
@@ -77,7 +77,7 @@ export class AuthService {
       const { name, picture, uid } = decoded;
 
       if (!email) {
-        throw new UnauthorizedException('Google account email is missing');
+        throw new UnauthorizedException('Email tài khoản Google bị thiếu');
       }
       let user = await this.usersService.findByEmail(email);
 
@@ -126,15 +126,15 @@ export class AuthService {
       );
       return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
     } catch (error) {
-      throw new UnauthorizedException('Invalid Google token');
+      throw new UnauthorizedException('Mã thông báo Google không hợp lệ');
     }
   }
 
   async signinWithEmailMfa(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new UnauthorizedException('User not found');
+    if (!user) throw new UnauthorizedException('Không tìm thấy người dùng');
     const isPasswordMatched = await bcrypt.compare(password, user.password);
-    if (!isPasswordMatched) throw new UnauthorizedException('Wrong username or password');
+    if (!isPasswordMatched) throw new UnauthorizedException('Tên người dùng hoặc mật khẩu sai');
 
     // Generate code, save to user, send email
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -179,7 +179,7 @@ export class AuthService {
       const token = this.signToken(payload);
       return { token, username: user.username, role: user.role };
     }
-    throw new UnauthorizedException('Invalid or expired code');
+    throw new UnauthorizedException('Mã không hợp lệ hoặc hết hạn');
   }
 
   signToken(payload: TokenPayloadDto): string {
@@ -193,7 +193,7 @@ export class AuthService {
       const fbData: any = await fbRes.json();
 
       if (!fbData.email) {
-        throw new UnauthorizedException('Facebook account email is missing');
+        throw new UnauthorizedException('Email tài khoản Facebook bị thiếu');
       }
 
       let user = await this.usersService.findByEmail(fbData.email);
@@ -234,7 +234,7 @@ export class AuthService {
       );
       return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
     } catch (error) {
-      throw new UnauthorizedException('Invalid Facebook token');
+      throw new UnauthorizedException('Mã thông báo Facebook không hợp lệ');
     }
   }
 

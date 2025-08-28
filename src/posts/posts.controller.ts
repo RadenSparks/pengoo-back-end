@@ -8,7 +8,7 @@ import { Public } from '../auth/public.decorator';
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(private readonly postsService: PostsService) { }
 
   @HttpPost()
   @Public()
@@ -92,7 +92,7 @@ export class PostsController {
   async getPostBySlug(@Param('slug') slug: string) {
     // Try to find by canonical first, fallback to id
     const post = await this.postsService.findBySlugOrId(slug);
-    if (!post) throw new NotFoundException('Post not found');
+    if (!post) throw new NotFoundException('Không tìm thấy bài đăng');
     return post;
   }
 }

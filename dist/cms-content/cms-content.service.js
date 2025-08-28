@@ -28,14 +28,14 @@ let CmsContentService = class CmsContentService {
     async create(productId, dto) {
         const product = await this.productRepo.findOneBy({ id: productId });
         if (!product)
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.NotFoundException('Không tìm thấy sản phẩm');
         const cms = this.cmsContentRepo.create({ ...dto, product });
         return this.cmsContentRepo.save(cms);
     }
     async update(productId, dto) {
         const cms = await this.cmsContentRepo.findOne({ where: { product: { id: productId } } });
         if (!cms)
-            throw new common_1.NotFoundException('CMS Content not found');
+            throw new common_1.NotFoundException('Không tìm thấy nội dung CMS');
         Object.assign(cms, dto);
         return this.cmsContentRepo.save(cms);
     }

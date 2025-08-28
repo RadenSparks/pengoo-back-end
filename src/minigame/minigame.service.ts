@@ -24,12 +24,12 @@ export class MinigameService {
   private readonly COUPON_POINT_THRESHOLD = 1000;
   private readonly MAX_TICKETS_PER_DAY = 3;
   private readonly SCRATCH_SYMBOLS = [
-  'ssrb.png',
-  'takodachi.png',
-  'bubba.png',
-  'bloop.png',    // <-- fix spelling to match frontend
-  'greenssrb.png'
-];
+    'ssrb.png',
+    'takodachi.png',
+    'bubba.png',
+    'bloop.png',    // <-- fix spelling to match frontend
+    'greenssrb.png'
+  ];
   private readonly SCRATCH_GRID_SIZE = 3;
   private scratchGames = new Map<string, ScratchGameSession>();
 
@@ -42,13 +42,13 @@ export class MinigameService {
     @InjectRepository(UserCoupon)
     private userCouponRepo: Repository<UserCoupon>,
     private notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   async submitScore(userId: number, score: number) {
     const user = await this.usersRepository.findOne({ where: { id: userId }, relations: ['coupons'] });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Không tìm thấy người dùng');
     if (user.minigame_tickets <= 0) {
-      return { message: 'No tickets left.', tickets: user.minigame_tickets };
+      return { message: 'Không còn vé.', tickets: user.minigame_tickets };
     }
 
     user.minigame_tickets -= 1;
@@ -93,7 +93,7 @@ export class MinigameService {
 
   async addTicket(userId: number, type: TicketEarningType, refId?: string) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Không tìm thấy người dùng');
 
     // Limit: Only one ticket per type per day
     const today = new Date();
@@ -129,9 +129,9 @@ export class MinigameService {
   // --- SCRATCH GAME LOGIC ---
   async playScratch(userId: number) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Không tìm thấy người dùng');
     if (user.minigame_tickets <= 0) {
-      return { message: 'No tickets left.', tickets: user.minigame_tickets };
+      return { message: 'Không còn vé.', tickets: user.minigame_tickets };
     }
 
     user.minigame_tickets -= 1;
@@ -214,9 +214,9 @@ export class MinigameService {
 
   async startScratch(userId: number) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Không tìm thấy người dùng');
     if (user.minigame_tickets <= 0) {
-      return { message: 'No tickets left.', tickets: user.minigame_tickets };
+      return { message: 'Không còn vé.', tickets: user.minigame_tickets };
     }
     user.minigame_tickets -= 1;
     await this.usersRepository.save(user);
@@ -238,13 +238,13 @@ export class MinigameService {
   async revealScratch(userId: number, gameId: string) {
     const game = this.scratchGames.get(gameId);
     if (!game || game.userId !== userId) {
-      throw new NotFoundException('Game not found or expired');
+      throw new NotFoundException('Trò chơi không được tìm thấy hoặc đã hết hạn');
     }
     const { reward } = game;
     this.scratchGames.delete(gameId);
 
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Không tìm thấy người dùng');
 
     let couponGranted = false;
     let couponCode: string | null = null;
@@ -271,7 +271,7 @@ export class MinigameService {
 
   async claimDailyFreeTicket(userId: number) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('Không tìm thấy người dùng');
 
     const today = new Date();
     today.setHours(0, 0, 0);
@@ -352,9 +352,9 @@ export class MinigameService {
         Pengoo Team
     `;
     await this.notificationsService.sendEmail(
-        user.email,
-        subject,
-        message
+      user.email,
+      subject,
+      message
     );
   }
 }
