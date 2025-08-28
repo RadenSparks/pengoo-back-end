@@ -1,5 +1,6 @@
 import { Exclude } from 'class-transformer';
 import { Product } from '../products/entities/product.entity';
+import { Coupon } from '../coupons/coupon.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
@@ -48,5 +49,8 @@ export class Collection {
     @Exclude()
     @OneToMany(() => Product, (product) => product.collection)
     products: Product[];
+
+    @OneToMany(() => Coupon, coupon => coupon.collection)
+    specialCoupons: Coupon[];
 }
 

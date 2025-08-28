@@ -1,4 +1,5 @@
 import { Product } from '../products/entities/product.entity';
+import { Coupon } from '../coupons/coupon.entity';
 export declare class Collection {
     id: number;
     name: string;
@@ -12,4 +13,5 @@ export declare class Collection {
     updatedAt: Date;
     deletedAt?: Date;
     products: Product[];
+    specialCoupons: Coupon[];
 }

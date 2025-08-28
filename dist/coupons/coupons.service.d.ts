@@ -26,6 +26,7 @@ export declare class CouponsService {
     }>;
     findActiveCoupon(): Promise<Coupon | undefined>;
     getAll(): Promise<Coupon[] | undefined>;
+    getAllWithCollections(): Promise<Coupon[]>;
     getNextAvailableCoupon(userId: number, userPoints: number): Promise<Coupon | null>;
     getMilestoneCoupons(): Promise<Coupon[]>;
     update(id: number, dto: UpdateCouponDto): Promise<Coupon>;

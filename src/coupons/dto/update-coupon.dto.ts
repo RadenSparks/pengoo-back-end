@@ -47,6 +47,9 @@ export class UpdateCouponDto {
     @IsOptional()
     @IsArray()
     userIds?: number[];
+
+    @IsOptional()
+    collectionId?: number;
 }
 
 

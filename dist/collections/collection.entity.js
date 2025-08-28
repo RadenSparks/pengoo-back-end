@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Collection = void 0;
 const class_transformer_1 = require("class-transformer");
 const product_entity_1 = require("../products/entities/product.entity");
+const coupon_entity_1 = require("../coupons/coupon.entity");
 const typeorm_1 = require("typeorm");
 let Collection = class Collection {
     id;
@@ -26,6 +27,7 @@ let Collection = class Collection {
     updatedAt;
     deletedAt;
     products;
+    specialCoupons;
 };
 exports.Collection = Collection;
 __decorate([
@@ -77,6 +79,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => product_entity_1.Product, (product) => product.collection),
     __metadata("design:type", Array)
 ], Collection.prototype, "products", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => coupon_entity_1.Coupon, coupon => coupon.collection),
+    __metadata("design:type", Array)
+], Collection.prototype, "specialCoupons", void 0);
 exports.Collection = Collection = __decorate([
     (0, typeorm_1.Entity)()
 ], Collection);

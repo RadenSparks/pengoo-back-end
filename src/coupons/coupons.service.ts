@@ -24,11 +24,14 @@ export class CouponsService {
   ) { }
 
   async create(dto: CreateCouponDto): Promise<Coupon> {
-    const coupon = this.couponsRepo.create({
-      ...dto,
-      status: dto.status
-    });
-
+    const coupon = this.couponsRepo.create(dto);
+    if (dto.collectionId) {
+      const collection = await this.collectionsRepo.findOne({ where: { id: dto.collectionId } });
+      if (!collection) {
+        throw new NotFoundException('Collection not found');
+      }
+      coupon.collection = collection;
+    }
     return this.couponsRepo.save(coupon);
   }
 
@@ -93,7 +96,7 @@ export class CouponsService {
           userCoupons: [],
           milestonePoints: null,
           deletedAt: undefined,
-        } as Coupon,
+        } as unknown as Coupon,
         discount,
       };
     }
@@ -155,7 +158,9 @@ export class CouponsService {
     const coupon = await this.couponsRepo.find()
     return coupon ?? undefined;
   }
-
+  async getAllWithCollections() {
+    return this.couponsRepo.find({ relations: ['collection'] });
+  }
 
   async getNextAvailableCoupon(userId: number, userPoints: number): Promise<Coupon | null> {
     // Find the next coupon with milestonePoints > userPoints, ordered by milestonePoints ASC
@@ -181,7 +186,14 @@ export class CouponsService {
     if (!coupon) throw new NotFoundException('Coupon not found');
 
     Object.assign(coupon, dto);
-
+    if (dto.collectionId !== undefined) {
+      if (dto.collectionId) {
+        const collection = await this.collectionsRepo.findOne({ where: { id: dto.collectionId } });
+        if (!collection) throw new NotFoundException('Collection not found');
+        coupon.collection = collection;
+      }
+    
+    }
 
     return this.couponsRepo.save(coupon);
   }

@@ -1,4 +1,5 @@
 import { UserCoupon } from './user-coupon.entity';
+import { Collection } from '../collections/collection.entity';
 export declare enum CouponStatus {
     Active = "active",
     Inactive = "inactive",
@@ -19,4 +20,6 @@ export declare class Coupon {
     userCoupons: UserCoupon[];
     milestonePoints: number | null;
     deletedAt?: Date;
+    collection: Collection;
+    collectionId: number;
 }

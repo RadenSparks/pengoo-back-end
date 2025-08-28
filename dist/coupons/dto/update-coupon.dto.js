@@ -23,6 +23,7 @@ class UpdateCouponDto {
     status;
     productIds;
     userIds;
+    collectionId;
 }
 exports.UpdateCouponDto = UpdateCouponDto;
 __decorate([
@@ -75,6 +76,10 @@ __decorate([
     (0, class_validator_1.IsArray)(),
     __metadata("design:type", Array)
 ], UpdateCouponDto.prototype, "userIds", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateCouponDto.prototype, "collectionId", void 0);
 class UpdateCouponStatusDto {
     status;
 }

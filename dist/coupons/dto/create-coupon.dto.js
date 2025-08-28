@@ -21,6 +21,7 @@ class CreateCouponDto {
     usageLimit;
     discountPercent;
     status;
+    collectionId;
     productIds;
     userIds;
 }
@@ -58,6 +59,10 @@ __decorate([
     (0, class_validator_1.IsEnum)(coupon_entity_1.CouponStatus),
     __metadata("design:type", String)
 ], CreateCouponDto.prototype, "status", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateCouponDto.prototype, "collectionId", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
