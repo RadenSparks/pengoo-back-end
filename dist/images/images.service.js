@@ -33,7 +33,7 @@ let ImagesService = class ImagesService {
     async findOne(id) {
         const image = await this.imageRepo.findOne({ where: { id }, relations: ['product'] });
         if (!image)
-            throw new common_1.NotFoundException(`Image #${id} not found`);
+            throw new common_1.NotFoundException(`Không tìm thấy ảnh #${id}`);
         return image;
     }
     async update(id, updateImageDto) {
@@ -48,7 +48,7 @@ let ImagesService = class ImagesService {
     async moveImage(id, folder) {
         const image = await this.imageRepo.findOneBy({ id });
         if (!image)
-            throw new common_1.NotFoundException('Image not found');
+            throw new common_1.NotFoundException('Không tìm thấy hình ảnh');
         image.folder = folder;
         return this.imageRepo.save(image);
     }

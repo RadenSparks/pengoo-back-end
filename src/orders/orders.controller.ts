@@ -68,7 +68,7 @@ export class OrdersController {
   updateOrderStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
-      throw new BadRequestException('Order ID must be an integer');
+      throw new BadRequestException('ID đơn hàng phải là số nguyên');
     }
     return this.ordersService.updateStatus(parsedId, updateOrderStatusDto);
   }
@@ -97,7 +97,7 @@ export class OrdersController {
       return await this.ordersService.getRefundRequests();
     } catch (err) {
       console.error('Error fetching refund requests:', err?.message, err?.stack);
-      throw new BadRequestException('Could not fetch refund requests');
+      throw new BadRequestException('Không thể tìm nạp yêu cầu hoàn tiền');
     }
   }
 
@@ -106,7 +106,7 @@ export class OrdersController {
   findOrderById(@Param('id') id: string) {
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
-      throw new BadRequestException('Order ID must be an integer');
+      throw new BadRequestException('ID đơn hàng phải là số nguyên');
     }
     return this.ordersService.findById(parsedId);
   }
@@ -136,7 +136,7 @@ export class OrdersController {
   removeOrder(@Param('id') id: string) {
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
-      throw new BadRequestException('Order ID must be an integer');
+      throw new BadRequestException('ID đơn hàng phải là số nguyên');
     }
     return this.ordersService.remove(parsedId);
   }
@@ -169,7 +169,7 @@ export class OrdersController {
   ) {
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
-      throw new BadRequestException('Order ID must be an integer');
+      throw new BadRequestException('ID đơn hàng phải là số nguyên');
     }
     return this.ordersService.updateAddress(parsedId, body.shipping_address, body.phone_number);
   }
@@ -182,7 +182,7 @@ export class OrdersController {
   ) {
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
-      throw new BadRequestException('RefundRequest ID must be an integer');
+      throw new BadRequestException('ID yêu cầu hoàn tiền phải là số nguyên');
     }
     // You need to implement this method in OrdersService
     return await this.ordersService.updateRefundRequestStatus(parsedId, body.status);
@@ -195,7 +195,7 @@ export class OrdersController {
   ) {
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
-      throw new BadRequestException('RefundRequest ID must be an integer');
+      throw new BadRequestException('ID yêu cầu hoàn tiền phải là số nguyên');
     }
     return await this.ordersService.processRefundRequest(parsedId);
   }

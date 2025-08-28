@@ -22,19 +22,19 @@ export class ReviewsService {
   async addReview(userId: number, productId: number, createReviewDto: CreateReviewDto): Promise<Review> {
     const user = await this.usersService.findById(userId);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
 
     const product = await this.productsService.findById(productId);
     if (!product) {
-      throw new NotFoundException('Product not found');
+      throw new NotFoundException('Không tìm thấy sản phẩm');
     }
 
     let order: Order | undefined;
     if (createReviewDto.orderId) {
       const foundOrder = await this.ordersRepository.findOne({ where: { id: createReviewDto.orderId } });
       if (!foundOrder || foundOrder.productStatus !== ProductStatus.Delivered) {
-        throw new BadRequestException('You can leave a review after the order is delivered.');
+        throw new BadRequestException('Bạn có thể để lại đánh giá sau khi đơn hàng được giao.');
       }
       order = foundOrder;
     }
@@ -52,7 +52,7 @@ export class ReviewsService {
   async updateReview(userId: number, reviewId: number, updateReviewDto: UpdateReviewDto): Promise<Review> {
     const review = await this.reviewsRepository.findOne({ where: { id: reviewId, user: { id: userId } } });
     if (!review) {
-      throw new NotFoundException('Review not found');
+      throw new NotFoundException('Không tìm thấy bài đánh giá');
     }
 
     review.rating = updateReviewDto.rating;
@@ -63,7 +63,7 @@ export class ReviewsService {
   async updateReviewStatus(reviewId: number, status: 'Visible' | 'Hidden'): Promise<Review> {
     const review = await this.reviewsRepository.findOne({ where: { id: reviewId } });
     if (!review) {
-      throw new NotFoundException('Review not found');
+      throw new NotFoundException('Không tìm thấy bài đánh giá');
     }
     review.status = status;
     return this.reviewsRepository.save(review);
@@ -72,7 +72,7 @@ export class ReviewsService {
   async deleteReview(userId: number, reviewId: number): Promise<void> {
     const review = await this.reviewsRepository.findOne({ where: { id: reviewId, user: { id: userId } } });
     if (!review) {
-      throw new NotFoundException('Review not found');
+      throw new NotFoundException('Không tìm thấy bài đánh giá');
     }
 
     await this.reviewsRepository.remove(review);

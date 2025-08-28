@@ -16,12 +16,12 @@ export class PaymentsService {
     private dataSource: DataSource,
     private payosService: PayosService,
     private invoicesService: InvoicesService,
-  ) {}
+  ) { }
 
   // Only allow order owner or admin
   private async assertCanAct(userId: number, order: Order, userRole: string) {
     if (order.user.id !== userId && userRole !== 'admin') {
-      throw new ForbiddenException('You are not allowed to perform this action on this order.');
+      throw new ForbiddenException('Bạn không được phép thực hiện hành động này theo lệnh này.');
     }
   }
 
@@ -30,17 +30,17 @@ export class PaymentsService {
       where: { id: orderId },
       relations: ['user'],
     });
-    if (!order) throw new BadRequestException('Order not found');
+    if (!order) throw new BadRequestException('Không tìm thấy đơn hàng');
     await this.assertCanAct(userId, order, userRole);
 
     if (order.payment_status === PaymentStatus.Paid) {
-      throw new BadRequestException('Order is already paid.');
+      throw new BadRequestException('Đơn hàng đã được thanh toán.');
     }
     if (order.payment_status === PaymentStatus.PendingOnDelivery && method === PaymentMethod.ON_DELIVERY) {
-      throw new BadRequestException('Order is already set for on-delivery payment.');
+      throw new BadRequestException('Đơn đặt hàng đã được đặt để thanh toán khi giao hàng.');
     }
     if (order.productStatus === 'cancelled') {
-      throw new BadRequestException('Cannot pay for a cancelled order.');
+      throw new BadRequestException('Không thể thanh toán cho đơn hàng bị hủy.');
     }
 
     switch (method) {
@@ -54,7 +54,7 @@ export class PaymentsService {
         await this.ordersRepository.save(order);
         return { message: 'Order placed. Pay on delivery.' };
       default:
-        throw new BadRequestException('Unsupported payment method');
+        throw new BadRequestException('Phương thức thanh toán không được hỗ trợ');
     }
   }
   async handlePaypalCapture(orderId: number, userId: number, userRole: string) {
@@ -62,14 +62,14 @@ export class PaymentsService {
       where: { id: orderId },
       relations: ['user'],
     });
-    if (!order) throw new BadRequestException('Order not found');
+    if (!order) throw new BadRequestException('Không tìm thấy đơn hàng');
     await this.assertCanAct(userId, order, userRole);
 
     if (order.payment_status === PaymentStatus.Paid) {
       return { message: 'Order is already paid.' }; // <-- 200 OK
     }
     if (order.productStatus === 'cancelled') {
-      throw new BadRequestException('Cannot capture payment for a cancelled order.');
+      throw new BadRequestException('Không thể thu hồi khoản thanh toán cho đơn hàng bị hủy.');
     }
 
     order.payment_status = PaymentStatus.Paid;
@@ -86,14 +86,14 @@ export class PaymentsService {
       where: { id: orderId },
       relations: ['user'],
     });
-    if (!order) throw new BadRequestException('Order not found');
+    if (!order) throw new BadRequestException('Không tìm thấy đơn hàng');
     await this.assertCanAct(userId, order, userRole);
 
     if (order.payment_status === PaymentStatus.Paid) {
-      throw new BadRequestException('Order is already paid.');
+      throw new BadRequestException('Đơn hàng đã được thanh toán.');
     }
     if (order.productStatus === 'cancelled') {
-      throw new BadRequestException('Cannot capture payment for a cancelled order.');
+      throw new BadRequestException('Không thể thu hồi khoản thanh toán cho đơn hàng bị hủy.');
     }
 
     order.payment_status = PaymentStatus.Paid;
@@ -102,7 +102,7 @@ export class PaymentsService {
     // Generate and send invoice
     await this.invoicesService.generateInvoice(orderId);
 
-    return { message: 'Payos payment captured and invoice sent.' };
+    return { message: 'Khoản thanh toán Payos đã được ghi lại và hóa đơn đã được gửi.' };
   }
 
   async refundOrder(orderId: number, userId: number, userRole: string) {
@@ -110,14 +110,14 @@ export class PaymentsService {
       where: { id: orderId },
       relations: ['user'],
     });
-    if (!order) throw new BadRequestException('Order not found');
+    if (!order) throw new BadRequestException('Không tìm thấy đơn hàng');
     await this.assertCanAct(userId, order, userRole);
 
     if (order.payment_status !== PaymentStatus.Paid) {
-      throw new BadRequestException('Order is not paid or already refunded.');
+      throw new BadRequestException('Đơn đặt hàng chưa được thanh toán hoặc đã được hoàn lại.');
     }
     if (order.productStatus === 'cancelled') {
-      throw new BadRequestException('Order is already cancelled.');
+      throw new BadRequestException('Đơn đặt hàng đã bị hủy.');
     }
 
     await this.dataSource.transaction(async manager => {
@@ -142,16 +142,16 @@ export class PaymentsService {
       where: { id: orderId },
       relations: ['user'],
     });
-    if (!order) throw new BadRequestException('Order not found');
+    if (!order) throw new BadRequestException('Không tìm thấy đơn hàng');
     await this.assertCanAct(userId, order, userRole);
 
     if (order.productStatus === 'cancelled') {
-      throw new BadRequestException('Order is already cancelled.');
+      throw new BadRequestException('Đơn đặt hàng đã bị hủy.');
     }
     if (order.payment_status === PaymentStatus.Paid) {
       // Refund if paid
       await this.refundOrder(orderId, userId, userRole);
-      return { message: 'Order cancelled and refunded.' };
+      return { message: 'Đơn hàng bị hủy và được hoàn tiền.' };
     }
 
     // If not paid, just cancel
@@ -165,11 +165,11 @@ export class PaymentsService {
       where: { id: orderId },
       relations: ['user'],
     });
-    if (!order) throw new BadRequestException('Order not found');
+    if (!order) throw new BadRequestException('Không tìm thấy đơn hàng');
     await this.assertCanAct(userId, order, userRole);
 
     if (order.payment_status === PaymentStatus.Paid) {
-      throw new BadRequestException('Order is already paid.');
+      throw new BadRequestException('Đơn hàng đã được thanh toán.');
     }
 
     order.payment_status = PaymentStatus.Paid;
@@ -178,6 +178,6 @@ export class PaymentsService {
     // Send invoice email
     await this.invoicesService.generateInvoice(orderId);
 
-    return { message: 'Order marked as paid and invoice sent.' };
+    return { message: 'Đơn hàng được đánh dấu là đã thanh toán và đã gửi hóa đơn.' };
   }
 }

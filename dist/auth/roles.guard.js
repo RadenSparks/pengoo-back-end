@@ -28,7 +28,7 @@ let RolesGuard = class RolesGuard {
         }
         const { user } = context.switchToHttp().getRequest();
         if (!user || !requiredRoles.includes(user.role)) {
-            throw new common_1.ForbiddenException('Forbidden resource');
+            throw new common_1.ForbiddenException('Tài nguyên bị cấm');
         }
         return true;
     }

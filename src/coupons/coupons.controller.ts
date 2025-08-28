@@ -93,8 +93,8 @@ export class CouponsController {
   })
   async redeemCoupon(@Query('token') token: string) {
     const userCoupon = await this.userCouponRepo.findOne({ where: { redeemToken: token }, relations: ['coupon', 'user'] });
-    if (!userCoupon) throw new BadRequestException('Invalid or expired token');
-    if (userCoupon.redeemed) throw new BadRequestException('Coupon already redeemed');
+    if (!userCoupon) throw new BadRequestException('Mã thông báo không hợp lệ hoặc đã hết hạn');
+    if (userCoupon.redeemed) throw new BadRequestException('Phiếu giảm giá đã được đổi');
 
     userCoupon.redeemed = true;
     userCoupon.redeemedAt = new Date();

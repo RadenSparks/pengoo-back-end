@@ -20,7 +20,7 @@ export class PostsService {
     private postsRepository: Repository<Post>,
     @InjectRepository(PostCatalogue)
     private cataloguesRepository: Repository<PostCatalogue>,
-  ) {}
+  ) { }
 
   /**
    * Shift orders of posts in the same catalogue to ensure unique, gapless order values.
@@ -63,7 +63,7 @@ export class PostsService {
   async create(dto: CreatePostDto): Promise<Post> {
     const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
     if (!catalogue) {
-      throw new Error('Catalogue not found');
+      throw new Error('Không tìm thấy danh mục');
     }
     // Sanitize canonical before saving
     if (dto.canonical) {
@@ -84,7 +84,7 @@ export class PostsService {
 
   async findOne(id: number): Promise<Post> {
     const post = await this.postsRepository.findOne({ where: { id }, relations: ['catalogue'] });
-    if (!post) throw new NotFoundException('Post not found');
+    if (!post) throw new NotFoundException('Không tìm thấy bài đăng');
     return post;
   }
 
@@ -92,7 +92,7 @@ export class PostsService {
     const post = await this.findOne(id);
     if (dto.catalogueId) {
       const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
-      if (!catalogue) throw new NotFoundException('Catalogue not found');
+      if (!catalogue) throw new NotFoundException('Không tìm thấy danh mục');
       post.catalogue = catalogue;
     }
     // Sanitize canonical before updating

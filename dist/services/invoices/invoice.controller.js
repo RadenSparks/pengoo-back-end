@@ -25,14 +25,14 @@ let InvoicesController = class InvoicesController {
     async getInvoice(orderId, res) {
         const order = await this.invoicesService.getOrderWithDetails(Number(orderId));
         if (!order) {
-            throw new common_1.NotFoundException('Order not found');
+            throw new common_1.NotFoundException('Không tìm thấy đơn hàng');
         }
         if (!this.invoicesService.canDownloadInvoice(order)) {
-            throw new common_1.ForbiddenException('Invoice is only available after payment is confirmed.');
+            throw new common_1.ForbiddenException('Hóa đơn chỉ có sẵn sau khi thanh toán được xác nhận.');
         }
         const invoicePath = await this.invoicesService.createInvoicePdf(order);
         if (!fs.existsSync(invoicePath)) {
-            throw new common_1.NotFoundException('Invoice not found');
+            throw new common_1.NotFoundException('Không tìm thấy hóa đơn');
         }
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);

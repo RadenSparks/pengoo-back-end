@@ -70,7 +70,7 @@ export class ProductsController {
       : createProductDto.featured;
     console.log(featureImages)
     if (!mainImage) {
-      throw new Error('Main image is required');
+      throw new Error('Hình ảnh chính là bắt buộc');
     }
     return this.productsService.create(
       createProductDto,
@@ -225,7 +225,7 @@ export class ProductsController {
   @Get(':id/cms-content')
   async getCmsContent(@Param('id') id: number) {
     let product = await this.productsService.findOneWithCmsContent(Number(id));
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
     if (!product.cmsContent) {
       // Create a blank CmsContent if missing
       product = await this.productsService.createCmsContentForProduct(Number(id));
@@ -238,7 +238,7 @@ export class ProductsController {
   @Put(':id/cms-content')
   async updateCmsContent(@Param('id') id: number, @Body() body: any) {
     const updated = await this.productsService.updateCmsContent(Number(id), body);
-    if (!updated) throw new NotFoundException('CMS content not found');
+    if (!updated) throw new NotFoundException('Không tìm thấy nội dung CMS');
     return updated;
   }
 

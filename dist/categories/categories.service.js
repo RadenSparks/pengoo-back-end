@@ -31,21 +31,21 @@ let CategoriesService = class CategoriesService {
     }
     async findById(id) {
         if (!id) {
-            throw new common_1.NotFoundException('Category id empty');
+            throw new common_1.NotFoundException('Id danh mục trống');
         }
         const category = await this.categoriesRepository.findOne({
             where: { id },
             relations: ['products'],
         });
         if (!category) {
-            throw new common_1.NotFoundException('Category not found');
+            throw new common_1.NotFoundException('Không tìm thấy danh mục');
         }
         return category;
     }
     async update(id, updateCategoryDto) {
         const category = await this.findById(id);
         if (!category) {
-            throw new common_1.NotFoundException('Category not found');
+            throw new common_1.NotFoundException('Không tìm thấy danh mục');
         }
         Object.assign(category, updateCategoryDto);
         return this.categoriesRepository.save(category);

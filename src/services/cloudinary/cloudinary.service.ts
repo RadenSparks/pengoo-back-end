@@ -4,9 +4,9 @@ import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'clo
 import * as dotenv from 'dotenv';
 dotenv.config();
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 @Injectable()
@@ -24,8 +24,8 @@ export class CloudinaryService {
       publicId = options.isMain
         ? `main_${options.slug}`
         : options.detailIndex
-        ? `detail_${options.slug}_${options.detailIndex}`
-        : `other_${options.slug}_${Date.now()}`;
+          ? `detail_${options.slug}_${options.detailIndex}`
+          : `other_${options.slug}_${Date.now()}`;
     } else if (purpose === 'user' && options?.userId) {
       folder = `users`;
       publicId = `avatar_${options.userId}`;
@@ -40,7 +40,7 @@ export class CloudinaryService {
         (error, result) => {
           if (error) return reject(error);
           if (!result) {
-            throw new Error('Upload failed');
+            throw new Error('Tải lên không thành công');
           }
           resolve({ secure_url: result.secure_url, public_id: result.public_id });
         }

@@ -6,20 +6,20 @@ import * as fs from 'fs';
 
 @Controller('invoices')
 export class InvoicesController {
-  constructor(private readonly invoicesService: InvoicesService) {}
+  constructor(private readonly invoicesService: InvoicesService) { }
 
   @Get(':orderId')
   async getInvoice(@Param('orderId') orderId: string, @Res() res: Response) {
     const order = await this.invoicesService.getOrderWithDetails(Number(orderId));
     if (!order) {
-      throw new NotFoundException('Order not found');
+      throw new NotFoundException('Không tìm thấy đơn hàng');
     }
     if (!this.invoicesService.canDownloadInvoice(order)) {
-      throw new ForbiddenException('Invoice is only available after payment is confirmed.');
+      throw new ForbiddenException('Hóa đơn chỉ có sẵn sau khi thanh toán được xác nhận.');
     }
     const invoicePath = await this.invoicesService.createInvoicePdf(order);
     if (!fs.existsSync(invoicePath)) {
-      throw new NotFoundException('Invoice not found');
+      throw new NotFoundException('Không tìm thấy hóa đơn');
     }
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);

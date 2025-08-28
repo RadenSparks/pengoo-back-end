@@ -56,7 +56,7 @@ let PostsService = class PostsService {
     async create(dto) {
         const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
         if (!catalogue) {
-            throw new Error('Catalogue not found');
+            throw new Error('Không tìm thấy danh mục');
         }
         if (dto.canonical) {
             dto.canonical = sanitizeCanonical(dto.canonical);
@@ -74,7 +74,7 @@ let PostsService = class PostsService {
     async findOne(id) {
         const post = await this.postsRepository.findOne({ where: { id }, relations: ['catalogue'] });
         if (!post)
-            throw new common_1.NotFoundException('Post not found');
+            throw new common_1.NotFoundException('Không tìm thấy bài đăng');
         return post;
     }
     async update(id, dto) {
@@ -82,7 +82,7 @@ let PostsService = class PostsService {
         if (dto.catalogueId) {
             const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
             if (!catalogue)
-                throw new common_1.NotFoundException('Catalogue not found');
+                throw new common_1.NotFoundException('Không tìm thấy danh mục');
             post.catalogue = catalogue;
         }
         if (dto.canonical) {

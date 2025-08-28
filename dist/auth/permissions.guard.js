@@ -40,7 +40,7 @@ let PermissionsGuard = class PermissionsGuard {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
         if (!user || !user.role) {
-            throw new common_1.ForbiddenException('No user or role found');
+            throw new common_1.ForbiddenException('Không tìm thấy người dùng hoặc vai trò');
         }
         let roleEntity;
         if (typeof user.role === 'string') {
@@ -50,7 +50,7 @@ let PermissionsGuard = class PermissionsGuard {
             roleEntity = user.role;
         }
         if (!roleEntity) {
-            throw new common_1.ForbiddenException('Role not found');
+            throw new common_1.ForbiddenException('Không tìm thấy vai trò');
         }
         const rolePermissions = await this.rolePermissionRepo.find({
             where: { role: { id: roleEntity.id } },
@@ -59,7 +59,7 @@ let PermissionsGuard = class PermissionsGuard {
         const userPermissions = rolePermissions.map(rp => rp.permission.name);
         const hasPermission = requiredPermissions.every(p => userPermissions.includes(p));
         if (!hasPermission) {
-            throw new common_1.ForbiddenException('Insufficient permissions');
+            throw new common_1.ForbiddenException('Không đủ quyền');
         }
         return true;
     }

@@ -5,12 +5,12 @@ import { UpdateCmsContentDto } from './dto/update-cms-content.dto';
 
 @Controller('products/:productId/cms-content')
 export class CmsContentController {
-  constructor(private readonly cmsService: CmsContentService) {}
+  constructor(private readonly cmsService: CmsContentService) { }
 
   @Get()
   async getCmsContent(@Param('productId') productId: number) {
     const cms = await this.cmsService.findByProduct(productId);
-    if (!cms) throw new NotFoundException('CMS Content not found');
+    if (!cms) throw new NotFoundException('Không tìm thấy nội dung CMS');
     return cms;
   }
 

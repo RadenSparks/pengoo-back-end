@@ -47,6 +47,8 @@ let CollectionsService = class CollectionsService {
             .getOne();
     }
     async create(dto) {
+//         if (!dto)
+//             throw new Error('Không nhận được dữ liệu');
         const collection = this.collectionsRepo.create(dto);
         if (dto.productIds && dto.productIds.length) {
             collection.products = await this.productsRepo.findBy({ id: (0, typeorm_2.In)(dto.productIds) });
@@ -94,7 +96,7 @@ let CollectionsService = class CollectionsService {
         const allProducts = await this.productsRepo.find({ relations: ['category_ID'] });
         const baseGame = allProducts.find(p => p.slug === baseSlug && (0, products_service_1.isBaseGame)(p));
         if (!baseGame)
-            throw new Error('Base game not found');
+            throw new Error('Không tìm thấy trò chơi cơ bản');
         const expansions = (0, products_service_1.findExpansionsForBaseGame)(allProducts, baseSlug);
         const collection = this.collectionsRepo.create({
             name: `${baseGame.product_name} Collection`,

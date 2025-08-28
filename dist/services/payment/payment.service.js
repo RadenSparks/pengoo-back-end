@@ -36,7 +36,7 @@ let PaymentsService = class PaymentsService {
     }
     async assertCanAct(userId, order, userRole) {
         if (order.user.id !== userId && userRole !== 'admin') {
-            throw new common_1.ForbiddenException('You are not allowed to perform this action on this order.');
+            throw new common_1.ForbiddenException('Bạn không được phép thực hiện hành động này theo lệnh này.');
         }
     }
     async pay(orderId, method, userId, userRole) {
@@ -45,16 +45,16 @@ let PaymentsService = class PaymentsService {
             relations: ['user'],
         });
         if (!order)
-            throw new common_1.BadRequestException('Order not found');
+            throw new common_1.BadRequestException('Không tìm thấy đơn hàng');
         await this.assertCanAct(userId, order, userRole);
         if (order.payment_status === order_entity_1.PaymentStatus.Paid) {
-            throw new common_1.BadRequestException('Order is already paid.');
+            throw new common_1.BadRequestException('Đơn hàng đã được thanh toán.');
         }
         if (order.payment_status === order_entity_1.PaymentStatus.PendingOnDelivery && method === payment_types_1.PaymentMethod.ON_DELIVERY) {
-            throw new common_1.BadRequestException('Order is already set for on-delivery payment.');
+            throw new common_1.BadRequestException('Đơn đặt hàng đã được đặt để thanh toán khi giao hàng.');
         }
         if (order.productStatus === 'cancelled') {
-            throw new common_1.BadRequestException('Cannot pay for a cancelled order.');
+            throw new common_1.BadRequestException('Không thể thanh toán cho đơn hàng bị hủy.');
         }
         switch (method) {
             case payment_types_1.PaymentMethod.PAYPAL:
@@ -66,7 +66,7 @@ let PaymentsService = class PaymentsService {
                 await this.ordersRepository.save(order);
                 return { message: 'Order placed. Pay on delivery.' };
             default:
-                throw new common_1.BadRequestException('Unsupported payment method');
+                throw new common_1.BadRequestException('Phương thức thanh toán không được hỗ trợ');
         }
     }
     async handlePaypalCapture(orderId, userId, userRole) {
@@ -75,13 +75,13 @@ let PaymentsService = class PaymentsService {
             relations: ['user'],
         });
         if (!order)
-            throw new common_1.BadRequestException('Order not found');
+            throw new common_1.BadRequestException('Không tìm thấy đơn hàng');
         await this.assertCanAct(userId, order, userRole);
         if (order.payment_status === order_entity_1.PaymentStatus.Paid) {
             return { message: 'Order is already paid.' };
         }
         if (order.productStatus === 'cancelled') {
-            throw new common_1.BadRequestException('Cannot capture payment for a cancelled order.');
+            throw new common_1.BadRequestException('Không thể thu hồi khoản thanh toán cho đơn hàng bị hủy.');
         }
         order.payment_status = order_entity_1.PaymentStatus.Paid;
         await this.ordersRepository.save(order);
@@ -94,18 +94,18 @@ let PaymentsService = class PaymentsService {
             relations: ['user'],
         });
         if (!order)
-            throw new common_1.BadRequestException('Order not found');
+            throw new common_1.BadRequestException('Không tìm thấy đơn hàng');
         await this.assertCanAct(userId, order, userRole);
         if (order.payment_status === order_entity_1.PaymentStatus.Paid) {
-            throw new common_1.BadRequestException('Order is already paid.');
+            throw new common_1.BadRequestException('Đơn hàng đã được thanh toán.');
         }
         if (order.productStatus === 'cancelled') {
-            throw new common_1.BadRequestException('Cannot capture payment for a cancelled order.');
+            throw new common_1.BadRequestException('Không thể thu hồi khoản thanh toán cho đơn hàng bị hủy.');
         }
         order.payment_status = order_entity_1.PaymentStatus.Paid;
         await this.ordersRepository.save(order);
         await this.invoicesService.generateInvoice(orderId);
-        return { message: 'Payos payment captured and invoice sent.' };
+        return { message: 'Khoản thanh toán Payos đã được ghi lại và hóa đơn đã được gửi.' };
     }
     async refundOrder(orderId, userId, userRole) {
         const order = await this.ordersRepository.findOne({
@@ -113,13 +113,13 @@ let PaymentsService = class PaymentsService {
             relations: ['user'],
         });
         if (!order)
-            throw new common_1.BadRequestException('Order not found');
+            throw new common_1.BadRequestException('Không tìm thấy đơn hàng');
         await this.assertCanAct(userId, order, userRole);
         if (order.payment_status !== order_entity_1.PaymentStatus.Paid) {
-            throw new common_1.BadRequestException('Order is not paid or already refunded.');
+            throw new common_1.BadRequestException('Đơn đặt hàng chưa được thanh toán hoặc đã được hoàn lại.');
         }
         if (order.productStatus === 'cancelled') {
-            throw new common_1.BadRequestException('Order is already cancelled.');
+            throw new common_1.BadRequestException('Đơn đặt hàng đã bị hủy.');
         }
         await this.dataSource.transaction(async (manager) => {
             if (order.payment_type === payment_types_1.PaymentMethod.PAYPAL) {
@@ -140,14 +140,14 @@ let PaymentsService = class PaymentsService {
             relations: ['user'],
         });
         if (!order)
-            throw new common_1.BadRequestException('Order not found');
+            throw new common_1.BadRequestException('Không tìm thấy đơn hàng');
         await this.assertCanAct(userId, order, userRole);
         if (order.productStatus === 'cancelled') {
-            throw new common_1.BadRequestException('Order is already cancelled.');
+            throw new common_1.BadRequestException('Đơn đặt hàng đã bị hủy.');
         }
         if (order.payment_status === order_entity_1.PaymentStatus.Paid) {
             await this.refundOrder(orderId, userId, userRole);
-            return { message: 'Order cancelled and refunded.' };
+            return { message: 'Đơn hàng bị hủy và được hoàn tiền.' };
         }
         order.productStatus = 'cancelled';
         await this.ordersRepository.save(order);
@@ -159,15 +159,15 @@ let PaymentsService = class PaymentsService {
             relations: ['user'],
         });
         if (!order)
-            throw new common_1.BadRequestException('Order not found');
+            throw new common_1.BadRequestException('Không tìm thấy đơn hàng');
         await this.assertCanAct(userId, order, userRole);
         if (order.payment_status === order_entity_1.PaymentStatus.Paid) {
-            throw new common_1.BadRequestException('Order is already paid.');
+            throw new common_1.BadRequestException('Đơn hàng đã được thanh toán.');
         }
         order.payment_status = order_entity_1.PaymentStatus.Paid;
         await this.ordersRepository.save(order);
         await this.invoicesService.generateInvoice(orderId);
-        return { message: 'Order marked as paid and invoice sent.' };
+        return { message: 'Đơn hàng được đánh dấu là đã thanh toán và đã gửi hóa đơn.' };
     }
 };
 exports.PaymentsService = PaymentsService;
