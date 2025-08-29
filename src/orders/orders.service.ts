@@ -18,6 +18,7 @@ import { UploadFiles } from './file.entity';
 import { ConfigService } from '@nestjs/config'; // Add this import
 import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
 import { PaymentMethod } from 'src/services/payment/payment.types';
+import { pengooEmailTemplate } from '../notifications/notifications.service';
 
 @Injectable()
 export class OrdersService {
@@ -137,8 +138,19 @@ export class OrdersService {
       console.log(total_price)
       const savedOrder = await manager.save(order);
       savedOrder.checkout_url = checkout_url ?? null
+      // After order is created, send confirmation email using the template
       if (order.user && order.user.email) {
-        await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+        await this.notificationsService.sendEmail(
+          order.user.email,
+          'Xác nhận đơn hàng từ Pengoo',
+          `Đơn hàng của bạn với mã số ${order.id} đã được xác nhận.`,
+          undefined,
+          pengooEmailTemplate({
+            title: 'Xác nhận đơn hàng',
+            message: `Đơn hàng của bạn với mã số <b>${order.id}</b> đã được xác nhận. Cảm ơn bạn đã mua sắm tại Pengoo!`,
+            logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+          })
+        );
       }
 
       // After order is created, update product quantities
@@ -197,20 +209,49 @@ export class OrdersService {
     order.payment_status = PaymentStatus.Paid;
     order.productStatus = ProductStatus.Pending;
 
-    // Send invoice email
+    // Send invoice email using the template
+    await this.notificationsService.sendEmail(
+      order.user.email,
+      'Hóa đơn thanh toán từ Pengoo',
+      `Cảm ơn bạn đã thanh toán. Vui lòng xem hóa đơn đính kèm.`,
+      undefined,
+      pengooEmailTemplate({
+        title: 'Hóa đơn thanh toán',
+        message: `Xin chào ${order.user.full_name || order.user.email},<br><br>
+          Cảm ơn bạn đã thanh toán đơn hàng tại Pengoo.<br>
+          Vui lòng xem hóa đơn đính kèm.<br><br>
+          Nếu có bất kỳ thắc mắc nào, hãy liên hệ với chúng tôi qua hotline bên dưới.`,
+        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+      })
+    );
+
     await this.invoicesService.generateInvoice(order.id);
     return await this.ordersRepository.save(order);
   }
 
   async handleOrderCancellation(orderCode: number) {
     const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
-    console.log(`Handling cancellation for order code: ${order?.order_code}`);
     if (!order) {
-      // console.warn(`Order ${orderCode} not found during cancellation.`);
       return new NotFoundException('Không tìm thấy đơn hàng');
     }
     order.payment_status = PaymentStatus.Canceled;
     order.productStatus = ProductStatus.Cancelled;
+
+    // Send cancellation email using the template
+    await this.notificationsService.sendEmail(
+      order.user.email,
+      'Đơn hàng bị hủy do hết hàng',
+      `Đơn hàng của bạn #${order.id} đã bị hủy vì chúng tôi không còn đủ hàng để giao. Vui lòng liên hệ với chúng tôi để được hỗ trợ hoặc hoàn tiền.`,
+      undefined,
+      pengooEmailTemplate({
+        title: 'Đơn hàng bị hủy',
+        message: `Đơn hàng của bạn <b>#${order.id}</b> đã bị hủy vì chúng tôi không còn đủ hàng để giao.<br>
+        Vui lòng liên hệ với chúng tôi để được hỗ trợ hoặc hoàn tiền.<br>
+        Xin lỗi vì sự bất tiện này.`,
+        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+      })
+    );
+
     return await this.ordersRepository.save(order);
   }
   async updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order> {
@@ -276,11 +317,10 @@ export class OrdersService {
 
       // 1. Only allow refund for delivered orders
       if (order.productStatus !== ProductStatus.Delivered) {
-        throw new BadRequestException('Refunds can only be requested for delivered orders.');
+        throw new BadRequestException('Chỉ có thể yêu cầu hoàn tiền cho đơn hàng đã giao.');
       }
 
       // 2. Check refund window (e.g., 14 days after delivery)
-      // Fix: Use order_date as delivered date (or add deliveredAt to Order entity if needed)
       const deliveredAt = order.order_date;
       const REFUND_WINDOW_DAYS = 14;
       const now = new Date();
@@ -310,9 +350,6 @@ export class OrdersService {
       ) {
         throw new BadRequestException('Vui lòng cung cấp lý do chi tiết cho yêu cầu hoàn tiền của bạn (ít nhất 10 ký tự cho lý do tùy chỉnh).');
       }
-      // if (!data.uploadFiles || !Array.isArray(data.uploadFiles) || data.uploadFiles.length === 0) {
-      //   throw new BadRequestException('Please upload at least one evidence file.');
-      // }
 
       // 5. Allow partial refund (optional: here, full refund)
       let refundAmount = order.total_price;
@@ -331,11 +368,12 @@ export class OrdersService {
         toAccountNumber: data.toAccountNumber,
         toBin: data.toBin,
         bank: data.bank,
-        paymentMethod: data.paymentMethod, // <-- Store payment method
+        paymentMethod: data.paymentMethod,
         times: (order.refundRequests?.length ?? 0) + 1,
         status: RefundRequestStatus.PENDING,
       });
       await manager.save(refundRequest);
+
       // 8. Save evidence URLs
       if (Array.isArray(data.uploadFiles)) {
         for (const file of data.uploadFiles) {
@@ -347,67 +385,79 @@ export class OrdersService {
           await manager.save(uploadFile);
         }
       }
+
       // 9. Select admin emails from users table
       const adminUsers = await manager.find('User', { where: { role: 'admin', status: true } });
       const adminEmails = adminUsers
         .map((user: any) => user.email)
         .filter((email: string | undefined) => !!email);
 
-      // Fallback to config if no admin found
       if (adminEmails.length === 0) {
         adminEmails.push(this.configService.get<string>('ADMIN_EMAIL') || 'admin@pengoo.store');
       }
 
-      const subject = `Refund Request #${refundRequest.id} Created`;
-      const message = `
-        A new refund request has been created.<br>
-        <b>Order ID:</b> ${order.id}<br>
-        <b>User:</b> ${order.user?.email || 'Unknown'}<br>
-        <b>Reason:</b> ${refundRequest.reason}<br>
-        <b>Amount:</b> ${refundRequest.amount}<br>
-        <b>Time:</b> ${new Date().toLocaleString()}<br>
-      `;
-      // for (const email of adminEmails) {
-      //   await this.notificationsService.sendEmail(
-      //     email,
-      //     subject,
-      //     `A new refund request has been created for order #${order.id}.`,
-      //     undefined,
-      //     message
-      //   );
-      // }
+      // --- Vietnamese Admin Notification Email ---
+      const subject = `Yêu cầu hoàn tiền #${refundRequest.id} vừa được tạo`;
+      const message = pengooEmailTemplate({
+        title: 'Thông báo yêu cầu hoàn tiền',
+        message: `
+          Một yêu cầu hoàn tiền mới vừa được tạo.<br>
+          <b>Mã đơn hàng:</b> ${order.id}<br>
+          <b>Người dùng:</b> ${order.user?.email || 'Không xác định'}<br>
+          <b>Lý do:</b> ${refundRequest.reason}<br>
+          <b>Số tiền:</b> ${refundRequest.amount.toLocaleString('vi-VN')} VND<br>
+          <b>Thời gian:</b> ${new Date().toLocaleString('vi-VN')}<br>
+        `,
+        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+      });
 
-      // 10. Audit trail (log action)
-      const auditLog = `
-        [AUDIT] Refund request created for order ${order.id} by user ${data.user_id}<br>
-        <b>Order ID:</b> ${order.id}<br>
-        <b>User ID:</b> ${data.user_id}<br>
-        <b>User Email:</b> ${order.user?.email || 'Unknown'}<br>
-        <b>Reason:</b> ${refundRequest.reason}<br>
-        <b>Amount:</b> ${refundRequest.amount}<br>
-        <b>Time:</b> ${new Date().toLocaleString()}<br>
-      `;
       for (const email of adminEmails) {
         await this.notificationsService.sendEmail(
           email,
-          `Audit Log: Refund Request #${refundRequest.id}`,
-          `[AUDIT] Refund request created for order ${order.id} by user ${data.user_id}`,
+          subject,
+          `Một yêu cầu hoàn tiền mới vừa được tạo cho đơn hàng #${order.id}.`,
           undefined,
-          auditLog
+          message
+        );
+      }
+
+      // --- Vietnamese Audit Log Email ---
+      const auditLogSubject = `Nhật ký kiểm toán: Yêu cầu hoàn tiền #${refundRequest.id}`;
+      const auditLogMessage = pengooEmailTemplate({
+        title: 'Nhật ký kiểm toán hoàn tiền',
+        message: `
+          [AUDIT] Yêu cầu hoàn tiền vừa được tạo cho đơn hàng ${order.id} bởi người dùng ${data.user_id}<br>
+          <b>Mã đơn hàng:</b> ${order.id}<br>
+          <b>ID người dùng:</b> ${data.user_id}<br>
+          <b>Email người dùng:</b> ${order.user?.email || 'Không xác định'}<br>
+          <b>Lý do:</b> ${refundRequest.reason}<br>
+          <b>Số tiền:</b> ${refundRequest.amount.toLocaleString('vi-VN')} VND<br>
+          <b>Thời gian:</b> ${new Date().toLocaleString('vi-VN')}<br>
+        `,
+        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+      });
+
+      for (const email of adminEmails) {
+        await this.notificationsService.sendEmail(
+          email,
+          auditLogSubject,
+          `[AUDIT] Yêu cầu hoàn tiền vừa được tạo cho đơn hàng ${order.id} bởi người dùng ${data.user_id}`,
+          undefined,
+          auditLogMessage
         );
       }
 
       // Also log to console for local audit
-      console.log(`[AUDIT] Refund request created for order ${order.id} by user ${data.user_id}`);
+      console.log(`[AUDIT] Yêu cầu hoàn tiền vừa được tạo cho đơn hàng ${order.id} bởi người dùng ${data.user_id}`);
 
       return refundRequest;
     });
 
     return {
       status: 200,
-      message: 'Refund request created successfully.',
+      message: 'Yêu cầu hoàn tiền đã được tạo thành công.',
       data: refundRequest,
-      estimatedProcessingTime: '3-7 business days',
+      estimatedProcessingTime: '3-7 ngày làm việc',
     };
   }
   async cancelOversoldOrders() {

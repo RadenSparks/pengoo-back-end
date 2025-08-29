@@ -29,6 +29,7 @@ const refund_request_entity_1 = require("./refund-request.entity");
 const file_entity_1 = require("./file.entity");
 const config_1 = require("@nestjs/config");
 const cloudinary_service_1 = require("../services/cloudinary/cloudinary.service");
+const notifications_service_2 = require("../notifications/notifications.service");
 let OrdersService = class OrdersService {
     payosService;
     ordersRepository;
@@ -127,7 +128,11 @@ let OrdersService = class OrdersService {
             const savedOrder = await manager.save(order);
             savedOrder.checkout_url = checkout_url ?? null;
             if (order.user && order.user.email) {
-                await this.notificationsService.sendOrderConfirmation(order.user.email, order.id);
+                await this.notificationsService.sendEmail(order.user.email, 'Xác nhận đơn hàng từ Pengoo', `Đơn hàng của bạn với mã số ${order.id} đã được xác nhận.`, undefined, (0, notifications_service_2.pengooEmailTemplate)({
+                    title: 'Xác nhận đơn hàng',
+                    message: `Đơn hàng của bạn với mã số <b>${order.id}</b> đã được xác nhận. Cảm ơn bạn đã mua sắm tại Pengoo!`,
+                    logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+                }));
             }
             for (const detail of createOrderDto.details) {
                 const product = await manager.findOne(product_entity_1.Product, { where: { id: detail.productId } });
@@ -182,17 +187,31 @@ let OrdersService = class OrdersService {
             throw new Error('Không tìm thấy đơn hàng');
         order.payment_status = order_entity_1.PaymentStatus.Paid;
         order.productStatus = order_entity_1.ProductStatus.Pending;
+        await this.notificationsService.sendEmail(order.user.email, 'Hóa đơn thanh toán từ Pengoo', `Cảm ơn bạn đã thanh toán. Vui lòng xem hóa đơn đính kèm.`, undefined, (0, notifications_service_2.pengooEmailTemplate)({
+            title: 'Hóa đơn thanh toán',
+            message: `Xin chào ${order.user.full_name || order.user.email},<br><br>
+          Cảm ơn bạn đã thanh toán đơn hàng tại Pengoo.<br>
+          Vui lòng xem hóa đơn đính kèm.<br><br>
+          Nếu có bất kỳ thắc mắc nào, hãy liên hệ với chúng tôi qua hotline bên dưới.`,
+            logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+        }));
         await this.invoicesService.generateInvoice(order.id);
         return await this.ordersRepository.save(order);
     }
     async handleOrderCancellation(orderCode) {
         const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
-        console.log(`Handling cancellation for order code: ${order?.order_code}`);
         if (!order) {
             return new common_1.NotFoundException('Không tìm thấy đơn hàng');
         }
         order.payment_status = order_entity_1.PaymentStatus.Canceled;
         order.productStatus = order_entity_1.ProductStatus.Cancelled;
+        await this.notificationsService.sendEmail(order.user.email, 'Đơn hàng bị hủy do hết hàng', `Đơn hàng của bạn #${order.id} đã bị hủy vì chúng tôi không còn đủ hàng để giao. Vui lòng liên hệ với chúng tôi để được hỗ trợ hoặc hoàn tiền.`, undefined, (0, notifications_service_2.pengooEmailTemplate)({
+            title: 'Đơn hàng bị hủy',
+            message: `Đơn hàng của bạn <b>#${order.id}</b> đã bị hủy vì chúng tôi không còn đủ hàng để giao.<br>
+        Vui lòng liên hệ với chúng tôi để được hỗ trợ hoặc hoàn tiền.<br>
+        Xin lỗi vì sự bất tiện này.`,
+            logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+        }));
         return await this.ordersRepository.save(order);
     }
     async updateStatus(id, updateOrderStatusDto) {
