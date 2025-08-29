@@ -41,6 +41,10 @@ export class CouponsService {
    *   apply a special coupon: basePercent + (expansionCount - 1) * incrementPercent
    */
   async getSpecialCollectionDiscount(productIds: number[]) {
+    // Ensure productIds is always an array
+    if (!Array.isArray(productIds) || productIds.length === 0) {
+      return { discountPercent: 0, collectionId: null };
+    }
     // Load products with their collection and category
     const products = await this.productsRepo.find({
       where: { id: In(productIds) },

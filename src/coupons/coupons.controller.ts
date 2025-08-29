@@ -169,4 +169,18 @@ export class CouponsController {
   async getVoucherByUserId(@Req() req) {
     return this.couponsService.getVoucherByUserId(req.user.id)
   }
+
+  @Post('special-collection-discount')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get special collection discount for a list of product IDs' })
+  @ApiBody({
+    schema: {
+      example: {
+        productIds: [1, 2, 3]
+      }
+    }
+  })
+  async getSpecialCollectionDiscount(@Body() body: { productIds: number[] }) {
+    return this.couponsService.getSpecialCollectionDiscount(body.productIds);
+  }
 }

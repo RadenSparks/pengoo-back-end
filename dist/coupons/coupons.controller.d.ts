@@ -42,4 +42,13 @@ export declare class CouponsController {
         voucherCode: string;
     }): Promise<UserCoupon[]>;
     getVoucherByUserId(req: any): Promise<UserCoupon[]>;
+    getSpecialCollectionDiscount(body: {
+        productIds: number[];
+    }): Promise<{
+        discountPercent: number;
+        collectionId: null;
+    } | {
+        discountPercent: number;
+        collectionId: number;
+    }>;
 }

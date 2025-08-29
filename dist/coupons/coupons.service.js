@@ -44,6 +44,9 @@ let CouponsService = class CouponsService {
         return this.couponsRepo.save(coupon);
     }
     async getSpecialCollectionDiscount(productIds) {
+        if (!Array.isArray(productIds) || productIds.length === 0) {
+            return { discountPercent: 0, collectionId: null };
+        }
         const products = await this.productsRepo.find({
             where: { id: (0, typeorm_2.In)(productIds) },
             relations: ['collection', 'category_ID'],

@@ -85,6 +85,9 @@ let CouponsController = class CouponsController {
     async getVoucherByUserId(req) {
         return this.couponsService.getVoucherByUserId(req.user.id);
     }
+    async getSpecialCollectionDiscount(body) {
+        return this.couponsService.getSpecialCollectionDiscount(body.productIds);
+    }
 };
 exports.CouponsController = CouponsController;
 __decorate([
@@ -247,6 +250,22 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], CouponsController.prototype, "getVoucherByUserId", null);
+__decorate([
+    (0, common_1.Post)('special-collection-discount'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiOperation)({ summary: 'Get special collection discount for a list of product IDs' }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            example: {
+                productIds: [1, 2, 3]
+            }
+        }
+    }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CouponsController.prototype, "getSpecialCollectionDiscount", null);
 exports.CouponsController = CouponsController = __decorate([
     (0, swagger_1.ApiTags)('Coupons'),
     (0, common_1.Controller)('coupons'),

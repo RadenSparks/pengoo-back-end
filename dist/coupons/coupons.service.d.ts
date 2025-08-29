@@ -15,10 +15,10 @@ export declare class CouponsService {
     create(dto: CreateCouponDto): Promise<Coupon>;
     getSpecialCollectionDiscount(productIds: number[]): Promise<{
         discountPercent: number;
-        collectionId: number;
+        collectionId: null;
     } | {
         discountPercent: number;
-        collectionId: null;
+        collectionId: number;
     }>;
     validateAndApply(code: string, orderValue: number, userId: number, productIds: number[]): Promise<{
         coupon: Coupon;
