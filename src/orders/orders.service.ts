@@ -501,19 +501,60 @@ export class OrdersService {
 
   async updateRefundRequestStatus(id: number, status: string) {
     const refundRequestRepo = this.dataSource.getRepository(RefundRequest);
-    const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+    const refundRequest = await refundRequestRepo.findOne({ where: { id }, relations: ['user', 'order'] });
     if (!refundRequest) throw new NotFoundException('Không tìm thấy yêu cầu hoàn tiền');
     refundRequest.status = status as RefundRequestStatus;
     await refundRequestRepo.save(refundRequest);
+
+    // Send email to customer
+    let subject = '';
+    let message = '';
+    if (status === 'APPROVED') {
+      subject = 'Yêu cầu hoàn tiền đã được duyệt';
+      message = `Yêu cầu hoàn tiền cho đơn hàng #${refundRequest.order.id} đã được duyệt. Số tiền sẽ được hoàn lại trong vòng 3-7 ngày làm việc.`;
+    } else if (status === 'REJECTED') {
+      subject = 'Yêu cầu hoàn tiền bị từ chối';
+      message = `Yêu cầu hoàn tiền cho đơn hàng #${refundRequest.order.id} đã bị từ chối. Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi.`;
+    }
+    if (subject && refundRequest.user?.email) {
+      await this.notificationsService.sendEmail(
+        refundRequest.user.email,
+        subject,
+        message,
+        undefined,
+        pengooEmailTemplate({
+          title: subject,
+          message,
+          logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+        })
+      );
+    }
+
     return { status: 200, message: 'Đã cập nhật trạng thái yêu cầu hoàn tiền', data: refundRequest };
   }
 
   async processRefundRequest(id: number) {
     const refundRequestRepo = this.dataSource.getRepository(RefundRequest);
-    const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+    const refundRequest = await refundRequestRepo.findOne({ where: { id }, relations: ['user', 'order'] });
     if (!refundRequest) throw new NotFoundException('Không tìm thấy yêu cầu hoàn tiền');
-    refundRequest.status = RefundRequestStatus.REFUNDED; // <-- Use REFUNDED
+    refundRequest.status = RefundRequestStatus.REFUNDED;
     await refundRequestRepo.save(refundRequest);
+
+    // Send email to customer
+    if (refundRequest.user?.email) {
+      await this.notificationsService.sendEmail(
+        refundRequest.user.email,
+        'Hoàn tiền đã được xử lý',
+        `Yêu cầu hoàn tiền cho đơn hàng #${refundRequest.order.id} đã được xử lý. Số tiền sẽ sớm được chuyển vào tài khoản của bạn.`,
+        undefined,
+        pengooEmailTemplate({
+          title: 'Hoàn tiền đã được xử lý',
+          message: `Yêu cầu hoàn tiền cho đơn hàng #${refundRequest.order.id} đã được xử lý. Số tiền sẽ sớm được chuyển vào tài khoản của bạn.`,
+          logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+        })
+      );
+    }
+
     return { status: 200, message: 'Yêu cầu hoàn tiền được đánh dấu là đã hoàn lại', data: refundRequest };
   }
 }

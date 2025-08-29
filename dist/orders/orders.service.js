@@ -266,7 +266,7 @@ let OrdersService = class OrdersService {
             if (!order)
                 throw new common_1.NotFoundException('Không tìm thấy đơn hàng');
             if (order.productStatus !== order_entity_1.ProductStatus.Delivered) {
-                throw new common_1.BadRequestException('Refunds can only be requested for delivered orders.');
+                throw new common_1.BadRequestException('Chỉ có thể yêu cầu hoàn tiền cho đơn hàng đã giao.');
             }
             const deliveredAt = order.order_date;
             const REFUND_WINDOW_DAYS = 14;
@@ -323,35 +323,47 @@ let OrdersService = class OrdersService {
             if (adminEmails.length === 0) {
                 adminEmails.push(this.configService.get('ADMIN_EMAIL') || 'admin@pengoo.store');
             }
-            const subject = `Refund Request #${refundRequest.id} Created`;
-            const message = `
-        A new refund request has been created.<br>
-        <b>Order ID:</b> ${order.id}<br>
-        <b>User:</b> ${order.user?.email || 'Unknown'}<br>
-        <b>Reason:</b> ${refundRequest.reason}<br>
-        <b>Amount:</b> ${refundRequest.amount}<br>
-        <b>Time:</b> ${new Date().toLocaleString()}<br>
-      `;
-            const auditLog = `
-        [AUDIT] Refund request created for order ${order.id} by user ${data.user_id}<br>
-        <b>Order ID:</b> ${order.id}<br>
-        <b>User ID:</b> ${data.user_id}<br>
-        <b>User Email:</b> ${order.user?.email || 'Unknown'}<br>
-        <b>Reason:</b> ${refundRequest.reason}<br>
-        <b>Amount:</b> ${refundRequest.amount}<br>
-        <b>Time:</b> ${new Date().toLocaleString()}<br>
-      `;
+            const subject = `Yêu cầu hoàn tiền #${refundRequest.id} vừa được tạo`;
+            const message = (0, notifications_service_2.pengooEmailTemplate)({
+                title: 'Thông báo yêu cầu hoàn tiền',
+                message: `
+          Một yêu cầu hoàn tiền mới vừa được tạo.<br>
+          <b>Mã đơn hàng:</b> ${order.id}<br>
+          <b>Người dùng:</b> ${order.user?.email || 'Không xác định'}<br>
+          <b>Lý do:</b> ${refundRequest.reason}<br>
+          <b>Số tiền:</b> ${refundRequest.amount.toLocaleString('vi-VN')} VND<br>
+          <b>Thời gian:</b> ${new Date().toLocaleString('vi-VN')}<br>
+        `,
+                logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+            });
             for (const email of adminEmails) {
-                await this.notificationsService.sendEmail(email, `Audit Log: Refund Request #${refundRequest.id}`, `[AUDIT] Refund request created for order ${order.id} by user ${data.user_id}`, undefined, auditLog);
+                await this.notificationsService.sendEmail(email, subject, `Một yêu cầu hoàn tiền mới vừa được tạo cho đơn hàng #${order.id}.`, undefined, message);
             }
-            console.log(`[AUDIT] Refund request created for order ${order.id} by user ${data.user_id}`);
+            const auditLogSubject = `Nhật ký kiểm toán: Yêu cầu hoàn tiền #${refundRequest.id}`;
+            const auditLogMessage = (0, notifications_service_2.pengooEmailTemplate)({
+                title: 'Nhật ký kiểm toán hoàn tiền',
+                message: `
+          [AUDIT] Yêu cầu hoàn tiền vừa được tạo cho đơn hàng ${order.id} bởi người dùng ${data.user_id}<br>
+          <b>Mã đơn hàng:</b> ${order.id}<br>
+          <b>ID người dùng:</b> ${data.user_id}<br>
+          <b>Email người dùng:</b> ${order.user?.email || 'Không xác định'}<br>
+          <b>Lý do:</b> ${refundRequest.reason}<br>
+          <b>Số tiền:</b> ${refundRequest.amount.toLocaleString('vi-VN')} VND<br>
+          <b>Thời gian:</b> ${new Date().toLocaleString('vi-VN')}<br>
+        `,
+                logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+            });
+            for (const email of adminEmails) {
+                await this.notificationsService.sendEmail(email, auditLogSubject, `[AUDIT] Yêu cầu hoàn tiền vừa được tạo cho đơn hàng ${order.id} bởi người dùng ${data.user_id}`, undefined, auditLogMessage);
+            }
+            console.log(`[AUDIT] Yêu cầu hoàn tiền vừa được tạo cho đơn hàng ${order.id} bởi người dùng ${data.user_id}`);
             return refundRequest;
         });
         return {
             status: 200,
-            message: 'Refund request created successfully.',
+            message: 'Yêu cầu hoàn tiền đã được tạo thành công.',
             data: refundRequest,
-            estimatedProcessingTime: '3-7 business days',
+            estimatedProcessingTime: '3-7 ngày làm việc',
         };
     }
     async cancelOversoldOrders() {
@@ -389,20 +401,44 @@ let OrdersService = class OrdersService {
     }
     async updateRefundRequestStatus(id, status) {
         const refundRequestRepo = this.dataSource.getRepository(refund_request_entity_1.RefundRequest);
-        const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+        const refundRequest = await refundRequestRepo.findOne({ where: { id }, relations: ['user', 'order'] });
         if (!refundRequest)
             throw new common_1.NotFoundException('Không tìm thấy yêu cầu hoàn tiền');
         refundRequest.status = status;
         await refundRequestRepo.save(refundRequest);
+        let subject = '';
+        let message = '';
+        if (status === 'APPROVED') {
+            subject = 'Yêu cầu hoàn tiền đã được duyệt';
+            message = `Yêu cầu hoàn tiền cho đơn hàng #${refundRequest.order.id} đã được duyệt. Số tiền sẽ được hoàn lại trong vòng 3-7 ngày làm việc.`;
+        }
+        else if (status === 'REJECTED') {
+            subject = 'Yêu cầu hoàn tiền bị từ chối';
+            message = `Yêu cầu hoàn tiền cho đơn hàng #${refundRequest.order.id} đã bị từ chối. Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi.`;
+        }
+        if (subject && refundRequest.user?.email) {
+            await this.notificationsService.sendEmail(refundRequest.user.email, subject, message, undefined, (0, notifications_service_2.pengooEmailTemplate)({
+                title: subject,
+                message,
+                logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+            }));
+        }
         return { status: 200, message: 'Đã cập nhật trạng thái yêu cầu hoàn tiền', data: refundRequest };
     }
     async processRefundRequest(id) {
         const refundRequestRepo = this.dataSource.getRepository(refund_request_entity_1.RefundRequest);
-        const refundRequest = await refundRequestRepo.findOne({ where: { id } });
+        const refundRequest = await refundRequestRepo.findOne({ where: { id }, relations: ['user', 'order'] });
         if (!refundRequest)
             throw new common_1.NotFoundException('Không tìm thấy yêu cầu hoàn tiền');
         refundRequest.status = refund_request_entity_1.RefundRequestStatus.REFUNDED;
         await refundRequestRepo.save(refundRequest);
+        if (refundRequest.user?.email) {
+            await this.notificationsService.sendEmail(refundRequest.user.email, 'Hoàn tiền đã được xử lý', `Yêu cầu hoàn tiền cho đơn hàng #${refundRequest.order.id} đã được xử lý. Số tiền sẽ sớm được chuyển vào tài khoản của bạn.`, undefined, (0, notifications_service_2.pengooEmailTemplate)({
+                title: 'Hoàn tiền đã được xử lý',
+                message: `Yêu cầu hoàn tiền cho đơn hàng #${refundRequest.order.id} đã được xử lý. Số tiền sẽ sớm được chuyển vào tài khoản của bạn.`,
+                logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+            }));
+        }
         return { status: 200, message: 'Yêu cầu hoàn tiền được đánh dấu là đã hoàn lại', data: refundRequest };
     }
 };
