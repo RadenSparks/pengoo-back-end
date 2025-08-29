@@ -74,16 +74,18 @@ export class WishlistController {
     return items.map(item => {
       const product = item.product as any;
       let mainImage = '';
-      if (product.images && Array.isArray(product.images)) {
-        const mainImgObj = product.images.find((img: any) => img.name === 'main');
-        mainImage = mainImgObj?.url || product.images[0]?.url || '';
+      // Always provide the full images array, even if empty
+      const imagesArr = Array.isArray(product.images) ? product.images : [];
+      if (imagesArr.length > 0) {
+        const mainImgObj = imagesArr.find((img: any) => img.name === 'main');
+        mainImage = mainImgObj?.url || imagesArr[0]?.url || '';
       }
       return {
         ...item,
         product: {
           ...product,
           image: mainImage,      // main image URL for convenience
-          images: product.images // full images array for gallery, etc.
+          images: imagesArr      // always provide the full array
         },
       };
     });

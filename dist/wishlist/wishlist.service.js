@@ -53,10 +53,16 @@ let WishlistService = class WishlistService {
         await this.wishlistRepository.remove(wishlistItem);
     }
     async viewWishlist(userId) {
-        return this.wishlistRepository.find({
+        const items = await this.wishlistRepository.find({
             where: { user: { id: userId }, movedToOrder: (0, typeorm_2.IsNull)() },
             relations: ['product', 'product.images'],
             order: { createdAt: 'DESC' },
+        });
+        return items.map(item => {
+            if (item.product && !Array.isArray(item.product.images)) {
+                item.product.images = [];
+            }
+            return item;
         });
     }
     async moveWishlistToOrder(userId, orderId) {

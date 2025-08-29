@@ -40,16 +40,17 @@ let WishlistController = class WishlistController {
         return items.map(item => {
             const product = item.product;
             let mainImage = '';
-            if (product.images && Array.isArray(product.images)) {
-                const mainImgObj = product.images.find((img) => img.name === 'main');
-                mainImage = mainImgObj?.url || product.images[0]?.url || '';
+            const imagesArr = Array.isArray(product.images) ? product.images : [];
+            if (imagesArr.length > 0) {
+                const mainImgObj = imagesArr.find((img) => img.name === 'main');
+                mainImage = mainImgObj?.url || imagesArr[0]?.url || '';
             }
             return {
                 ...item,
                 product: {
                     ...product,
                     image: mainImage,
-                    images: product.images
+                    images: imagesArr
                 },
             };
         });
