@@ -64,7 +64,7 @@ export class InvoicesService {
       marginRight: 30,
       marginLeft: 30,
       marginBottom: 30,
-      logo: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+      logo: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755174794/logonav_ck9fwi.png', // Make sure this URL is accessible
       backgroundColor: '#f4f6fb',
       headerBackground: '#6341df',
       headerTextColor: '#fff',
@@ -96,10 +96,34 @@ export class InvoicesService {
         price: Number(detail.price),
       })),
       customFields: [
-        couponCode ? { name: 'Mã giảm giá', value: couponCode } : null,
-        discountAmount > 0 ? { name: 'Số tiền giảm giá', value: `${discountAmount.toLocaleString('vi-VN')} VND` } : null,
-        { name: 'Tổng thanh toán', value: `${order.total_price.toLocaleString('vi-VN')} VND` },
-      ].filter(Boolean),
+        {
+          name: 'Tóm tắt thanh toán',
+          value: `
+            <table style="width:100%;font-size:13px;">
+              <tr>
+                <td style="padding:4px 0;">Tổng giá trị sản phẩm:</td>
+                <td style="text-align:right;padding:4px 0;">${originalTotal.toLocaleString('vi-VN')} VND</td>
+              </tr>
+              ${couponCode ? `
+              <tr>
+                <td style="padding:4px 0;">Mã giảm giá sử dụng:</td>
+                <td style="text-align:right;padding:4px 0;"><b>${couponCode}</b></td>
+              </tr>
+              ` : ''}
+              ${discountAmount > 0 ? `
+              <tr>
+                <td style="padding:4px 0;">Số tiền giảm giá:</td>
+                <td style="text-align:right;padding:4px 0;color:#6341df;"><b>${discountAmount.toLocaleString('vi-VN')} VND</b></td>
+              </tr>
+              ` : ''}
+              <tr>
+                <td style="padding:4px 0;font-weight:bold;">Tổng thanh toán:</td>
+                <td style="text-align:right;padding:4px 0;font-weight:bold;color:#ffd700;">${order.total_price.toLocaleString('vi-VN')} VND</td>
+              </tr>
+            </table>
+          `,
+        },
+      ],
       bottomNotice: `
         <div style="font-size:16px;color:#6341df;font-weight:bold;margin-bottom:8px;">
           Cảm ơn bạn đã mua hàng tại Pengoo!
