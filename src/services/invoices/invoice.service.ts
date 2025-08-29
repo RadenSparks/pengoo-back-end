@@ -46,17 +46,23 @@ export class InvoicesService {
   }
 
   async createInvoicePdf(order: Order): Promise<string> {
-    // Calculate discount and coupon info
+    // Calculate original total (sum of original product prices)
+    const originalTotal = order.details.reduce(
+      (sum, detail) => sum + (detail.product?.product_price || 0) * detail.quantity,
+      0,
+    );
+
+    // Calculate actual paid total (sum of order detail prices)
+    const paidTotal = order.details.reduce(
+      (sum, detail) => sum + Number(detail.price) * detail.quantity,
+      0,
+    );
+
+    // Calculate discount amount
+    const discountAmount = originalTotal - order.total_price;
+
+    // Coupon code
     const couponCode = order.coupon_code || '';
-    let discountAmount = 0;
-    if (order.coupon_id && order.coupon_code) {
-      // If you want to show the discount, calculate it from product prices and order.total_price
-      const originalTotal = order.details.reduce(
-        (sum, detail) => sum + (detail.product?.product_price || 0) * detail.quantity,
-        0,
-      );
-      discountAmount = originalTotal - order.total_price;
-    }
 
     const data = {
       documentTitle: 'HÓA ĐƠN',
@@ -87,9 +93,8 @@ export class InvoicesService {
         quantity: detail.quantity,
         description: detail.product?.product_name || 'Sản phẩm',
         tax: 0,
-        price: Number(detail.price), // Use the price at time of order, not product.product_price
+        price: Number(detail.price), // Price at time of order
       })),
-      // Add coupon and discount info to the bottom notice
       bottomNotice: `
         Cảm ơn bạn đã mua hàng tại Pengoo!<br>
         ${couponCode ? `Mã giảm giá sử dụng: <b>${couponCode}</b><br>` : ''}

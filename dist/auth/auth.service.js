@@ -51,7 +51,6 @@ let AuthService = class AuthService {
     async verify(token) {
         try {
             const decoded = await this.jwtService.verify(token);
-            console.log(decoded);
             return decoded;
         }
         catch (error) {

@@ -47,12 +47,10 @@ let InvoicesService = class InvoicesService {
         fs.unlink(invoicePath, () => { });
     }
     async createInvoicePdf(order) {
+        const originalTotal = order.details.reduce((sum, detail) => sum + (detail.product?.product_price || 0) * detail.quantity, 0);
+        const paidTotal = order.details.reduce((sum, detail) => sum + Number(detail.price) * detail.quantity, 0);
+        const discountAmount = originalTotal - order.total_price;
         const couponCode = order.coupon_code || '';
-        let discountAmount = 0;
-        if (order.coupon_id && order.coupon_code) {
-            const originalTotal = order.details.reduce((sum, detail) => sum + (detail.product?.product_price || 0) * detail.quantity, 0);
-            discountAmount = originalTotal - order.total_price;
-        }
         const data = {
             documentTitle: 'HÓA ĐƠN',
             currency: 'VND',

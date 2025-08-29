@@ -45,7 +45,6 @@ export class AuthService {
   async verify(token: string): Promise<any> {
     try {
       const decoded = await this.jwtService.verify(token);
-      console.log(decoded)
       return decoded;
     } catch (error) {
       throw new UnauthorizedException('Thông tin xác thực không hợp lệ');
