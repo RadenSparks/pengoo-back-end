@@ -265,14 +265,13 @@ export class CouponsService {
   async handleSaveCouponForUser(userId, voucherId) {
     const existing = await this.userCouponRepo.createQueryBuilder("user_coupon")
       .where("user_coupon.userId = :userId", { userId })
-      .andWhere("user_coupon.redeemed = :redeemed", { redeemed: true })
       .andWhere("user_coupon.couponId = :voucherId", { voucherId })
       .getOne();
     if (existing) throw new BadRequestException("Người dùng đã đổi phiếu thưởng này rồi");
     const userCoupon = this.userCouponRepo.create({
       user: { id: userId },
       coupon: { id: voucherId },
-      redeemed: true,
+      redeemed: false,
       redeemToken: null,
     });
 

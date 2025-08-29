@@ -218,7 +218,6 @@ let CouponsService = class CouponsService {
     async handleSaveCouponForUser(userId, voucherId) {
         const existing = await this.userCouponRepo.createQueryBuilder("user_coupon")
             .where("user_coupon.userId = :userId", { userId })
-            .andWhere("user_coupon.redeemed = :redeemed", { redeemed: true })
             .andWhere("user_coupon.couponId = :voucherId", { voucherId })
             .getOne();
         if (existing)
@@ -226,7 +225,7 @@ let CouponsService = class CouponsService {
         const userCoupon = this.userCouponRepo.create({
             user: { id: userId },
             coupon: { id: voucherId },
-            redeemed: true,
+            redeemed: false,
             redeemToken: null,
         });
         return await this.userCouponRepo.save(userCoupon);
