@@ -59,7 +59,10 @@ let WishlistService = class WishlistService {
             order: { createdAt: 'DESC' },
         });
         return items.map(item => {
-            if (item.product && !Array.isArray(item.product.images)) {
+            if (item.product && Array.isArray(item.product.images)) {
+                item.product.images = item.product.images.filter(img => !img.deletedAt);
+            }
+            else if (item.product) {
                 item.product.images = [];
             }
             return item;

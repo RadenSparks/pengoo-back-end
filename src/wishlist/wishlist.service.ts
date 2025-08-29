@@ -40,16 +40,17 @@ export class WishlistService {
   }
 
   async viewWishlist(userId: number): Promise<Wishlist[]> {
-    // Explicitly load product.images relation
     const items = await this.wishlistRepository.find({
       where: { user: { id: userId }, movedToOrder: IsNull() },
       relations: ['product', 'product.images'],
       order: { createdAt: 'DESC' },
     });
 
-    // Defensive: ensure images is always an array
+    // Ensure images is always an array and filter out soft-deleted images
     return items.map(item => {
-      if (item.product && !Array.isArray(item.product.images)) {
+      if (item.product && Array.isArray(item.product.images)) {
+        item.product.images = item.product.images.filter(img => !img.deletedAt);
+      } else if (item.product) {
         item.product.images = [];
       }
       return item;

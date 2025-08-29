@@ -11,7 +11,7 @@ export class Wishlist {
   @ManyToOne(() => User, user => user.wishlists, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToOne(() => Product, product => product.wishlists, { eager: true, onDelete: 'CASCADE' })
+  @ManyToOne(() => Product, product => product.wishlists, { onDelete: 'CASCADE' })
   product: Product;
 
   @CreateDateColumn()
