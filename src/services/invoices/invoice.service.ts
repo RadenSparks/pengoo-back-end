@@ -14,7 +14,6 @@ export class InvoicesService {
     private ordersRepository: Repository<Order>,
     private notificationsService: NotificationsService,
   ) {}
-
   async generateInvoice(orderId: number) {
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
@@ -46,33 +45,34 @@ export class InvoicesService {
   }
 
   async createInvoicePdf(order: Order): Promise<string> {
-    // Calculate original total (sum of original product prices)
     const originalTotal = order.details.reduce(
       (sum, detail) => sum + (detail.product?.product_price || 0) * detail.quantity,
       0,
     );
-
-    // Calculate actual paid total (sum of order detail prices)
     const paidTotal = order.details.reduce(
       (sum, detail) => sum + Number(detail.price) * detail.quantity,
       0,
     );
-
-    // Calculate discount amount
     const discountAmount = originalTotal - order.total_price;
-
-    // Coupon code
     const couponCode = order.coupon_code || '';
 
     const data = {
       documentTitle: 'HÓA ĐƠN',
       currency: 'VND',
       taxNotation: 'vat',
-      marginTop: 25,
-      marginRight: 25,
-      marginLeft: 25,
-      marginBottom: 25,
+      marginTop: 30,
+      marginRight: 30,
+      marginLeft: 30,
+      marginBottom: 30,
       logo: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
+      backgroundColor: '#f4f6fb',
+      headerBackground: '#6341df',
+      headerTextColor: '#fff',
+      tableHeaderBackgroundColor: '#ffd700',
+      tableHeaderTextColor: '#222',
+      tableRowBackgroundColor: '#fff',
+      tableRowAlternateBackgroundColor: '#f4f6fb',
+      fontSize: 13,
       sender: {
         company: 'Công ty Pengoo',
         address: '130/9 Điện Biên Phủ, Quận Bình Thạnh',
@@ -93,13 +93,28 @@ export class InvoicesService {
         quantity: detail.quantity,
         description: detail.product?.product_name || 'Sản phẩm',
         tax: 0,
-        price: Number(detail.price), // Price at time of order
+        price: Number(detail.price),
       })),
+      customFields: [
+        couponCode ? { name: 'Mã giảm giá', value: couponCode } : null,
+        discountAmount > 0 ? { name: 'Số tiền giảm giá', value: `${discountAmount.toLocaleString('vi-VN')} VND` } : null,
+        { name: 'Tổng thanh toán', value: `${order.total_price.toLocaleString('vi-VN')} VND` },
+      ].filter(Boolean),
       bottomNotice: `
-        Cảm ơn bạn đã mua hàng tại Pengoo!<br>
-        ${couponCode ? `Mã giảm giá sử dụng: <b>${couponCode}</b><br>` : ''}
-        ${discountAmount > 0 ? `Số tiền giảm giá: <b>${discountAmount.toLocaleString('vi-VN')} VND</b><br>` : ''}
-        Tổng thanh toán: <b>${order.total_price.toLocaleString('vi-VN')} VND</b>
+        <div style="font-size:16px;color:#6341df;font-weight:bold;margin-bottom:8px;">
+          Cảm ơn bạn đã mua hàng tại Pengoo!
+        </div>
+        <div style="font-size:13px;color:#222;">
+          Nếu có bất kỳ thắc mắc nào, hãy liên hệ với chúng tôi qua hotline: <b>0937 314 158</b>
+        </div>
+        <div style="margin-top:18px;">
+          <span style="background:#ffd700;color:#222;padding:6px 18px;border-radius:8px;font-weight:600;">
+            Địa chỉ cửa hàng: 130/9 Điện Biên Phủ, Bình Thạnh, TP. Hồ Chí Minh
+          </span>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:#888;">
+          © ${new Date().getFullYear()} Pengoo Corporation. Mọi quyền được bảo lưu.
+        </div>
       `,
     };
 
