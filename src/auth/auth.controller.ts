@@ -24,7 +24,7 @@ export class AuthController {
     type: SignInRequestDto,
     examples: {
       default: {
-        summary: 'Sign in with email and password',
+        summary: 'Đăng nhập bằng email và mật khẩu',
         value: {
           email: 'user@example.com',
           password: 'yourPassword123',
@@ -33,9 +33,9 @@ export class AuthController {
     },
   })
   async signin(@Body() body: SignInRequestDto) {
-    if (!body.email) throw new BadRequestException('Email is required');
-    if (!body.password) throw new BadRequestException('Password is required');
-    // This will send the code to email if password is correct
+    if (!body.email) throw new BadRequestException('Vui lòng nhập email');
+    if (!body.password) throw new BadRequestException('Vui lòng nhập mật khẩu');
+    // Gửi mã xác thực đến email nếu mật khẩu đúng
     return this.authService.signinWithEmailMfa(body.email, body.password);
   }
 
@@ -50,7 +50,7 @@ export class AuthController {
     }
   })
   async verifyMfa(@Body() body: { email: string; code: string }) {
-    if (!body.email || !body.code) throw new BadRequestException('Email and code are required');
+    if (!body.email || !body.code) throw new BadRequestException('Vui lòng nhập email và mã xác thực');
     return this.authService.verifyMfaCode(body.email, body.code);
   }
 
@@ -60,7 +60,7 @@ export class AuthController {
     type: VerifyRequestDto,
     examples: {
       default: {
-        summary: 'Verify JWT token',
+        summary: 'Xác thực mã JWT',
         value: {
           token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
         },
@@ -72,7 +72,7 @@ export class AuthController {
       const decoded = await this.authService.verify(body.token);
       return { isValid: true, decoded };
     } catch (error) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Thông tin xác thực không hợp lệ');
     }
   }
 
@@ -90,8 +90,8 @@ export class AuthController {
     if (user) {
       await this.notificationsService.sendPasswordReset(user.email, user.resetPasswordToken!);
     }
-    // Always return success to prevent email enumeration
-    return { message: 'If that email is registered, a reset link has been sent.' };
+    // Luôn trả về thành công để tránh dò email
+    return { message: 'Nếu email đã đăng ký, liên kết đặt lại mật khẩu đã được gửi.' };
   }
 
   @Post('reset-password')
@@ -106,8 +106,8 @@ export class AuthController {
   })
   async resetPassword(@Body() body: { token: string; newPassword: string }) {
     const success = await this.usersService.resetPassword(body.token, body.newPassword);
-    if (!success) throw new BadRequestException('Invalid or expired token');
-    return { message: 'Password has been reset successfully.' };
+    if (!success) throw new BadRequestException('Token không hợp lệ hoặc đã hết hạn');
+    return { message: 'Mật khẩu đã được đặt lại thành công.' };
   }
 
   @Post('google')
@@ -118,7 +118,7 @@ export class AuthController {
     }
   })
   async googleLogin(@Body() body: { idToken: string; skipMfa?: boolean }) {
-    if (!body.idToken) throw new BadRequestException('No idToken provided');
+    if (!body.idToken) throw new BadRequestException('Thiếu idToken');
     return this.authService.googleLogin(body.idToken, !!body.skipMfa);
   }
 
@@ -130,7 +130,7 @@ export class AuthController {
     }
   })
   async facebookLogin(@Body() body: { accessToken: string; skipMfa?: boolean }) {
-    if (!body.accessToken) throw new BadRequestException('No accessToken provided');
+    if (!body.accessToken) throw new BadRequestException('Thiếu accessToken');
     return this.authService.facebookLogin(body.accessToken, !!body.skipMfa);
   }
 
@@ -145,9 +145,9 @@ export class AuthController {
     },
   })
   async simpleLogin(@Body() body: { email: string; password: string }) {
-    if (!body.email) throw new BadRequestException('Email is required');
-    if (!body.password) throw new BadRequestException('Password is required');
-    // This will NOT send MFA code, just validate and return token
+    if (!body.email) throw new BadRequestException('Vui lòng nhập email');
+    if (!body.password) throw new BadRequestException('Vui lòng nhập mật khẩu');
+    // Không gửi mã xác thực, chỉ kiểm tra và trả về token
     return this.authService.signin(body.email, body.password);
   }
 }

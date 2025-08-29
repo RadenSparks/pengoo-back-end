@@ -144,7 +144,7 @@ export function pengooEmailTemplate({
             </tr>
           </table>
           <div style="font-size: 13px; color: #aaa; margin-top: 20px; text-align: center;">
-            © ${new Date().getFullYear()} Pengoo Corporation. All rights reserved.
+            © ${new Date().getFullYear()} Pengoo Corporation. Mọi quyền được bảo lưu.
           </div>
         </td>
       </tr>

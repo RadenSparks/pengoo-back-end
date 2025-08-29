@@ -28,24 +28,13 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         this.configService = configService;
     }
     async validate(payload) {
-        console.log('JWT payload:', payload);
         const user = await this.usersService.findById(payload.sub);
-        console.log('User found:', user);
         if (!user) {
-            console.log('User not found!');
             throw new common_1.UnauthorizedException("Thông tin xác thực không hợp lệ");
         }
-        if (user.role != payload.role) {
-            console.log('Role mismatch:', user.role, payload.role);
-        }
-        if (user.email != payload.email) {
-            console.log('Email mismatch:', user.email, payload.email);
-        }
-        if (user.id != payload.sub) {
-            console.log('ID mismatch:', user.id, payload.sub);
-        }
-        if (user.role != payload.role || user.email != payload.email || user.id != payload.sub) {
-            console.log('User data mismatch!', user, payload);
+        if (user.role !== payload.role ||
+            user.email !== payload.email ||
+            user.id !== payload.sub) {
             throw new common_1.UnauthorizedException('Thông tin xác thực không hợp lệ');
         }
         return user;

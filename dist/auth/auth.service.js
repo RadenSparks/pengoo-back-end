@@ -107,14 +107,14 @@ let AuthService = class AuthService {
             user.mfaCode = code;
             user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000);
             await this.usersService.update(user.id, user);
-            await this.notificationsService.sendEmail(user.email, 'Pengoo - Your Login Confirmation Code', `Your code is: ${code}`, undefined, (0, notifications_service_1.pengooEmailTemplate)({
-                title: 'Your Login Confirmation Code',
-                message: `Hello ${user.full_name || user.email},<br><br>
-      We received a request to sign in to your Pengoo account. Please use the code below to verify your login.<br><br>
-      This code will expire in 5 minutes. If you did not request this, please ignore this email.`,
+            await this.notificationsService.sendEmail(user.email, 'Pengoo - Mã xác nhận đăng nhập', `Mã xác nhận của bạn là: ${code}`, undefined, (0, notifications_service_1.pengooEmailTemplate)({
+                title: 'Mã xác nhận đăng nhập',
+                message: `Xin chào ${user.full_name || user.email},<br><br>
+          Chúng tôi vừa nhận được yêu cầu đăng nhập vào tài khoản Pengoo của bạn. Vui lòng sử dụng mã bên dưới để xác thực đăng nhập.<br><br>
+          Mã này sẽ hết hạn sau 5 phút. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.`,
                 code,
             }));
-            return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
+            return { mfaRequired: true, message: 'Vui lòng kiểm tra email để lấy mã xác nhận.' };
         }
         catch (error) {
             throw new common_1.UnauthorizedException('Mã thông báo Google không hợp lệ');
@@ -131,14 +131,14 @@ let AuthService = class AuthService {
         user.mfaCode = code;
         user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000);
         await this.usersService.update(user.id, user);
-        await this.notificationsService.sendEmail(user.email, 'Pengoo - Your Login Confirmation Code', `Your code is: ${code}`, undefined, (0, notifications_service_1.pengooEmailTemplate)({
-            title: 'Your Login Confirmation Code',
-            message: `Hello ${user.full_name || user.email},<br><br>
-      We received a request to sign in to your Pengoo account. Please use the code below to verify your login.<br><br>
-      This code will expire in 5 minutes. If you did not request this, please ignore this email.`,
+        await this.notificationsService.sendEmail(user.email, 'Pengoo - Mã xác nhận đăng nhập', `Mã xác nhận của bạn là: ${code}`, undefined, (0, notifications_service_1.pengooEmailTemplate)({
+            title: 'Mã xác nhận đăng nhập',
+            message: `Xin chào ${user.full_name || user.email},<br><br>
+        Chúng tôi vừa nhận được yêu cầu đăng nhập vào tài khoản Pengoo của bạn. Vui lòng sử dụng mã bên dưới để xác thực đăng nhập.<br><br>
+        Mã này sẽ hết hạn sau 5 phút. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.`,
             code,
         }));
-        return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
+        return { mfaRequired: true, message: 'Vui lòng kiểm tra email để lấy mã xác nhận.' };
     }
     async verifyMfaCode(email, code) {
         const user = await this.usersService.findByEmail(email);
@@ -158,7 +158,7 @@ let AuthService = class AuthService {
             const token = this.signToken(payload);
             return { token, username: user.username, role: user.role };
         }
-        throw new common_1.UnauthorizedException('Mã không hợp lệ hoặc hết hạn');
+        throw new common_1.UnauthorizedException('Mã không hợp lệ hoặc đã hết hạn');
     }
     signToken(payload) {
         return this.jwtService.sign(payload);
@@ -190,14 +190,14 @@ let AuthService = class AuthService {
             user.mfaCode = code;
             user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000);
             await this.usersService.update(user.id, user);
-            await this.notificationsService.sendEmail(user.email, 'Pengoo - Your Login Confirmation Code', `Your code is: ${code}`, undefined, (0, notifications_service_1.pengooEmailTemplate)({
-                title: 'Your Login Confirmation Code',
-                message: `Hello ${user.full_name || user.email},<br><br>
-      We received a request to sign in to your Pengoo account. Please use the code below to verify your login.<br><br>
-      This code will expire in 5 minutes. If you did not request this, please ignore this email.`,
+            await this.notificationsService.sendEmail(user.email, 'Pengoo - Mã xác nhận đăng nhập', `Mã xác nhận của bạn là: ${code}`, undefined, (0, notifications_service_1.pengooEmailTemplate)({
+                title: 'Mã xác nhận đăng nhập',
+                message: `Xin chào ${user.full_name || user.email},<br><br>
+          Chúng tôi vừa nhận được yêu cầu đăng nhập vào tài khoản Pengoo của bạn. Vui lòng sử dụng mã bên dưới để xác thực đăng nhập.<br><br>
+          Mã này sẽ hết hạn sau 5 phút. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.`,
                 code,
             }));
-            return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
+            return { mfaRequired: true, message: 'Vui lòng kiểm tra email để lấy mã xác nhận.' };
         }
         catch (error) {
             throw new common_1.UnauthorizedException('Mã thông báo Facebook không hợp lệ');

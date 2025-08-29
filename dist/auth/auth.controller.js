@@ -34,14 +34,14 @@ let AuthController = class AuthController {
     }
     async signin(body) {
         if (!body.email)
-            throw new common_1.BadRequestException('Email is required');
+            throw new common_1.BadRequestException('Vui lòng nhập email');
         if (!body.password)
-            throw new common_1.BadRequestException('Password is required');
+            throw new common_1.BadRequestException('Vui lòng nhập mật khẩu');
         return this.authService.signinWithEmailMfa(body.email, body.password);
     }
     async verifyMfa(body) {
         if (!body.email || !body.code)
-            throw new common_1.BadRequestException('Email and code are required');
+            throw new common_1.BadRequestException('Vui lòng nhập email và mã xác thực');
         return this.authService.verifyMfaCode(body.email, body.code);
     }
     async verify(body) {
@@ -50,7 +50,7 @@ let AuthController = class AuthController {
             return { isValid: true, decoded };
         }
         catch (error) {
-            throw new common_1.UnauthorizedException('Invalid credentials');
+            throw new common_1.UnauthorizedException('Thông tin xác thực không hợp lệ');
         }
     }
     async forgotPassword(email) {
@@ -58,29 +58,29 @@ let AuthController = class AuthController {
         if (user) {
             await this.notificationsService.sendPasswordReset(user.email, user.resetPasswordToken);
         }
-        return { message: 'If that email is registered, a reset link has been sent.' };
+        return { message: 'Nếu email đã đăng ký, liên kết đặt lại mật khẩu đã được gửi.' };
     }
     async resetPassword(body) {
         const success = await this.usersService.resetPassword(body.token, body.newPassword);
         if (!success)
-            throw new common_1.BadRequestException('Invalid or expired token');
-        return { message: 'Password has been reset successfully.' };
+            throw new common_1.BadRequestException('Token không hợp lệ hoặc đã hết hạn');
+        return { message: 'Mật khẩu đã được đặt lại thành công.' };
     }
     async googleLogin(body) {
         if (!body.idToken)
-            throw new common_1.BadRequestException('No idToken provided');
+            throw new common_1.BadRequestException('Thiếu idToken');
         return this.authService.googleLogin(body.idToken, !!body.skipMfa);
     }
     async facebookLogin(body) {
         if (!body.accessToken)
-            throw new common_1.BadRequestException('No accessToken provided');
+            throw new common_1.BadRequestException('Thiếu accessToken');
         return this.authService.facebookLogin(body.accessToken, !!body.skipMfa);
     }
     async simpleLogin(body) {
         if (!body.email)
-            throw new common_1.BadRequestException('Email is required');
+            throw new common_1.BadRequestException('Vui lòng nhập email');
         if (!body.password)
-            throw new common_1.BadRequestException('Password is required');
+            throw new common_1.BadRequestException('Vui lòng nhập mật khẩu');
         return this.authService.signin(body.email, body.password);
     }
 };
@@ -92,7 +92,7 @@ __decorate([
         type: signin_request_dto_1.SignInRequestDto,
         examples: {
             default: {
-                summary: 'Sign in with email and password',
+                summary: 'Đăng nhập bằng email và mật khẩu',
                 value: {
                     email: 'user@example.com',
                     password: 'yourPassword123',
@@ -128,7 +128,7 @@ __decorate([
         type: verify_request_dto_1.VerifyRequestDto,
         examples: {
             default: {
-                summary: 'Verify JWT token',
+                summary: 'Xác thực mã JWT',
                 value: {
                     token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
                 },

@@ -20,7 +20,7 @@ export class InvoicesService {
       where: { id: orderId },
       relations: ['user', 'details', 'details.product'],
     });
-    if (!order) throw new InternalServerErrorException('Order not found');
+    if (!order) throw new InternalServerErrorException('Không tìm thấy đơn hàng');
 
     // Generate invoice PDF using easyInvoice
     const invoicePath = await this.createInvoicePdf(order);
@@ -28,15 +28,16 @@ export class InvoicesService {
     // Send email with invoice attached and styled HTML
     await this.notificationsService.sendEmail(
       order.user.email,
-      'Pengoo - Your Invoice',
-      `Thank you for your payment. Please find your invoice attached.`,
+      'Pengoo - Hóa đơn thanh toán',
+      `Cảm ơn bạn đã thanh toán. Vui lòng xem hóa đơn đính kèm.`,
       invoicePath,
       pengooEmailTemplate({
-        title: 'Your Invoice',
-        message: `Dear ${order.user.full_name || order.user.email},<br><br>
-          Thank you for your payment. Please find your invoice attached.<br><br>
-          If you have any questions, contact us at the hotline below.`,
-        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png', // <-- Use your actual logo URL here
+        title: 'Hóa đơn thanh toán',
+        message: `Xin chào ${order.user.full_name || order.user.email},<br><br>
+          Cảm ơn bạn đã thanh toán đơn hàng tại Pengoo.<br>
+          Vui lòng xem hóa đơn đính kèm.<br><br>
+          Nếu có bất kỳ thắc mắc nào, hãy liên hệ với chúng tôi qua hotline bên dưới.`,
+        logoUrl: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
       }),
     );
 
@@ -45,21 +46,33 @@ export class InvoicesService {
   }
 
   async createInvoicePdf(order: Order): Promise<string> {
+    // Calculate discount and coupon info
+    const couponCode = order.coupon_code || '';
+    let discountAmount = 0;
+    if (order.coupon_id && order.coupon_code) {
+      // If you want to show the discount, calculate it from product prices and order.total_price
+      const originalTotal = order.details.reduce(
+        (sum, detail) => sum + (detail.product?.product_price || 0) * detail.quantity,
+        0,
+      );
+      discountAmount = originalTotal - order.total_price;
+    }
+
     const data = {
-      documentTitle: 'INVOICE',
+      documentTitle: 'HÓA ĐƠN',
       currency: 'VND',
       taxNotation: 'vat',
       marginTop: 25,
       marginRight: 25,
       marginLeft: 25,
       marginBottom: 25,
-      logo: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png', // <-- Use your actual logo URL here
+      logo: 'https://res.cloudinary.com/do6lj4onq/image/upload/v1755175429/logopengoo_tjwzhh.png',
       sender: {
-        company: 'Pengoo Corporation',
-        address: '130/9 Dien Bien Phu Street, Binh Thanh District',
+        company: 'Công ty Pengoo',
+        address: '130/9 Điện Biên Phủ, Quận Bình Thạnh',
         zip: '70000',
-        city: 'Ho Chi Minh City',
-        country: 'Vietnam',
+        city: 'TP. Hồ Chí Minh',
+        country: 'Việt Nam',
       },
       client: {
         company: order.user.full_name || order.user.email,
@@ -69,26 +82,31 @@ export class InvoicesService {
         country: '',
       },
       invoiceNumber: String(order.order_code),
-      invoiceDate: new Date(order.order_date).toLocaleDateString('en-GB'),
+      invoiceDate: new Date(order.order_date).toLocaleDateString('vi-VN'),
       products: order.details.map((detail) => ({
         quantity: detail.quantity,
-        description: detail.product?.product_name || 'Product',
+        description: detail.product?.product_name || 'Sản phẩm',
         tax: 0,
-        price: detail.product?.product_price || 0,
+        price: Number(detail.price), // Use the price at time of order, not product.product_price
       })),
-      bottomNotice: 'Thank you for your purchase!',
+      // Add coupon and discount info to the bottom notice
+      bottomNotice: `
+        Cảm ơn bạn đã mua hàng tại Pengoo!<br>
+        ${couponCode ? `Mã giảm giá sử dụng: <b>${couponCode}</b><br>` : ''}
+        ${discountAmount > 0 ? `Số tiền giảm giá: <b>${discountAmount.toLocaleString('vi-VN')} VND</b><br>` : ''}
+        Tổng thanh toán: <b>${order.total_price.toLocaleString('vi-VN')} VND</b>
+      `,
     };
 
     // Generate the invoice
     const result = await (easyinvoice as any).createInvoice(data);
 
     // Save PDF to disk
-    // Use /tmp/invoices for serverless compatibility
     const invoiceDir = path.join('/tmp', 'invoices');
     if (!fs.existsSync(invoiceDir)) {
       fs.mkdirSync(invoiceDir, { recursive: true });
     }
-    const invoicePath = path.join(invoiceDir, `invoice-${order.id}.pdf`);
+    const invoicePath = path.join(invoiceDir, `hoa-don-${order.id}.pdf`);
     fs.writeFileSync(invoicePath, result.pdf, 'base64');
 
     return invoicePath;
@@ -99,7 +117,7 @@ export class InvoicesService {
       where: { id: orderId },
       relations: ['user', 'details', 'details.product'],
     });
-    if (!order) throw new InternalServerErrorException('Order not found');
+    if (!order) throw new InternalServerErrorException('Không tìm thấy đơn hàng');
     return this.createInvoicePdf(order);
   }
 
@@ -111,7 +129,7 @@ export class InvoicesService {
   }
 
   canDownloadInvoice(order: Order): boolean {
-    // Only allow download if paid (for COD, must be marked as paid)
+    // Chỉ cho phép tải hóa đơn nếu đã thanh toán (COD phải được đánh dấu là đã thanh toán)
     if (order.payment_type === 'cod' && order.payment_status !== 'paid') {
       return false;
     }

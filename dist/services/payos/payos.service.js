@@ -54,7 +54,7 @@ let PayosService = class PayosService {
     }
     async handlePayosPaymentSuccess(orderId) {
         await this.invoicesService.generateInvoice(orderId);
-        return { message: 'Invoice generated and sent to user.' };
+        return { message: 'Hóa đơn đã được tạo và gửi cho khách hàng.' };
     }
     async refundOrder(orderCode) {
         try {

@@ -35,12 +35,12 @@ let InvoicesController = class InvoicesController {
             throw new common_1.NotFoundException('Không tìm thấy hóa đơn');
         }
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
+        res.setHeader('Content-Disposition', `attachment; filename=hoa-don-${orderId}.pdf`);
         return res.sendFile(path.resolve(invoicePath));
     }
     async resendInvoice(orderId) {
         await this.invoicesService.generateInvoice(Number(orderId));
-        return { success: true, message: 'Invoice resent successfully' };
+        return { success: true, message: 'Hóa đơn đã được gửi lại thành công' };
     }
 };
 exports.InvoicesController = InvoicesController;

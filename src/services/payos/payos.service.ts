@@ -11,7 +11,7 @@ export class PayosService {
     private readonly clientSecret = process.env.PAYOS_CHECKSUM_KEY || "";
 
     constructor(
-        private invoicesService: InvoicesService, // Inject the invoice service
+        private invoicesService: InvoicesService,
     ) {}
 
     async createInvoice(data: {
@@ -37,17 +37,12 @@ export class PayosService {
         };
 
         try {
-            // const agent = new https.Agent({
-            //     rejectUnauthorized: false, // Bỏ verify SSL
-            // });
             const res = await axios.post(this.apiUrl, payload, {
-                // httpsAgent: agent,
                 headers: {
                     'x-api-key': this.apiKey ?? '',
                     'x-client-id': this.clientId ?? '',
                     'Content-Type': 'application/json',
                 },
-
             });
             return res.data;
         } catch (err: any) {
@@ -56,16 +51,13 @@ export class PayosService {
     }
 
     async handlePayosPaymentSuccess(orderId: number) {
-        // This will generate the invoice and send the email
+        // Tạo hóa đơn và gửi email cho người dùng
         await this.invoicesService.generateInvoice(orderId);
 
-        return { message: 'Invoice generated and sent to user.' };
+        return { message: 'Hóa đơn đã được tạo và gửi cho khách hàng.' };
     }
 
     async refundOrder(orderCode: number): Promise<any> {
-        // Implement PayOS refund API call here
-        // Example: POST to https://api-merchant.payos.vn/v2/payment-requests/{orderCode}/refund
-        // You may need to check PayOS docs for the exact endpoint and payload
         try {
             const res = await axios.post(
                 `https://api-merchant.payos.vn/v2/payment-requests/${orderCode}/refund`,

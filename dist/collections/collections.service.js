@@ -47,8 +47,6 @@ let CollectionsService = class CollectionsService {
             .getOne();
     }
     async create(dto) {
-//         if (!dto)
-//             throw new Error('Không nhận được dữ liệu');
         const collection = this.collectionsRepo.create(dto);
         if (dto.productIds && dto.productIds.length) {
             collection.products = await this.productsRepo.findBy({ id: (0, typeorm_2.In)(dto.productIds) });
