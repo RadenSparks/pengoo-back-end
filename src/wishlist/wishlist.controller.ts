@@ -70,7 +70,7 @@ export class WishlistController {
   @ApiQuery({ name: 'userId', type: Number, required: true })
   async viewWishlist(@Query('userId') userId: number) {
     const items = await this.wishlistService.viewWishlist(Number(userId));
-    // Map main image for each product
+    // Map main image for each product, but keep the full images array
     return items.map(item => {
       const product = item.product as any;
       let mainImage = '';
@@ -82,7 +82,8 @@ export class WishlistController {
         ...item,
         product: {
           ...product,
-          image: mainImage,
+          image: mainImage,      // main image URL for convenience
+          images: product.images // full images array for gallery, etc.
         },
       };
     });

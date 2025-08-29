@@ -49,6 +49,7 @@ let WishlistController = class WishlistController {
                 product: {
                     ...product,
                     image: mainImage,
+                    images: product.images
                 },
             };
         });
