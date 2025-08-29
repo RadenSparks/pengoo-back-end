@@ -23,10 +23,11 @@ let WishlistController = class WishlistController {
     }
     addToWishlist(body, productId) {
         const userId = Number(body.userId);
-        if (!body || isNaN(userId)) {
-            throw new common_1.BadRequestException('userId là bắt buộc và phải là số');
+        const prodId = Number(productId);
+        if (!body || isNaN(userId) || isNaN(prodId)) {
+            throw new common_1.BadRequestException('userId và productId là bắt buộc và phải là số');
         }
-        return this.wishlistService.addToWishlist(userId, Number(productId));
+        return this.wishlistService.addToWishlist(userId, prodId);
     }
     removeFromWishlist(body, productId) {
         const userId = Number(body.userId);
@@ -39,8 +40,10 @@ let WishlistController = class WishlistController {
         const items = await this.wishlistService.viewWishlist(Number(userId));
         return items.map(item => {
             const product = item.product;
+            const imagesArr = Array.isArray(product.images)
+                ? product.images.filter((img) => !img.deletedAt)
+                : [];
             let mainImage = '';
-            const imagesArr = Array.isArray(product.images) ? product.images : [];
             if (imagesArr.length > 0) {
                 const mainImgObj = imagesArr.find((img) => img.name === 'main');
                 mainImage = mainImgObj?.url || imagesArr[0]?.url || '';
@@ -50,7 +53,7 @@ let WishlistController = class WishlistController {
                 product: {
                     ...product,
                     image: mainImage,
-                    images: imagesArr
+                    images: imagesArr,
                 },
             };
         });

@@ -40,16 +40,15 @@ export class WishlistService {
   }
 
   async viewWishlist(userId: number): Promise<Wishlist[]> {
-    // Fetch wishlist with product and product.images
+    // Explicitly load product.images relation
     const items = await this.wishlistRepository.find({
       where: { user: { id: userId }, movedToOrder: IsNull() },
       relations: ['product', 'product.images'],
       order: { createdAt: 'DESC' },
     });
 
-    // Ensure each product.images is a full array and not missing
+    // Defensive: ensure images is always an array
     return items.map(item => {
-      // Defensive: fallback to empty array if images missing
       if (item.product && !Array.isArray(item.product.images)) {
         item.product.images = [];
       }
