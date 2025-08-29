@@ -35,8 +35,23 @@ let WishlistController = class WishlistController {
         }
         return this.wishlistService.removeFromWishlist(userId, Number(productId));
     }
-    viewWishlist(userId) {
-        return this.wishlistService.viewWishlist(Number(userId));
+    async viewWishlist(userId) {
+        const items = await this.wishlistService.viewWishlist(Number(userId));
+        return items.map(item => {
+            const product = item.product;
+            let mainImage = '';
+            if (product.images && Array.isArray(product.images)) {
+                const mainImgObj = product.images.find((img) => img.name === 'main');
+                mainImage = mainImgObj?.url || product.images[0]?.url || '';
+            }
+            return {
+                ...item,
+                product: {
+                    ...product,
+                    image: mainImage,
+                },
+            };
+        });
     }
     async moveToOrder(body, orderId) {
         const userId = Number(body.userId);
@@ -104,7 +119,7 @@ __decorate([
     __param(0, (0, common_1.Query)('userId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], WishlistController.prototype, "viewWishlist", null);
 __decorate([
     (0, common_1.Post)('move-to-order/:orderId'),

@@ -68,8 +68,24 @@ export class WishlistController {
   @Get()
   @ApiOperation({ summary: 'View wishlist' })
   @ApiQuery({ name: 'userId', type: Number, required: true })
-  viewWishlist(@Query('userId') userId: number) {
-    return this.wishlistService.viewWishlist(Number(userId));
+  async viewWishlist(@Query('userId') userId: number) {
+    const items = await this.wishlistService.viewWishlist(Number(userId));
+    // Map main image for each product
+    return items.map(item => {
+      const product = item.product as any;
+      let mainImage = '';
+      if (product.images && Array.isArray(product.images)) {
+        const mainImgObj = product.images.find((img: any) => img.name === 'main');
+        mainImage = mainImgObj?.url || product.images[0]?.url || '';
+      }
+      return {
+        ...item,
+        product: {
+          ...product,
+          image: mainImage,
+        },
+      };
+    });
   }
 
   @Post('move-to-order/:orderId')
