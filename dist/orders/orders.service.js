@@ -283,10 +283,7 @@ let OrdersService = class OrdersService {
             if (previousRequests.length >= 3) {
                 throw new common_1.BadRequestException('Bạn đã đạt đến số lượng yêu cầu hoàn tiền tối đa cho đơn đặt hàng này.');
             }
-            const dropdownReasons = ['defective', 'missing', 'wrong'];
-            if (!data.reason ||
-                (!dropdownReasons.includes(data.reason) &&
-                    data.reason.trim().length < 10)) {
+            if (!data.reason) {
                 throw new common_1.BadRequestException('Vui lòng cung cấp lý do chi tiết cho yêu cầu hoàn tiền của bạn (ít nhất 10 ký tự cho lý do tùy chỉnh).');
             }
             let refundAmount = order.total_price;

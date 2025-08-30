@@ -340,14 +340,7 @@ export class OrdersService {
       }
 
       // 4. Validate reason and evidence
-      const dropdownReasons = ['defective', 'missing', 'wrong'];
-      if (
-        !data.reason ||
-        (
-          !dropdownReasons.includes(data.reason) &&
-          data.reason.trim().length < 10
-        )
-      ) {
+      if (!data.reason) {
         throw new BadRequestException('Vui lòng cung cấp lý do chi tiết cho yêu cầu hoàn tiền của bạn (ít nhất 10 ký tự cho lý do tùy chỉnh).');
       }
 
